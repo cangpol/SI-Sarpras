@@ -130,3 +130,4 @@ class Frontend extends BaseController
         return redirect()->back()->with('message', 'Request Supplies/ATK berhasil dikirim!');
     }
 }
+

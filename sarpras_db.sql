@@ -127,3 +127,4 @@ CREATE TABLE IF NOT EXISTS `supply_requests` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 COMMIT;
+
