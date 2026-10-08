@@ -74,13 +74,18 @@ class Frontend extends BaseController
     {
         $db = \Config\Database::connect();
         $db->table('room_bookings')->insert([
-            'room_id' => $this->request->getPost('room_id'),
-            'booker_name' => $this->request->getPost('booker_name'),
-            'event_name' => $this->request->getPost('event_name'),
-            'start_time' => $this->request->getPost('start_time'),
-            'end_time' => $this->request->getPost('end_time'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'room_id'         => $this->request->getPost('room_id'),
+            'booking_date'    => $this->request->getPost('booking_date'),
+            'start_time'      => $this->request->getPost('start_time'),
+            'end_time'        => $this->request->getPost('end_time'),
+            'booker_name'     => $this->request->getPost('booker_name'),
+            'department'      => $this->request->getPost('department'),
+            'event_name'      => $this->request->getPost('event_name'),
+            'setup'           => $this->request->getPost('setup'),
+            'material_needed' => $this->request->getPost('material_needed'),
+            'special_request' => $this->request->getPost('special_request'),
+            'created_at'      => date('Y-m-d H:i:s'),
+            'updated_at'      => date('Y-m-d H:i:s')
         ]);
         return redirect()->back()->with('message', 'Form Peminjaman Ruangan berhasil dikirim dan menunggu persetujuan!');
     }
@@ -95,13 +100,20 @@ class Frontend extends BaseController
     {
         $db = \Config\Database::connect();
         $db->table('vehicle_bookings')->insert([
-            'vehicle_id' => $this->request->getPost('vehicle_id'),
-            'booker_name' => $this->request->getPost('booker_name'),
-            'destination' => $this->request->getPost('destination'),
-            'start_time' => $this->request->getPost('start_time'),
-            'end_time' => $this->request->getPost('end_time'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'vehicle_id'   => $this->request->getPost('vehicle_id'),
+            'booking_date' => $this->request->getPost('booking_date'),
+            'booking_day'  => $this->request->getPost('booking_day'),
+            'start_time'   => $this->request->getPost('start_time'),
+            'end_time'     => $this->request->getPost('end_time'),
+            'booker_name'  => $this->request->getPost('booker_name'),
+            'department'   => $this->request->getPost('department'),
+            'destination'  => $this->request->getPost('destination'),
+            'description'  => $this->request->getPost('description'),
+            'driver_name'  => $this->request->getPost('driver_name'),
+            'km_in'        => $this->request->getPost('km_in') ?: null,
+            'km_out'       => $this->request->getPost('km_out') ?: null,
+            'created_at'   => date('Y-m-d H:i:s'),
+            'updated_at'   => date('Y-m-d H:i:s')
         ]);
         return redirect()->back()->with('message', 'Form Peminjaman Kendaraan berhasil dikirim dan menunggu persetujuan!');
     }
