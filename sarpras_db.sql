@@ -103,9 +103,10 @@ CREATE TABLE IF NOT EXISTS `vehicle_bookings` (
 
 CREATE TABLE IF NOT EXISTS `maintenance_requests` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `requester_name` varchar(100) NOT NULL,
-  `asset_name` varchar(100) NOT NULL,
-  `location` varchar(100) NOT NULL,
+  `requester_name` varchar(150) NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `location` varchar(255) NOT NULL,
+  `facility` varchar(150) NOT NULL,
   `description` text NOT NULL,
   `status` enum('pending','in_progress','resolved') NOT NULL DEFAULT 'pending',
   `created_at` datetime DEFAULT NULL,
@@ -115,9 +116,9 @@ CREATE TABLE IF NOT EXISTS `maintenance_requests` (
 
 CREATE TABLE IF NOT EXISTS `supplies` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `item_name` varchar(100) NOT NULL,
+  `item_name` varchar(150) NOT NULL,
   `stock` int(11) NOT NULL DEFAULT 0,
-  `unit` varchar(20) NOT NULL,
+  `unit` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -128,10 +129,13 @@ INSERT INTO `supplies` (`id`, `item_name`, `stock`, `unit`) VALUES
 
 CREATE TABLE IF NOT EXISTS `supply_requests` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `email` varchar(150) NOT NULL,
+  `requester_name` varchar(150) NOT NULL,
+  `department` varchar(150) NOT NULL,
+  `date_requested` date NOT NULL,
+  `date_needed` date NOT NULL,
   `supply_id` int(11) UNSIGNED NOT NULL,
-  `requester_name` varchar(100) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `reason` text NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,

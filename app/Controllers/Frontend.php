@@ -126,13 +126,20 @@ class Frontend extends BaseController
     public function submitMaintenance()
     {
         $db = \Config\Database::connect();
+        
+        $facility = $this->request->getPost('facility');
+        if ($facility === 'Others') {
+            $facility = $this->request->getPost('facility_other');
+        }
+        
         $db->table('maintenance_requests')->insert([
             'requester_name' => $this->request->getPost('requester_name'),
-            'asset_name' => $this->request->getPost('asset_name'),
-            'location' => $this->request->getPost('location'),
-            'description' => $this->request->getPost('description'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'department'     => $this->request->getPost('department'),
+            'location'       => $this->request->getPost('location'),
+            'facility'       => $facility,
+            'description'    => $this->request->getPost('description'),
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s')
         ]);
         return redirect()->back()->with('message', 'Request Maintenance berhasil dikirim!');
     }
@@ -147,12 +154,15 @@ class Frontend extends BaseController
     {
         $db = \Config\Database::connect();
         $db->table('supply_requests')->insert([
-            'supply_id' => $this->request->getPost('supply_id'),
+            'email'          => $this->request->getPost('email'),
             'requester_name' => $this->request->getPost('requester_name'),
-            'quantity' => $this->request->getPost('quantity'),
-            'reason' => $this->request->getPost('reason'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'department'     => $this->request->getPost('department'),
+            'date_requested' => $this->request->getPost('date_requested'),
+            'date_needed'    => $this->request->getPost('date_needed'),
+            'supply_id'      => $this->request->getPost('supply_id'),
+            'quantity'       => $this->request->getPost('quantity') ?: 1,
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s')
         ]);
         return redirect()->back()->with('message', 'Request Supplies/ATK berhasil dikirim!');
     }
