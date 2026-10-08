@@ -8,12 +8,13 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `lost_found` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `item_name` varchar(150) NOT NULL,
-  `location_found` varchar(150) NOT NULL,
-  `finder_name` varchar(100) NOT NULL,
+  `reporter_name` varchar(150) NOT NULL,
+  `reporter_status` varchar(100) NOT NULL,
+  `lost_item` varchar(255) NOT NULL,
   `contact` varchar(50) NOT NULL,
-  `description` text,
-  `status` enum('found','claimed') NOT NULL DEFAULT 'found',
+  `incident_date` date NOT NULL,
+  `incident_time` time NOT NULL,
+  `status` enum('reported','found','claimed') NOT NULL DEFAULT 'reported',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -21,11 +22,11 @@ CREATE TABLE IF NOT EXISTS `lost_found` (
 
 CREATE TABLE IF NOT EXISTS `visitors` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `visitor_name` varchar(100) NOT NULL,
-  `id_type` varchar(50) NOT NULL,
-  `id_number` varchar(50) NOT NULL,
-  `purpose` text NOT NULL,
-  `host_name` varchar(100) NOT NULL,
+  `visitor_name` varchar(150) NOT NULL,
+  `institution` varchar(150) NOT NULL,
+  `contact` varchar(50) NOT NULL,
+  `purpose` varchar(255) NOT NULL,
+  `host_name` varchar(150) NOT NULL,
   `check_in` datetime DEFAULT NULL,
   `check_out` datetime DEFAULT NULL,
   `status` enum('checked_in','checked_out') NOT NULL DEFAULT 'checked_in',
@@ -127,4 +128,5 @@ CREATE TABLE IF NOT EXISTS `supply_requests` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 COMMIT;
+
 

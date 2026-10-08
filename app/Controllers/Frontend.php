@@ -13,39 +13,54 @@ class Frontend extends BaseController
     {
         return view('pelaporan/lost_found');
     }
-    public function submitLostFound()
+        public function submitLostFound()
     {
         $db = \Config\Database::connect();
+        
+        $status = $this->request->getPost('reporter_status');
+        if ($status === 'Others') {
+            $status = $this->request->getPost('reporter_status_other');
+        }
+
         $db->table('lost_found')->insert([
-            'item_name' => $this->request->getPost('item_name'),
-            'location_found' => $this->request->getPost('location_found'),
-            'finder_name' => $this->request->getPost('finder_name'),
-            'contact' => $this->request->getPost('contact'),
-            'description' => $this->request->getPost('description'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'reporter_name'   => $this->request->getPost('reporter_name'),
+            'reporter_status' => $status,
+            'lost_item'       => $this->request->getPost('lost_item'),
+            'contact'         => $this->request->getPost('contact'),
+            'incident_date'   => $this->request->getPost('incident_date'),
+            'incident_time'   => $this->request->getPost('incident_time'),
+            'status'          => 'reported',
+            'created_at'      => date('Y-m-d H:i:s'),
+            'updated_at'      => date('Y-m-d H:i:s')
         ]);
-        return redirect()->back()->with('message', 'Laporan Lost & Found berhasil disubmit!');
+        return redirect()->back()->with('message', 'Laporan Barang Hilang berhasil dikirim!');
     }
 
     public function visitor()
     {
         return view('pelaporan/visitor');
     }
-    public function submitVisitor()
+        public function submitVisitor()
     {
         $db = \Config\Database::connect();
+        
+        $purpose = $this->request->getPost('purpose');
+        if ($purpose === 'Others') {
+            $purpose = $this->request->getPost('purpose_other');
+        }
+
         $db->table('visitors')->insert([
             'visitor_name' => $this->request->getPost('visitor_name'),
-            'id_type' => $this->request->getPost('id_type'),
-            'id_number' => $this->request->getPost('id_number'),
-            'purpose' => $this->request->getPost('purpose'),
-            'host_name' => $this->request->getPost('host_name'),
-            'check_in' => date('Y-m-d H:i:s'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'institution'  => $this->request->getPost('institution'),
+            'contact'      => $this->request->getPost('contact'),
+            'purpose'      => $purpose,
+            'host_name'    => $this->request->getPost('host_name'),
+            'check_in'     => date('Y-m-d H:i:s'),
+            'status'       => 'checked_in',
+            'created_at'   => date('Y-m-d H:i:s'),
+            'updated_at'   => date('Y-m-d H:i:s')
         ]);
-        return redirect()->back()->with('message', 'Registrasi Visitor ID Pass berhasil!');
+        return redirect()->back()->with('message', 'Registrasi Visitor ID Pass berhasil disubmit!');
     }
 
     // --- PEMINJAMAN ---
@@ -130,4 +145,5 @@ class Frontend extends BaseController
         return redirect()->back()->with('message', 'Request Supplies/ATK berhasil dikirim!');
     }
 }
+
 
