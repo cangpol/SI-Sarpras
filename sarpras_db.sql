@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `rooms` (`id`, `room_name`, `capacity`) VALUES
-(1, 'Excellence', 50),
-(2, 'Compassion', 40),
-(3, 'Integrity', 40),
+(1, 'Excellent Meeting Room', 50),
+(2, 'Compassion Meeting Room', 40),
+(3, 'Integrity Meeting Room', 40),
 (4, 'Auditorium', 200),
 (5, 'Multi Function Hall', 150);
 

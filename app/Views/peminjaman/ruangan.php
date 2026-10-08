@@ -11,27 +11,15 @@
         <form method="post" action="/peminjaman/ruangan">
             
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Tanggal Peminjaman</label>
                     <input type="date" name="booking_date" class="form-control" required>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Pilih Ruangan</label>
-                    <select name="room_id" class="form-control" required>
-                        <option value="" disabled selected>-- Pilih Ruangan --</option>
-                        <?php foreach($rooms as $r): ?>
-                            <option value="<?= $r['id'] ?>"><?= $r['room_name'] ?> (Kapasitas: <?= $r['capacity'] ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Waktu Masuk</label>
                     <input type="time" name="start_time" class="form-control" required>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Waktu Keluar</label>
                     <input type="time" name="end_time" class="form-control" required>
                 </div>
@@ -46,6 +34,16 @@
                     <label class="form-label fw-bold">Department</label>
                     <input type="text" name="department" class="form-control" placeholder="Department / Bagian" required>
                 </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Pilih Ruangan</label>
+                <select name="room_id" class="form-control" required>
+                    <option value="" disabled selected>-- Pilih Ruangan --</option>
+                    <?php foreach($rooms as $r): ?>
+                        <option value="<?= $r['id'] ?>"><?= $r['room_name'] ?> (Kapasitas: <?= $r['capacity'] ?>)</option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="mb-3">
