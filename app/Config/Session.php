@@ -23,6 +23,13 @@ class Session extends BaseConfig
      */
     public string $driver = FileHandler::class;
 
+    public function __construct()
+    {
+        if (isset($_ENV['VERCEL']) || getenv('VERCEL')) {
+            $this->driver = \CodeIgniter\Session\Handlers\DatabaseHandler::class;
+            $this->savePath = 'ci_sessions';
+        }
+    }
     /**
      * --------------------------------------------------------------------------
      * Session Cookie Name
