@@ -182,7 +182,14 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container">
-    <a class="navbar-brand" href="/">SI-Sarpras UPT</a>
+    <a class="navbar-brand d-flex align-items-center" href="/">
+        <!-- Pastikan Anda menyimpan file logo.png di dalam folder public -->
+        <img src="/logo.png" alt="Logo UPT" style="height: 50px; width: auto; margin-right: 15px; border-radius: 8px;">
+        <div style="line-height: 1.2;">
+            <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: 1px;">SARPRAS</div>
+            <div style="font-size: 0.85rem; font-weight: 400; opacity: 0.9; letter-spacing: 0.5px;">Universitas Pignatelli Triputra</div>
+        </div>
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
