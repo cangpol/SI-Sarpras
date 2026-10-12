@@ -149,14 +149,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) DEFAULT NULL,
-  `role` enum('admin','staff') NOT NULL DEFAULT 'admin',
+  `role` enum('super_admin','admin','user') NOT NULL DEFAULT 'user',
+  `department` varchar(100) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin123', 'Administrator Sarpras', 'admin@pignatelli.ac.id', 'admin', NOW(), NOW());
+INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `department`, `created_at`, `updated_at`) VALUES
+(1, 'superadmin', 'superadmin123', 'Tim Biro IT', 'it@pignatelli.ac.id', 'super_admin', 'Biro IT', NOW(), NOW()),
+(2, 'admin', 'admin123', 'Biro Sarana dan Prasarana', 'sarpras@pignatelli.ac.id', 'admin', 'Sarpras', NOW(), NOW()),
+(3, 'user', 'user123', 'Budi Santoso', 'budi@pignatelli.ac.id', 'user', 'Dosen / Mahasiswa', NOW(), NOW());
 
 COMMIT;
 

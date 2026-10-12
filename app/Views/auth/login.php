@@ -75,6 +75,15 @@
                         </button>
                     </div>
 
+                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                        <small class="text-muted d-block fw-bold mb-1">Akses Akun (Level Auth):</small>
+                        <div class="row g-1 small text-muted">
+                            <div class="col-12"><span class="badge bg-danger">Super Admin</span> <code>superadmin</code> / <code>superadmin123</code> (Biro IT)</div>
+                            <div class="col-12"><span class="badge bg-primary">Admin</span> <code>admin</code> / <code>admin123</code> (Sarpras)</div>
+                            <div class="col-12"><span class="badge bg-success">User</span> <code>user</code> / <code>user123</code> (Mhs & Dosen)</div>
+                        </div>
+                    </div>
+
                     <div class="text-center mt-3">
                         <a href="/" class="text-decoration-none text-muted small d-inline-flex align-items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
@@ -104,3 +113,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?= $this->endSection() ?>
+

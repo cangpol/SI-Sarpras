@@ -225,17 +225,28 @@
 
         <?php if(session()->get('isLoggedIn')): ?>
         <li class="nav-item dropdown ms-lg-3 my-auto">
-          <a class="nav-link dropdown-toggle btn-login-nav text-white px-3 py-1" href="#" role="button" data-bs-toggle="dropdown">
+          <a class="nav-link dropdown-toggle btn-login-nav text-white px-3 py-1 d-inline-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
               <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
               <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
             </svg>
-            <?= esc(session()->get('user_name') ?? 'Admin') ?>
+            <span><?= esc(session()->get('user_name') ?? 'Admin') ?></span>
+            <?php 
+              $role = session()->get('role');
+              $roleLabel = 'User';
+              $badgeClass = 'bg-light text-dark';
+              if ($role === 'super_admin') { $roleLabel = 'Biro IT'; $badgeClass = 'bg-warning text-dark'; }
+              elseif ($role === 'admin') { $roleLabel = 'Sarpras'; $badgeClass = 'bg-info text-dark'; }
+            ?>
+            <span class="badge <?= $badgeClass ?> ms-2 px-2 py-1" style="font-size: 0.7rem; font-weight: 700;"><?= $roleLabel ?></span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+            <li class="px-3 py-2 text-muted small border-bottom">
+              Hak Akses: <strong class="text-primary"><?= $role === 'super_admin' ? 'Super Admin (Biro IT)' : ($role === 'admin' ? 'Admin (Sarpras)' : 'User (Mahasiswa & Dosen)') ?></strong>
+            </li>
+            <li><a class="dropdown-item py-2" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
           </ul>
         </li>
         <?php else: ?>
