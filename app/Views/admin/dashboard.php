@@ -18,6 +18,12 @@ if ($role === 'super_admin') {
     $roleName = 'User (Mahasiswa / Dosen)';
     $roleBadgeClass = 'bg-success';
 }
+
+$departments = [
+    'Finance', 'SDM', 'LPPM', 'LPM', 'Kerjasama', 'IT', 'Kemahasiswaan', 
+    'BAA', 'Marketing', 'Rektorat', 'Sekretariat', 'FEB', 'FSH', 'FST', 
+    'Yayasan & Ten', 'Sarpras', 'Mahasiswa', 'Security', 'CS'
+];
 ?>
 
 <!-- Kartu Selamat Datang & Profil Akun yang Login -->
@@ -111,19 +117,56 @@ if ($role === 'super_admin') {
                     </button>
 
                     <?php if (in_array($role, ['super_admin', 'admin'])): ?>
+                    <!-- MENU CRUD PELAPORAN -->
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-pelaporan-btn" data-bs-toggle="pill" data-bs-target="#tab-pelaporan" type="button" role="tab">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-clipboard-data me-2" viewBox="0 0 16 16">
+                            <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
+                        </svg>
+                        CRUD Pelaporan
+                    </button>
+
+                    <!-- MENU CRUD PEMINJAMAN -->
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-peminjaman-btn" data-bs-toggle="pill" data-bs-target="#tab-peminjaman" type="button" role="tab">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-calendar2-range me-2" viewBox="0 0 16 16">
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 3.5v1c0 .276.244.5.545.5h10.91c.3 0 .545-.224.545-.5v-1c0-.276-.244-.5-.546-.5H2.545C2.245 3 2 3.224 2 3.5m1 4a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
+                        </svg>
+                        CRUD Peminjaman
+                    </button>
+
+                    <!-- MENU CRUD REQUEST -->
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-request-btn" data-bs-toggle="pill" data-bs-target="#tab-request" type="button" role="tab">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-tools me-2" viewBox="0 0 16 16">
+                            <path d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.27 3.27a.997.997 0 0 0 1.414 0l1.586-1.586a.997.997 0 0 0 0-1.414l-3.27-3.27a1 1 0 0 0-1.023-.242L10.5 9.5l-.969-.969 2.676-2.675a1 1 0 0 1 .707-.293h.07a1 1 0 0 0 .815-.419L16 1 15 0 11.919 2.2a1 1 0 0 0-.419.815v.07a1 1 0 0 1-.293.708L8.532 6.468 6.468 4.404l2.675-2.676a1 1 0 0 1 .708-.293h.07a1 1 0 0 0 .815-.419z"/>
+                        </svg>
+                        CRUD Request
+                    </button>
+
+                    <!-- MENU CRUD SUPPLIES -->
                     <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-supplies-btn" data-bs-toggle="pill" data-bs-target="#tab-supplies" type="button" role="tab">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-box-seam me-2" viewBox="0 0 16 16">
                             <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
                         </svg>
-                        Manajemen Supplies (ATK)
+                        Stok Supplies (ATK)
                     </button>
 
+                    <!-- MENU VERIFIKASI -->
                     <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-verifikasi-btn" data-bs-toggle="pill" data-bs-target="#tab-verifikasi" type="button" role="tab">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check2-square me-2" viewBox="0 0 16 16">
                             <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5z"/>
                             <path d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0"/>
                         </svg>
-                        Verifikasi Permohonan
+                        Verifikasi Status
+                    </button>
+
+                    <!-- MENU USERS -->
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-users-btn" data-bs-toggle="pill" data-bs-target="#tab-users" type="button" role="tab">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-gear me-2" viewBox="0 0 16 16">
+                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
+                            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+                        </svg>
+                        Setting Manajemen Users
                     </button>
                     <?php endif; ?>
 
@@ -135,16 +178,6 @@ if ($role === 'super_admin') {
                         Pengajuan Saya
                     </button>
                     <?php endif; ?>
-
-                    <?php if (in_array($role, ['super_admin', 'admin'])): ?>
-                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-users-btn" data-bs-toggle="pill" data-bs-target="#tab-users" type="button" role="tab">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-gear me-2" viewBox="0 0 16 16">
-                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
-                            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
-                        </svg>
-                        Setting Manajemen Users
-                    </button>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -154,43 +187,62 @@ if ($role === 'super_admin') {
     <div class="col-lg-9">
         <div class="tab-content" id="dashboardTabContent">
 
-            <!-- TAB A: OVERVIEW & RINGKASAN -->
+            <!-- ============================================== -->
+            <!-- TAB 1: OVERVIEW & RINGKASAN -->
+            <!-- ============================================== -->
             <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
-                <!-- Statistik Card -->
                 <div class="row g-3 mb-4">
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-sm-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm border-start border-4 border-success">
                             <div class="card-body">
                                 <div class="text-muted small fw-semibold text-uppercase">Ruangan</div>
                                 <h3 class="fw-bold my-1 text-success"><?= esc($stats['room_bookings'] ?? 0) ?></h3>
-                                <small class="text-muted">Booking Ruangan</small>
+                                <small class="text-muted">Total Booking Ruangan</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-sm-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm border-start border-4 border-primary">
                             <div class="card-body">
                                 <div class="text-muted small fw-semibold text-uppercase">Kendaraan</div>
                                 <h3 class="fw-bold my-1 text-primary"><?= esc($stats['vehicle_bookings'] ?? 0) ?></h3>
-                                <small class="text-muted">Booking Mobil Dinas</small>
+                                <small class="text-muted">Total Booking Mobil Dinas</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-sm-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm border-start border-4 border-warning">
                             <div class="card-body">
                                 <div class="text-muted small fw-semibold text-uppercase">Maintenance</div>
                                 <h3 class="fw-bold my-1 text-warning"><?= esc($stats['maintenance'] ?? 0) ?></h3>
-                                <small class="text-muted">Perbaikan Fasilitas</small>
+                                <small class="text-muted">Laporan Perbaikan Fasilitas</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-sm-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm border-start border-4 border-danger">
                             <div class="card-body">
                                 <div class="text-muted small fw-semibold text-uppercase">Supplies (ATK)</div>
                                 <h3 class="fw-bold my-1 text-danger"><?= esc($stats['supplies'] ?? 0) ?></h3>
-                                <small class="text-muted">Permintaan Barang</small>
+                                <small class="text-muted">Permintaan Barang Masuk</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm border-start border-4 border-info">
+                            <div class="card-body">
+                                <div class="text-muted small fw-semibold text-uppercase">Lost & Found</div>
+                                <h3 class="fw-bold my-1 text-info"><?= esc($stats['lost_found'] ?? 0) ?></h3>
+                                <small class="text-muted">Barang Hilang / Ditemukan</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm border-start border-4 border-secondary">
+                            <div class="card-body">
+                                <div class="text-muted small fw-semibold text-uppercase">Visitor (Tamu)</div>
+                                <h3 class="fw-bold my-1 text-secondary"><?= esc($stats['visitors'] ?? 0) ?></h3>
+                                <small class="text-muted">Kunjungan Tamu Kampus</small>
                             </div>
                         </div>
                     </div>
@@ -199,7 +251,7 @@ if ($role === 'super_admin') {
                 <!-- Akses Cepat Formulir Depan -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-header bg-white border-0 py-3">
-                        <h5 class="fw-bold mb-0 text-primary">Akses Cepat Pengajuan & Formulir</h5>
+                        <h5 class="fw-bold mb-0 text-primary">Akses Cepat Pengajuan & Formulir Publik</h5>
                     </div>
                     <div class="card-body pt-0">
                         <div class="row g-2">
@@ -238,14 +290,985 @@ if ($role === 'super_admin') {
                 </div>
             </div>
 
-            <!-- TAB B: CRUD SUPPLIES (Nama Barang, Jumlah, Satuan, Stock, Batas) -->
+            <!-- ============================================== -->
+            <!-- TAB 2: CRUD PELAPORAN (LOST & FOUND + VISITOR) -->
+            <!-- ============================================== -->
+            <?php if (in_array($role, ['super_admin', 'admin'])): ?>
+            <div class="tab-pane fade" id="tab-pelaporan" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-primary">
+                                    <i class="bi bi-clipboard-data me-2"></i>Manajemen Pelaporan
+                                </h4>
+                                <small class="text-muted">Kelola data Pelaporan Barang Hilang (Lost & Found) dan Buku Tamu Kampus (Visitors).</small>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Nav Pelaporan -->
+                        <ul class="nav nav-pills" id="pelaporanSubTab" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active rounded-pill px-4" id="sub-lostfound-tab" data-bs-toggle="pill" data-bs-target="#sub-lostfound" type="button" role="tab">
+                                    Lost & Found (<?= count($allLostFound) ?>)
+                                </button>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <button class="nav-link rounded-pill px-4" id="sub-visitor-tab" data-bs-toggle="pill" data-bs-target="#sub-visitor" type="button" role="tab">
+                                    Buku Tamu / Visitor (<?= count($allVisitors) ?>)
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body pt-0">
+                        <div class="tab-content">
+                            <!-- SUB-TAB: LOST & FOUND -->
+                            <div class="tab-pane fade show active" id="sub-lostfound" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0">Daftar Laporan Lost & Found</h6>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddLostFound">
+                                        + Tambah Laporan
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Pelapor</th>
+                                                <th>Barang Hilang</th>
+                                                <th>Kontak</th>
+                                                <th>Waktu Kejadian</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($allLostFound)): ?>
+                                                <?php $no = 1; foreach ($allLostFound as $lf): ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td>
+                                                            <strong><?= esc($lf['reporter_name']) ?></strong><br>
+                                                            <small class="text-muted"><?= esc($lf['reporter_status']) ?></small>
+                                                        </td>
+                                                        <td><strong><?= esc($lf['lost_item']) ?></strong></td>
+                                                        <td><?= esc($lf['contact']) ?></td>
+                                                        <td>
+                                                            <?= esc($lf['incident_date']) ?><br>
+                                                            <small class="text-muted"><?= esc($lf['incident_time']) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($lf['status'] === 'claimed'): ?>
+                                                                <span class="badge bg-success">Claimed (Diambil)</span>
+                                                            <?php elseif ($lf['status'] === 'found'): ?>
+                                                                <span class="badge bg-info text-dark">Found (Ditemukan)</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-warning text-dark">Reported</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditLostFound<?= $lf['id'] ?>">Edit</button>
+                                                                <form method="post" action="/dashboard/pelaporan/lost-found/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus laporan <?= esc($lf['lost_item']) ?>?');">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $lf['id'] ?>">
+                                                                    <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- MODAL EDIT LOST FOUND -->
+                                                    <div class="modal fade" id="modalEditLostFound<?= $lf['id'] ?>" tabindex="-1">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 shadow rounded-4">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold">Edit Laporan Lost & Found</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <form method="post" action="/dashboard/pelaporan/lost-found/update">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $lf['id'] ?>">
+                                                                    <div class="modal-body">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Nama Pelapor</label>
+                                                                            <input type="text" name="reporter_name" class="form-control" value="<?= esc($lf['reporter_name']) ?>" required>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Status Pelapor</label>
+                                                                                <input type="text" name="reporter_status" class="form-control" value="<?= esc($lf['reporter_status']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">No. Kontak / WA</label>
+                                                                                <input type="text" name="contact" class="form-control" value="<?= esc($lf['contact']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Nama Barang Hilang</label>
+                                                                            <input type="text" name="lost_item" class="form-control" value="<?= esc($lf['lost_item']) ?>" required>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Tanggal Kejadian</label>
+                                                                                <input type="date" name="incident_date" class="form-control" value="<?= esc($lf['incident_date']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Waktu Kejadian</label>
+                                                                                <input type="time" name="incident_time" class="form-control" value="<?= esc($lf['incident_time']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Status Barang</label>
+                                                                            <select name="status" class="form-select">
+                                                                                <option value="reported" <?= $lf['status'] === 'reported' ? 'selected' : '' ?>>Reported (Barang Dilaporkan)</option>
+                                                                                <option value="found" <?= $lf['status'] === 'found' ? 'selected' : '' ?>>Found (Barang Ditemukan)</option>
+                                                                                <option value="claimed" <?= $lf['status'] === 'claimed' ? 'selected' : '' ?>>Claimed (Sudah Diambil Pemilik)</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Simpan</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr><td colspan="7" class="text-center py-4 text-muted">Belum ada data Lost & Found.</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- SUB-TAB: BUKU TAMU / VISITOR -->
+                            <div class="tab-pane fade" id="sub-visitor" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0">Daftar Buku Tamu (Visitor)</h6>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddVisitor">
+                                        + Tambah Tamu
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Nama Tamu & Instansi</th>
+                                                <th>Kontak</th>
+                                                <th>Keperluan</th>
+                                                <th>Host yang Dituju</th>
+                                                <th>Waktu Check In / Out</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($allVisitors)): ?>
+                                                <?php $no = 1; foreach ($allVisitors as $vt): ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td>
+                                                            <strong><?= esc($vt['visitor_name']) ?></strong><br>
+                                                            <small class="text-muted"><?= esc($vt['institution']) ?></small>
+                                                        </td>
+                                                        <td><?= esc($vt['contact']) ?></td>
+                                                        <td><?= esc($vt['purpose']) ?></td>
+                                                        <td><?= esc($vt['host_name']) ?></td>
+                                                        <td>
+                                                            <small class="d-block text-success">In: <?= esc($vt['check_in'] ?? '-') ?></small>
+                                                            <small class="d-block text-secondary">Out: <?= esc($vt['check_out'] ?? 'Belum Keluar') ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($vt['status'] === 'checked_out'): ?>
+                                                                <span class="badge bg-secondary">Checked Out</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-success">Checked In (Aktif)</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditVisitor<?= $vt['id'] ?>">Edit</button>
+                                                                <form method="post" action="/dashboard/pelaporan/visitor/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus data tamu <?= esc($vt['visitor_name']) ?>?');">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $vt['id'] ?>">
+                                                                    <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- MODAL EDIT VISITOR -->
+                                                    <div class="modal fade" id="modalEditVisitor<?= $vt['id'] ?>" tabindex="-1">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 shadow rounded-4">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold">Edit Kunjungan Tamu</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <form method="post" action="/dashboard/pelaporan/visitor/update">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $vt['id'] ?>">
+                                                                    <div class="modal-body">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Nama Pengunjung</label>
+                                                                            <input type="text" name="visitor_name" class="form-control" value="<?= esc($vt['visitor_name']) ?>" required>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Instansi / Asal</label>
+                                                                                <input type="text" name="institution" class="form-control" value="<?= esc($vt['institution']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Kontak</label>
+                                                                                <input type="text" name="contact" class="form-control" value="<?= esc($vt['contact']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Keperluan</label>
+                                                                            <input type="text" name="purpose" class="form-control" value="<?= esc($vt['purpose']) ?>" required>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Host / Yang Dituju</label>
+                                                                            <input type="text" name="host_name" class="form-control" value="<?= esc($vt['host_name']) ?>" required>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Check-In</label>
+                                                                                <input type="text" name="check_in" class="form-control" value="<?= esc($vt['check_in'] ?? '') ?>">
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Check-Out</label>
+                                                                                <input type="text" name="check_out" class="form-control" value="<?= esc($vt['check_out'] ?? '') ?>" placeholder="YYYY-MM-DD HH:MM:SS">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Status Tamu</label>
+                                                                            <select name="status" class="form-select">
+                                                                                <option value="checked_in" <?= $vt['status'] === 'checked_in' ? 'selected' : '' ?>>Checked In (Masih di Kampus)</option>
+                                                                                <option value="checked_out" <?= $vt['status'] === 'checked_out' ? 'selected' : '' ?>>Checked Out (Sudah Keluar)</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Simpan</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr><td colspan="8" class="text-center py-4 text-muted">Belum ada data kunjungan tamu.</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- ============================================== -->
+            <!-- TAB 3: CRUD PEMINJAMAN (RUANGAN + KENDARAAN) -->
+            <!-- ============================================== -->
+            <?php if (in_array($role, ['super_admin', 'admin'])): ?>
+            <div class="tab-pane fade" id="tab-peminjaman" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-success">
+                                    <i class="bi bi-calendar2-range me-2"></i>Manajemen Peminjaman
+                                </h4>
+                                <small class="text-muted">Kelola data Peminjaman Ruangan Rapat/Auditorium dan Peminjaman Kendaraan Operasional Kampus.</small>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Nav Peminjaman -->
+                        <ul class="nav nav-pills" id="peminjamanSubTab" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active rounded-pill px-4" id="sub-ruangan-tab" data-bs-toggle="pill" data-bs-target="#sub-ruangan" type="button" role="tab">
+                                    Peminjaman Ruangan (<?= count($allRoomBookings) ?>)
+                                </button>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <button class="nav-link rounded-pill px-4" id="sub-kendaraan-tab" data-bs-toggle="pill" data-bs-target="#sub-kendaraan" type="button" role="tab">
+                                    Peminjaman Kendaraan (<?= count($allVehicleBookings) ?>)
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body pt-0">
+                        <div class="tab-content">
+                            <!-- SUB-TAB: PEMINJAMAN RUANGAN -->
+                            <div class="tab-pane fade show active" id="sub-ruangan" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0">Daftar Peminjaman Ruangan</h6>
+                                    <button type="button" class="btn btn-success btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddRoomBooking">
+                                        + Tambah Booking Ruangan
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Peminjam & Unit</th>
+                                                <th>Ruangan</th>
+                                                <th>Nama Event & Setup</th>
+                                                <th>Tanggal & Jam</th>
+                                                <th>Material & Catatan</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($allRoomBookings)): ?>
+                                                <?php $no = 1; foreach ($allRoomBookings as $rb): ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td>
+                                                            <strong><?= esc($rb['booker_name']) ?></strong><br>
+                                                            <small class="badge bg-light text-dark border"><?= esc($rb['department']) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <strong class="text-success"><?= esc($rb['room_name'] ?? 'Ruang #' . $rb['room_id']) ?></strong><br>
+                                                            <small class="text-muted">Kapasitas: <?= esc($rb['capacity'] ?? '-') ?> orang</small>
+                                                        </td>
+                                                        <td>
+                                                            <strong><?= esc($rb['event_name']) ?></strong><br>
+                                                            <small class="text-muted">Setup: <?= esc($rb['setup'] ?: '-') ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?= esc($rb['booking_date']) ?><br>
+                                                            <small class="text-muted"><?= esc($rb['start_time']) ?> - <?= esc($rb['end_time']) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <small class="d-block text-truncate" style="max-width: 150px;" title="<?= esc($rb['material_needed']) ?>">Mat: <?= esc($rb['material_needed'] ?: '-') ?></small>
+                                                            <small class="d-block text-truncate text-muted" style="max-width: 150px;" title="<?= esc($rb['special_request']) ?>">Req: <?= esc($rb['special_request'] ?: '-') ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($rb['status'] === 'approved'): ?>
+                                                                <span class="badge bg-success">Approved</span>
+                                                            <?php elseif ($rb['status'] === 'rejected'): ?>
+                                                                <span class="badge bg-danger">Rejected</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditRoomBooking<?= $rb['id'] ?>">Edit</button>
+                                                                <form method="post" action="/dashboard/peminjaman/ruangan/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus booking ruangan <?= esc($rb['event_name']) ?>?');">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $rb['id'] ?>">
+                                                                    <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- MODAL EDIT ROOM BOOKING -->
+                                                    <div class="modal fade" id="modalEditRoomBooking<?= $rb['id'] ?>" tabindex="-1">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 shadow rounded-4">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold text-success">Edit Peminjaman Ruangan</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <form method="post" action="/dashboard/peminjaman/ruangan/update">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $rb['id'] ?>">
+                                                                    <div class="modal-body">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Pilih Ruangan</label>
+                                                                            <select name="room_id" class="form-select" required>
+                                                                                <?php foreach ($roomsList as $rm): ?>
+                                                                                    <option value="<?= $rm['id'] ?>" <?= $rm['id'] == $rb['room_id'] ? 'selected' : '' ?>>
+                                                                                        <?= esc($rm['room_name']) ?> (Kapasitas: <?= esc($rm['capacity']) ?>)
+                                                                                    </option>
+                                                                                <?php endforeach; ?>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Nama Peminjam</label>
+                                                                                <input type="text" name="booker_name" class="form-control" value="<?= esc($rb['booker_name']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Department</label>
+                                                                                <select name="department" class="form-select" required>
+                                                                                    <?php foreach ($departments as $dept): ?>
+                                                                                        <option value="<?= $dept ?>" <?= $dept === $rb['department'] ? 'selected' : '' ?>><?= $dept ?></option>
+                                                                                    <?php endforeach; ?>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-4 mb-3">
+                                                                                <label class="form-label fw-semibold">Tanggal</label>
+                                                                                <input type="date" name="booking_date" class="form-control" value="<?= esc($rb['booking_date']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-4 mb-3">
+                                                                                <label class="form-label fw-semibold">Waktu Masuk</label>
+                                                                                <input type="time" name="start_time" class="form-control" value="<?= esc($rb['start_time']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-4 mb-3">
+                                                                                <label class="form-label fw-semibold">Waktu Keluar</label>
+                                                                                <input type="time" name="end_time" class="form-control" value="<?= esc($rb['end_time']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Nama Event</label>
+                                                                            <input type="text" name="event_name" class="form-control" value="<?= esc($rb['event_name']) ?>" required>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Set UP Ruangan</label>
+                                                                            <input type="text" name="setup" class="form-control" value="<?= esc($rb['setup']) ?>" placeholder="Classroom, U-Shape, Theater">
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Material Needed</label>
+                                                                                <input type="text" name="material_needed" class="form-control" value="<?= esc($rb['material_needed']) ?>">
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Special Request</label>
+                                                                                <input type="text" name="special_request" class="form-control" value="<?= esc($rb['special_request']) ?>">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Status Pengajuan</label>
+                                                                            <select name="status" class="form-select">
+                                                                                <option value="pending" <?= $rb['status'] === 'pending' ? 'selected' : '' ?>>Pending (Menunggu)</option>
+                                                                                <option value="approved" <?= $rb['status'] === 'approved' ? 'selected' : '' ?>>Approved (Disetujui)</option>
+                                                                                <option value="rejected" <?= $rb['status'] === 'rejected' ? 'selected' : '' ?>>Rejected (Ditolak)</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Simpan Perubahan</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr><td colspan="8" class="text-center py-4 text-muted">Belum ada data peminjaman ruangan.</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- SUB-TAB: PEMINJAMAN KENDARAAN -->
+                            <div class="tab-pane fade" id="sub-kendaraan" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0">Daftar Peminjaman Kendaraan</h6>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddVehicleBooking">
+                                        + Tambah Booking Kendaraan
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Peminjam & Unit</th>
+                                                <th>Kendaraan</th>
+                                                <th>Tujuan & Keperluan</th>
+                                                <th>Jadwal (Hari, Tgl, Jam)</th>
+                                                <th>Driver & KM</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($allVehicleBookings)): ?>
+                                                <?php $no = 1; foreach ($allVehicleBookings as $vb): ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td>
+                                                            <strong><?= esc($vb['booker_name']) ?></strong><br>
+                                                            <small class="badge bg-light text-dark border"><?= esc($vb['department']) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <strong class="text-primary"><?= esc($vb['vehicle_name'] ?? 'Kendaraan') ?></strong><br>
+                                                            <span class="badge bg-secondary-subtle text-secondary"><?= esc($vb['plate_number'] ?? '-') ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <strong><?= esc($vb['destination']) ?></strong><br>
+                                                            <small class="text-muted"><?= esc($vb['description'] ?: '-') ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?= esc($vb['booking_day']) ?>, <?= esc($vb['booking_date']) ?><br>
+                                                            <small class="text-muted"><?= esc($vb['start_time']) ?> - <?= esc($vb['end_time']) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <small class="d-block fw-semibold"><i class="bi bi-person me-1"></i><?= esc($vb['driver_name']) ?></small>
+                                                            <small class="text-muted">In: <?= esc($vb['km_in'] ?? '-') ?> | Out: <?= esc($vb['km_out'] ?? '-') ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($vb['status'] === 'approved'): ?>
+                                                                <span class="badge bg-success">Approved</span>
+                                                            <?php elseif ($vb['status'] === 'rejected'): ?>
+                                                                <span class="badge bg-danger">Rejected</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditVehicleBooking<?= $vb['id'] ?>">Edit</button>
+                                                                <form method="post" action="/dashboard/peminjaman/kendaraan/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus booking kendaraan tujuan <?= esc($vb['destination']) ?>?');">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $vb['id'] ?>">
+                                                                    <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- MODAL EDIT VEHICLE BOOKING -->
+                                                    <div class="modal fade" id="modalEditVehicleBooking<?= $vb['id'] ?>" tabindex="-1">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 shadow rounded-4">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold text-primary">Edit Peminjaman Kendaraan</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <form method="post" action="/dashboard/peminjaman/kendaraan/update">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $vb['id'] ?>">
+                                                                    <div class="modal-body">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Pilih Kendaraan</label>
+                                                                            <select name="vehicle_id" class="form-select" required>
+                                                                                <?php foreach ($vehiclesList as $vc): ?>
+                                                                                    <option value="<?= $vc['id'] ?>" <?= $vc['id'] == $vb['vehicle_id'] ? 'selected' : '' ?>>
+                                                                                        <?= esc($vc['vehicle_name']) ?> (<?= esc($vc['plate_number']) ?>)
+                                                                                    </option>
+                                                                                <?php endforeach; ?>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Nama Peminjam</label>
+                                                                                <input type="text" name="booker_name" class="form-control" value="<?= esc($vb['booker_name']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Department</label>
+                                                                                <select name="department" class="form-select" required>
+                                                                                    <?php foreach ($departments as $dept): ?>
+                                                                                        <option value="<?= $dept ?>" <?= $dept === $vb['department'] ? 'selected' : '' ?>><?= $dept ?></option>
+                                                                                    <?php endforeach; ?>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Tanggal Peminjaman</label>
+                                                                                <input type="date" name="booking_date" class="form-control" value="<?= esc($vb['booking_date']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Hari</label>
+                                                                                <input type="text" name="booking_day" class="form-control" value="<?= esc($vb['booking_day']) ?>" placeholder="Senin / Selasa / dll">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Jam Masuk (Berangkat)</label>
+                                                                                <input type="time" name="start_time" class="form-control" value="<?= esc($vb['start_time']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Jam Keluar (Kembali)</label>
+                                                                                <input type="time" name="end_time" class="form-control" value="<?= esc($vb['end_time']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Tujuan</label>
+                                                                            <input type="text" name="destination" class="form-control" value="<?= esc($vb['destination']) ?>" required>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Keterangan / Keperluan</label>
+                                                                            <textarea name="description" class="form-control" rows="2"><?= esc($vb['description']) ?></textarea>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Nama Driver</label>
+                                                                                <input type="text" name="driver_name" class="form-control" value="<?= esc($vb['driver_name']) ?>">
+                                                                            </div>
+                                                                            <div class="col-3 mb-3">
+                                                                                <label class="form-label fw-semibold">KM In</label>
+                                                                                <input type="number" name="km_in" class="form-control" value="<?= esc($vb['km_in'] ?? '') ?>">
+                                                                            </div>
+                                                                            <div class="col-3 mb-3">
+                                                                                <label class="form-label fw-semibold">KM Out</label>
+                                                                                <input type="number" name="km_out" class="form-control" value="<?= esc($vb['km_out'] ?? '') ?>">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Status</label>
+                                                                            <select name="status" class="form-select">
+                                                                                <option value="pending" <?= $vb['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                                                                <option value="approved" <?= $vb['status'] === 'approved' ? 'selected' : '' ?>>Approved</option>
+                                                                                <option value="rejected" <?= $vb['status'] === 'rejected' ? 'selected' : '' ?>>Rejected</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Simpan</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr><td colspan="8" class="text-center py-4 text-muted">Belum ada data peminjaman kendaraan.</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- ============================================== -->
+            <!-- TAB 4: CRUD REQUEST (MAINTENANCE + SUPPLIES) -->
+            <!-- ============================================== -->
+            <?php if (in_array($role, ['super_admin', 'admin'])): ?>
+            <div class="tab-pane fade" id="tab-request" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-warning">
+                                    <i class="bi bi-tools me-2"></i>Manajemen Permintaan (Request)
+                                </h4>
+                                <small class="text-muted">Kelola data Request Maintenance (Perbaikan Fasilitas) dan Permohonan Supplies (ATK).</small>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Nav Request -->
+                        <ul class="nav nav-pills" id="requestSubTab" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active rounded-pill px-4" id="sub-maint-tab" data-bs-toggle="pill" data-bs-target="#sub-maint" type="button" role="tab">
+                                    Request Maintenance (<?= count($allMaintenance) ?>)
+                                </button>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <button class="nav-link rounded-pill px-4" id="sub-supp-tab" data-bs-toggle="pill" data-bs-target="#sub-supp" type="button" role="tab">
+                                    Permohonan Supplies (<?= count($allSupplyRequests) ?>)
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body pt-0">
+                        <div class="tab-content">
+                            <!-- SUB-TAB: REQUEST MAINTENANCE -->
+                            <div class="tab-pane fade show active" id="sub-maint" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0">Daftar Request Maintenance</h6>
+                                    <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#modalAddMaintenance">
+                                        + Tambah Maintenance
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Pemohon & Unit</th>
+                                                <th>Fasilitas</th>
+                                                <th>Lokasi Kerusakan</th>
+                                                <th>Keterangan Kerusakan</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($allMaintenance)): ?>
+                                                <?php $no = 1; foreach ($allMaintenance as $m): ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td>
+                                                            <strong><?= esc($m['requester_name']) ?></strong><br>
+                                                            <small class="badge bg-light text-dark border"><?= esc($m['department']) ?></small>
+                                                        </td>
+                                                        <td><span class="badge bg-warning text-dark"><?= esc($m['facility']) ?></span></td>
+                                                        <td><?= esc($m['location']) ?></td>
+                                                        <td><small><?= esc($m['description']) ?></small></td>
+                                                        <td>
+                                                            <?php if ($m['status'] === 'resolved'): ?>
+                                                                <span class="badge bg-success">Resolved (Selesai)</span>
+                                                            <?php elseif ($m['status'] === 'in_progress'): ?>
+                                                                <span class="badge bg-info text-dark">In Progress (Dikerjakan)</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditMaintenance<?= $m['id'] ?>">Edit</button>
+                                                                <form method="post" action="/dashboard/request/maintenance/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus request maintenance di <?= esc($m['location']) ?>?');">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $m['id'] ?>">
+                                                                    <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- MODAL EDIT MAINTENANCE -->
+                                                    <div class="modal fade" id="modalEditMaintenance<?= $m['id'] ?>" tabindex="-1">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 shadow rounded-4">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold text-warning text-dark">Edit Request Maintenance</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <form method="post" action="/dashboard/request/maintenance/update">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $m['id'] ?>">
+                                                                    <div class="modal-body">
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Nama Pemohon</label>
+                                                                                <input type="text" name="requester_name" class="form-control" value="<?= esc($m['requester_name']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Department</label>
+                                                                                <select name="department" class="form-select" required>
+                                                                                    <?php foreach ($departments as $dept): ?>
+                                                                                        <option value="<?= $dept ?>" <?= $dept === $m['department'] ? 'selected' : '' ?>><?= $dept ?></option>
+                                                                                    <?php endforeach; ?>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Fasilitas</label>
+                                                                                <select name="facility" class="form-select" required>
+                                                                                    <option value="Lampu" <?= $m['facility'] === 'Lampu' ? 'selected' : '' ?>>Lampu</option>
+                                                                                    <option value="AC" <?= $m['facility'] === 'AC' ? 'selected' : '' ?>>AC</option>
+                                                                                    <option value="Air" <?= $m['facility'] === 'Air' ? 'selected' : '' ?>>Air</option>
+                                                                                    <option value="Komputer/Jaringan" <?= $m['facility'] === 'Komputer/Jaringan' ? 'selected' : '' ?>>Komputer / Jaringan IT</option>
+                                                                                    <option value="Other" <?= !in_array($m['facility'], ['Lampu', 'AC', 'Air', 'Komputer/Jaringan']) ? 'selected' : '' ?>>Other (Lainnya)</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Lokasi Kerusakan</label>
+                                                                                <input type="text" name="location" class="form-control" value="<?= esc($m['location']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Keterangan Kerusakan</label>
+                                                                            <textarea name="description" class="form-control" rows="3" required><?= esc($m['description']) ?></textarea>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Status Penanganan</label>
+                                                                            <select name="status" class="form-select">
+                                                                                <option value="pending" <?= $m['status'] === 'pending' ? 'selected' : '' ?>>Pending (Menunggu Antrian)</option>
+                                                                                <option value="in_progress" <?= $m['status'] === 'in_progress' ? 'selected' : '' ?>>In Progress (Sedang Dikerjakan Teknisi)</option>
+                                                                                <option value="resolved" <?= $m['status'] === 'resolved' ? 'selected' : '' ?>>Resolved (Sudah Diperbaiki / Selesai)</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Simpan</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr><td colspan="7" class="text-center py-4 text-muted">Belum ada request maintenance.</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- SUB-TAB: PERMOHONAN SUPPLIES -->
+                            <div class="tab-pane fade" id="sub-supp" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0">Daftar Permohonan Supplies (ATK)</h6>
+                                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddSupplyRequest">
+                                        + Tambah Permohonan ATK
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Pemohon & Email</th>
+                                                <th>Unit Kerja</th>
+                                                <th>Barang yang Diminta</th>
+                                                <th>Jumlah (Qty)</th>
+                                                <th>Tanggal (Request / Needed)</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($allSupplyRequests)): ?>
+                                                <?php $no = 1; foreach ($allSupplyRequests as $sr): ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td>
+                                                            <strong><?= esc($sr['requester_name']) ?></strong><br>
+                                                            <small class="text-muted"><?= esc($sr['email'] ?: '-') ?></small>
+                                                        </td>
+                                                        <td><span class="badge bg-light text-dark border"><?= esc($sr['department']) ?></span></td>
+                                                        <td>
+                                                            <strong><?= esc($sr['item_name'] ?? 'Barang #' . $sr['supply_id']) ?></strong><br>
+                                                            <small class="text-muted">Stok Sarpras: <?= esc($sr['stock'] ?? 0) ?> <?= esc($sr['unit'] ?? '') ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <strong class="fs-6"><?= esc($sr['quantity']) ?></strong> <?= esc($sr['unit'] ?? 'Unit') ?>
+                                                        </td>
+                                                        <td>
+                                                            Req: <?= esc($sr['date_requested']) ?><br>
+                                                            <small class="text-danger fw-semibold">Butuh: <?= esc($sr['date_needed']) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($sr['status'] === 'approved'): ?>
+                                                                <span class="badge bg-success">Approved</span>
+                                                            <?php elseif ($sr['status'] === 'rejected'): ?>
+                                                                <span class="badge bg-danger">Rejected</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditSupplyRequest<?= $sr['id'] ?>">Edit</button>
+                                                                <form method="post" action="/dashboard/request/supplies/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus permohonan barang <?= esc($sr['item_name'] ?? '') ?>?');">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $sr['id'] ?>">
+                                                                    <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- MODAL EDIT SUPPLY REQUEST -->
+                                                    <div class="modal fade" id="modalEditSupplyRequest<?= $sr['id'] ?>" tabindex="-1">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 shadow rounded-4">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold text-danger">Edit Permohonan Supplies</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <form method="post" action="/dashboard/request/supplies/update">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="id" value="<?= $sr['id'] ?>">
+                                                                    <div class="modal-body">
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Nama Pemohon</label>
+                                                                                <input type="text" name="requester_name" class="form-control" value="<?= esc($sr['requester_name']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Email</label>
+                                                                                <input type="email" name="email" class="form-control" value="<?= esc($sr['email']) ?>">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Department / Unit</label>
+                                                                            <select name="department" class="form-select" required>
+                                                                                <?php foreach ($departments as $dept): ?>
+                                                                                    <option value="<?= $dept ?>" <?= $dept === $sr['department'] ? 'selected' : '' ?>><?= $dept ?></option>
+                                                                                <?php endforeach; ?>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-8 mb-3">
+                                                                                <label class="form-label fw-semibold">Pilih Barang</label>
+                                                                                <select name="supply_id" class="form-select" required>
+                                                                                    <?php foreach ($suppliesList as $s): ?>
+                                                                                        <option value="<?= $s['id'] ?>" <?= $s['id'] == $sr['supply_id'] ? 'selected' : '' ?>>
+                                                                                            <?= esc($s['item_name']) ?> (Stok: <?= esc($s['stock']) ?> <?= esc($s['unit']) ?>)
+                                                                                        </option>
+                                                                                    <?php endforeach; ?>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="col-4 mb-3">
+                                                                                <label class="form-label fw-semibold">Jumlah (Qty)</label>
+                                                                                <input type="number" name="quantity" class="form-control" value="<?= esc($sr['quantity']) ?>" min="1" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Tanggal Diajukan</label>
+                                                                                <input type="date" name="date_requested" class="form-control" value="<?= esc($sr['date_requested']) ?>" required>
+                                                                            </div>
+                                                                            <div class="col-6 mb-3">
+                                                                                <label class="form-label fw-semibold">Dibutuhkan Tanggal</label>
+                                                                                <input type="date" name="date_needed" class="form-control" value="<?= esc($sr['date_needed']) ?>" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Status Permohonan</label>
+                                                                            <select name="status" class="form-select">
+                                                                                <option value="pending" <?= $sr['status'] === 'pending' ? 'selected' : '' ?>>Pending (Menunggu)</option>
+                                                                                <option value="approved" <?= $sr['status'] === 'approved' ? 'selected' : '' ?>>Approved (Disetujui / Diserahkan)</option>
+                                                                                <option value="rejected" <?= $sr['status'] === 'rejected' ? 'selected' : '' ?>>Rejected (Ditolak)</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Simpan</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr><td colspan="8" class="text-center py-4 text-muted">Belum ada permohonan supplies.</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- ============================================== -->
+            <!-- TAB 5: MANAJEMEN STOK SUPPLIES (MASTER BARANG) -->
+            <!-- ============================================== -->
             <?php if (in_array($role, ['super_admin', 'admin'])): ?>
             <div class="tab-pane fade" id="tab-supplies" role="tabpanel">
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div>
                             <h5 class="fw-bold mb-0 text-primary">
-                                <i class="bi bi-box-seam me-2"></i>Manajemen Persediaan Barang (Supplies)
+                                <i class="bi bi-box-seam me-2"></i>Master Inventaris Barang (Supplies)
                             </h5>
                             <small class="text-muted">Kelola data Nama Barang, Jumlah, Satuan, Stock, dan Batas Minimum Stok.</small>
                         </div>
@@ -361,14 +1384,16 @@ if ($role === 'super_admin') {
             </div>
             <?php endif; ?>
 
-            <!-- TAB C: VERIFIKASI WORKFLOW PERMOHONAN -->
+            <!-- ============================================== -->
+            <!-- TAB 6: VERIFIKASI CEPAT STATUS PERMOHONAN -->
+            <!-- ============================================== -->
             <?php if (in_array($role, ['super_admin', 'admin'])): ?>
             <div class="tab-pane fade" id="tab-verifikasi" role="tabpanel">
-                <!-- Ruangan -->
+                <!-- Ruangan Quick Verification -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0 text-success"><i class="bi bi-door-open me-2"></i>Peminjaman Ruangan</h5>
-                        <a href="/peminjaman/ruangan" class="btn btn-sm btn-outline-success rounded-pill">+ Form Peminjaman</a>
+                        <h5 class="fw-bold mb-0 text-success"><i class="bi bi-door-open me-2"></i>Verifikasi Peminjaman Ruangan</h5>
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill" onclick="document.getElementById('tab-peminjaman-btn').click();">Kelola Lengkap &rarr;</button>
                     </div>
                     <div class="card-body pt-0 table-responsive">
                         <table class="table table-hover align-middle mb-0">
@@ -433,11 +1458,11 @@ if ($role === 'super_admin') {
                     </div>
                 </div>
 
-                <!-- Kendaraan -->
+                <!-- Kendaraan Quick Verification -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-car-front me-2"></i>Peminjaman Kendaraan</h5>
-                        <a href="/peminjaman/kendaraan" class="btn btn-sm btn-outline-primary rounded-pill">+ Form Kendaraan</a>
+                        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-car-front me-2"></i>Verifikasi Peminjaman Kendaraan</h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="document.getElementById('tab-peminjaman-btn').click();">Kelola Lengkap &rarr;</button>
                     </div>
                     <div class="card-body pt-0 table-responsive">
                         <table class="table table-hover align-middle mb-0">
@@ -506,7 +1531,9 @@ if ($role === 'super_admin') {
             </div>
             <?php endif; ?>
 
-            <!-- TAB D: SETTING MANAJEMEN USERS PADA SIDEBAR -->
+            <!-- ============================================== -->
+            <!-- TAB 7: SETTING MANAJEMEN USERS -->
+            <!-- ============================================== -->
             <?php if (in_array($role, ['super_admin', 'admin'])): ?>
             <div class="tab-pane fade" id="tab-users" role="tabpanel">
                 <div class="card border-0 shadow-sm rounded-4">
@@ -638,7 +1665,9 @@ if ($role === 'super_admin') {
             </div>
             <?php endif; ?>
 
-            <!-- TAB E: PENGAJUAN SAYA (KHUSUS MAHASISWA & DOSEN) -->
+            <!-- ============================================== -->
+            <!-- TAB 8: PENGAJUAN SAYA (KHUSUS MAHASISWA & DOSEN) -->
+            <!-- ============================================== -->
             <?php if ($role === 'user'): ?>
             <div class="tab-pane fade" id="tab-myrequests" role="tabpanel">
                 <div class="card border-0 shadow-sm rounded-4">
@@ -694,8 +1723,449 @@ if ($role === 'super_admin') {
     </div>
 </div>
 
+<!-- ============================================================== -->
+<!-- MODAL TAMBAH: PELAPORAN (LOST & FOUND & VISITOR) -->
+<!-- ============================================================== -->
+<!-- 1. Modal Tambah Lost & Found -->
+<div class="modal fade" id="modalAddLostFound" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary">Tambah Laporan Lost & Found</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/dashboard/pelaporan/lost-found/create">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Pelapor</label>
+                        <input type="text" name="reporter_name" class="form-control" placeholder="Nama Lengkap" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Status Pelapor</label>
+                            <input type="text" name="reporter_status" class="form-control" placeholder="Mahasiswa, Dosen, Tamu" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">No. Kontak / WA</label>
+                            <input type="text" name="contact" class="form-control" placeholder="08xxxxxxxxxx" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Barang yang Hilang / Ditemukan</label>
+                        <input type="text" name="lost_item" class="form-control" placeholder="Contoh: Dompet Cokelat, Kunci Motor Honda" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Tanggal Kejadian</label>
+                            <input type="date" name="incident_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Waktu Kejadian</label>
+                            <input type="time" name="incident_time" class="form-control" value="<?= date('H:i') ?>" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status Laporan</label>
+                        <select name="status" class="form-select">
+                            <option value="reported" selected>Reported (Dilaporkan)</option>
+                            <option value="found">Found (Barang Ditemukan)</option>
+                            <option value="claimed">Claimed (Sudah Diambil)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">+ Simpan Laporan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Modal Tambah Visitor -->
+<div class="modal fade" id="modalAddVisitor" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary">Tambah Kunjungan Tamu (Visitor)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/dashboard/pelaporan/visitor/create">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Tamu / Pengunjung</label>
+                        <input type="text" name="visitor_name" class="form-control" placeholder="Nama Lengkap Pengunjung" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Instansi / Perusahaan</label>
+                            <input type="text" name="institution" class="form-control" placeholder="Asal Instansi / Umum" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">No. Kontak / HP</label>
+                            <input type="text" name="contact" class="form-control" placeholder="08xxxxxxxxxx" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tujuan / Keperluan Kunjungan</label>
+                        <input type="text" name="purpose" class="form-control" placeholder="Contoh: Rapat Kerjasama, Pengantaran Dokumen" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Pejabat / Host yang Dituju</label>
+                        <input type="text" name="host_name" class="form-control" placeholder="Contoh: Biro IT, Rektorat, Warek I" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Waktu Check-In</label>
+                            <input type="text" name="check_in" class="form-control" value="<?= date('Y-m-d H:i:s') ?>" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Status Kunjungan</label>
+                            <select name="status" class="form-select">
+                                <option value="checked_in" selected>Checked In (Masih di Lokasi)</option>
+                                <option value="checked_out">Checked Out (Sudah Keluar)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">+ Simpan Tamu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL TAMBAH: PEMINJAMAN (RUANGAN & KENDARAAN) -->
+<!-- ============================================================== -->
+<!-- 3. Modal Tambah Booking Ruangan -->
+<div class="modal fade" id="modalAddRoomBooking" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success">Tambah Peminjaman Ruangan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/dashboard/peminjaman/ruangan/create">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Pilih Ruangan</label>
+                        <select name="room_id" class="form-select" required>
+                            <option value="" disabled selected>-- Pilih Ruangan --</option>
+                            <?php foreach ($roomsList as $rm): ?>
+                                <option value="<?= $rm['id'] ?>"><?= esc($rm['room_name']) ?> (Kapasitas: <?= esc($rm['capacity']) ?> orang)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Nama Peminjam</label>
+                            <input type="text" name="booker_name" class="form-control" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Department / Unit</label>
+                            <select name="department" class="form-select" required>
+                                <option value="" disabled selected>-- Pilih Department --</option>
+                                <?php foreach ($departments as $dept): ?>
+                                    <option value="<?= $dept ?>"><?= $dept ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 mb-3">
+                            <label class="form-label fw-semibold">Tanggal</label>
+                            <input type="date" name="booking_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label fw-semibold">Waktu Masuk</label>
+                            <input type="time" name="start_time" class="form-control" value="08:00" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label fw-semibold">Waktu Keluar</label>
+                            <input type="time" name="end_time" class="form-control" value="12:00" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Event / Kegiatan</label>
+                        <input type="text" name="event_name" class="form-control" placeholder="Contoh: Rapat Koordinasi Fakultas" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Set UP Ruangan</label>
+                        <input type="text" name="setup" class="form-control" placeholder="Classroom, U-Shape, Theater, Round Table">
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Material Needed</label>
+                            <input type="text" name="material_needed" class="form-control" placeholder="Proyektor, Mic Wireless, Whiteboard">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Special Request</label>
+                            <input type="text" name="special_request" class="form-control" placeholder="Permintaan khusus lainnya">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status Peminjaman</label>
+                        <select name="status" class="form-select">
+                            <option value="pending" selected>Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">+ Booking Ruangan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Modal Tambah Booking Kendaraan -->
+<div class="modal fade" id="modalAddVehicleBooking" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary">Tambah Peminjaman Kendaraan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/dashboard/peminjaman/kendaraan/create">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Pilih Kendaraan</label>
+                        <select name="vehicle_id" class="form-select" required>
+                            <option value="" disabled selected>-- Pilih Kendaraan Dinas --</option>
+                            <?php foreach ($vehiclesList as $vc): ?>
+                                <option value="<?= $vc['id'] ?>"><?= esc($vc['vehicle_name']) ?> (<?= esc($vc['plate_number']) ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Nama Peminjam</label>
+                            <input type="text" name="booker_name" class="form-control" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Department / Unit</label>
+                            <select name="department" class="form-select" required>
+                                <option value="" disabled selected>-- Pilih Department --</option>
+                                <?php foreach ($departments as $dept): ?>
+                                    <option value="<?= $dept ?>"><?= $dept ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Tanggal Peminjaman</label>
+                            <input type="date" name="booking_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Hari</label>
+                            <input type="text" name="booking_day" class="form-control" placeholder="Senin / Selasa / dll">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Jam Masuk (Berangkat)</label>
+                            <input type="time" name="start_time" class="form-control" value="08:00" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Jam Keluar (Kembali)</label>
+                            <input type="time" name="end_time" class="form-control" value="17:00" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tujuan Perjalanan</label>
+                        <input type="text" name="destination" class="form-control" placeholder="Contoh: Kantor Dikti, Bandara Adi Soemarmo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Keterangan / Keperluan</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Keperluan dinas"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Nama Driver</label>
+                            <input type="text" name="driver_name" class="form-control" placeholder="Nama Supir">
+                        </div>
+                        <div class="col-3 mb-3">
+                            <label class="form-label fw-semibold">KM In</label>
+                            <input type="number" name="km_in" class="form-control" placeholder="0">
+                        </div>
+                        <div class="col-3 mb-3">
+                            <label class="form-label fw-semibold">KM Out</label>
+                            <input type="number" name="km_out" class="form-control" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status Peminjaman</label>
+                        <select name="status" class="form-select">
+                            <option value="pending" selected>Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">+ Booking Kendaraan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL TAMBAH: REQUEST (MAINTENANCE & SUPPLIES) -->
+<!-- ============================================================== -->
+<!-- 5. Modal Tambah Request Maintenance -->
+<div class="modal fade" id="modalAddMaintenance" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-warning text-dark">Tambah Request Maintenance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/dashboard/request/maintenance/create">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Nama Pemohon</label>
+                            <input type="text" name="requester_name" class="form-control" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Department / Unit</label>
+                            <select name="department" class="form-select" required>
+                                <option value="" disabled selected>-- Pilih Department --</option>
+                                <?php foreach ($departments as $dept): ?>
+                                    <option value="<?= $dept ?>"><?= $dept ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Fasilitas Rusak</label>
+                            <select name="facility" class="form-select" required>
+                                <option value="Lampu">Lampu</option>
+                                <option value="AC">AC</option>
+                                <option value="Air">Air</option>
+                                <option value="Komputer/Jaringan">Komputer / Jaringan IT</option>
+                                <option value="Other">Other (Lainnya)</option>
+                            </select>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Lokasi Kerusakan</label>
+                            <input type="text" name="location" class="form-control" placeholder="Contoh: Gedung B Lt. 2 Ruang 203" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Keterangan / Rincian Kerusakan</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Jelaskan kondisi kerusakan fasilitas" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status Penanganan</label>
+                        <select name="status" class="form-select">
+                            <option value="pending" selected>Pending (Menunggu Antrian)</option>
+                            <option value="in_progress">In Progress (Sedang Dikerjakan)</option>
+                            <option value="resolved">Resolved (Selesai)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">+ Simpan Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 6. Modal Tambah Permohonan Supplies Request -->
+<div class="modal fade" id="modalAddSupplyRequest" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger">Tambah Permohonan Supplies (ATK)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/dashboard/request/supplies/create">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Nama Pemohon</label>
+                            <input type="text" name="requester_name" class="form-control" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Email Pemohon</label>
+                            <input type="email" name="email" class="form-control" placeholder="email@pignatelli.ac.id">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Department / Unit Kerja</label>
+                        <select name="department" class="form-select" required>
+                            <option value="" disabled selected>-- Pilih Department --</option>
+                            <?php foreach ($departments as $dept): ?>
+                                <option value="<?= $dept ?>"><?= $dept ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-8 mb-3">
+                            <label class="form-label fw-semibold">Pilih Barang yang Diminta</label>
+                            <select name="supply_id" class="form-select" required>
+                                <option value="" disabled selected>-- Cari dan Pilih Barang --</option>
+                                <?php foreach ($suppliesList as $s): ?>
+                                    <option value="<?= $s['id'] ?>">
+                                        <?= esc($s['item_name']) ?> (Stok: <?= esc($s['stock']) ?> <?= esc($s['unit']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label fw-semibold">Jumlah (Qty)</label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Tanggal Diajukan</label>
+                            <input type="date" name="date_requested" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Dibutuhkan Tanggal</label>
+                            <input type="date" name="date_needed" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="pending" selected>Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">+ Kirim Permohonan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- ============================================== -->
-<!-- MODAL TAMBAH BARANG (SUPPLIES) -->
+<!-- MODAL TAMBAH BARANG (MASTER SUPPLIES) -->
 <!-- ============================================== -->
 <div class="modal fade" id="modalAddSupply" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -813,10 +2283,19 @@ if ($role === 'super_admin') {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Sinkronisasi tab dengan URL Hash (#supplies, #users, dll.)
+    // Sinkronisasi tab dengan URL Hash (#pelaporan, #peminjaman, #request, #supplies, #users, dll.)
     var hash = window.location.hash;
     if (hash) {
-        if (hash === '#supplies') {
+        if (hash === '#pelaporan') {
+            var btn = document.getElementById('tab-pelaporan-btn');
+            if (btn) btn.click();
+        } else if (hash === '#peminjaman') {
+            var btn = document.getElementById('tab-peminjaman-btn');
+            if (btn) btn.click();
+        } else if (hash === '#request') {
+            var btn = document.getElementById('tab-request-btn');
+            if (btn) btn.click();
+        } else if (hash === '#supplies') {
             var btn = document.getElementById('tab-supplies-btn');
             if (btn) btn.click();
         } else if (hash === '#users') {
