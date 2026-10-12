@@ -153,18 +153,63 @@ class Frontend extends BaseController
     public function submitSupplies()
     {
         $db = \Config\Database::connect();
-        $db->table('supply_requests')->insert([
-            'email'          => $this->request->getPost('email'),
-            'requester_name' => $this->request->getPost('requester_name'),
-            'department'     => $this->request->getPost('department'),
-            'date_requested' => $this->request->getPost('date_requested'),
-            'date_needed'    => $this->request->getPost('date_needed'),
-            'supply_id'      => $this->request->getPost('supply_id'),
-            'quantity'       => $this->request->getPost('quantity') ?: 1,
-            'created_at'     => date('Y-m-d H:i:s'),
-            'updated_at'     => date('Y-m-d H:i:s')
-        ]);
-        return redirect()->back()->with('message', 'Request Supplies/ATK berhasil dikirim!');
+        $email         = (string) $this->request->getPost('email');
+        $requesterName = (string) $this->request->getPost('requester_name');
+        $department    = (string) $this->request->getPost('department');
+        $dateRequested = (string) ($this->request->getPost('date_requested') ?: date('Y-m-d'));
+        $dateNeeded    = (string) $this->request->getPost('date_needed');
+
+        $items = $this->request->getPost('items'); // Array of ['supply_id' => ..., 'quantity' => ...]
+        $insertedCount = 0;
+
+        if (is_array($items) && !empty($items)) {
+            foreach ($items as $item) {
+                $supplyId = (int) ($item['supply_id'] ?? 0);
+                $quantity = (int) ($item['quantity'] ?? 1);
+
+                if ($supplyId > 0 && $quantity > 0) {
+                    $db->table('supply_requests')->insert([
+                        'email'          => $email,
+                        'requester_name' => $requesterName,
+                        'department'     => $department,
+                        'date_requested' => $dateRequested,
+                        'date_needed'    => $dateNeeded,
+                        'supply_id'      => $supplyId,
+                        'quantity'       => $quantity,
+                        'status'         => 'pending',
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
+                    ]);
+                    $insertedCount++;
+                }
+            }
+        } else {
+            // Fallback untuk single supply_id jika ada
+            $supplyId = (int) $this->request->getPost('supply_id');
+            $quantity = (int) ($this->request->getPost('quantity') ?: 1);
+
+            if ($supplyId > 0 && $quantity > 0) {
+                $db->table('supply_requests')->insert([
+                    'email'          => $email,
+                    'requester_name' => $requesterName,
+                    'department'     => $department,
+                    'date_requested' => $dateRequested,
+                    'date_needed'    => $dateNeeded,
+                    'supply_id'      => $supplyId,
+                    'quantity'       => $quantity,
+                    'status'         => 'pending',
+                    'created_at'     => date('Y-m-d H:i:s'),
+                    'updated_at'     => date('Y-m-d H:i:s'),
+                ]);
+                $insertedCount++;
+            }
+        }
+
+        if ($insertedCount > 0) {
+            return redirect()->back()->with('message', 'Berhasil mengajukan ' . $insertedCount . ' item barang Supplies (ATK)! Permohonan sedang menunggu persetujuan.');
+        }
+
+        return redirect()->back()->withInput()->with('error', 'Gagal mengajukan permohonan. Silakan pilih minimal 1 barang dengan jumlah yang valid.');
     }
 }
 
