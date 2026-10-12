@@ -60,7 +60,10 @@ class Auth extends BaseController
                     'department' => $user['department'] ?? 'Universitas Pignatelli Triputra',
                 ]);
 
-                return redirect()->to('/dashboard')->with('message', 'Selamat datang kembali, ' . ($user['name'] ?? 'User') . '!');
+                $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
+                session()->remove('redirect_after_login');
+
+                return redirect()->to($targetUrl)->with('message', 'Selamat datang kembali, ' . ($user['name'] ?? 'User') . '!');
             }
         }
 
@@ -101,7 +104,10 @@ class Auth extends BaseController
                     'department' => $f['department'],
                 ]);
 
-                return redirect()->to('/dashboard')->with('message', 'Login berhasil sebagai ' . $f['name'] . '!');
+                $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
+                session()->remove('redirect_after_login');
+
+                return redirect()->to($targetUrl)->with('message', 'Login berhasil sebagai ' . $f['name'] . '!');
             }
         }
 

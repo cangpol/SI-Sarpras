@@ -3,17 +3,38 @@ namespace App\Controllers;
 
 class Frontend extends BaseController
 {
+    /**
+     * Memastikan hanya civitas akademika (Mahasiswa dan Dosen) yang memiliki akun yang dapat mengisi form Peminjaman & Request
+     */
+    private function checkAcademicAuth()
+    {
+        if (!session()->get('isLoggedIn')) {
+            session()->set('redirect_after_login', current_url());
+            return redirect()->to('/login')->with('error', 'Akses Terbatas: Formulir Peminjaman dan Request hanya dapat diakses dan diisi oleh civitas akademika (Mahasiswa & Dosen) yang telah login.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['user', 'admin', 'super_admin'])) {
+            return redirect()->to('/login')->with('error', 'Akun Anda tidak memiliki hak akses untuk mengisi formulir ini.');
+        }
+
+        return null;
+    }
+
     public function index()
     {
         return view('home');
     }
 
-    // --- PELAPORAN ---
+    // =========================================================================
+    // PELAPORAN: TERBUKA UNTUK SEMUA ORANG (PUBLIK / TAMU / MAHASISWA / DOSEN)
+    // =========================================================================
     public function lostFound()
     {
         return view('pelaporan/lost_found');
     }
-        public function submitLostFound()
+
+    public function submitLostFound()
     {
         $db = \Config\Database::connect();
         
@@ -40,7 +61,8 @@ class Frontend extends BaseController
     {
         return view('pelaporan/visitor');
     }
-        public function submitVisitor()
+
+    public function submitVisitor()
     {
         $db = \Config\Database::connect();
         
@@ -63,15 +85,26 @@ class Frontend extends BaseController
         return redirect()->back()->with('message', 'Registrasi Visitor ID Pass berhasil disubmit!');
     }
 
-    // --- PEMINJAMAN ---
+    // =========================================================================
+    // PEMINJAMAN: HANYA UNTUK AKUN MAHASISWA & DOSEN
+    // =========================================================================
     public function ruangan()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         $data['rooms'] = $db->table('rooms')->get()->getResultArray();
         return view('peminjaman/ruangan', $data);
     }
+
     public function submitRuangan()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         $db->table('room_bookings')->insert([
             'room_id'         => $this->request->getPost('room_id'),
@@ -84,6 +117,7 @@ class Frontend extends BaseController
             'setup'           => $this->request->getPost('setup'),
             'material_needed' => $this->request->getPost('material_needed'),
             'special_request' => $this->request->getPost('special_request'),
+            'status'          => 'pending',
             'created_at'      => date('Y-m-d H:i:s'),
             'updated_at'      => date('Y-m-d H:i:s')
         ]);
@@ -92,12 +126,21 @@ class Frontend extends BaseController
 
     public function kendaraan()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         $data['vehicles'] = $db->table('vehicles')->get()->getResultArray();
         return view('peminjaman/kendaraan', $data);
     }
+
     public function submitKendaraan()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         $db->table('vehicle_bookings')->insert([
             'vehicle_id'   => $this->request->getPost('vehicle_id'),
@@ -112,19 +155,31 @@ class Frontend extends BaseController
             'driver_name'  => $this->request->getPost('driver_name'),
             'km_in'        => $this->request->getPost('km_in') ?: null,
             'km_out'       => $this->request->getPost('km_out') ?: null,
+            'status'       => 'pending',
             'created_at'   => date('Y-m-d H:i:s'),
             'updated_at'   => date('Y-m-d H:i:s')
         ]);
         return redirect()->back()->with('message', 'Form Peminjaman Kendaraan berhasil dikirim dan menunggu persetujuan!');
     }
 
-    // --- REQUEST ---
+    // =========================================================================
+    // REQUEST: HANYA UNTUK AKUN MAHASISWA & DOSEN
+    // =========================================================================
     public function maintenance()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         return view('request/maintenance');
     }
+
     public function submitMaintenance()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         
         $facility = $this->request->getPost('facility');
@@ -138,6 +193,7 @@ class Frontend extends BaseController
             'location'       => $this->request->getPost('location'),
             'facility'       => $facility,
             'description'    => $this->request->getPost('description'),
+            'status'         => 'pending',
             'created_at'     => date('Y-m-d H:i:s'),
             'updated_at'     => date('Y-m-d H:i:s')
         ]);
@@ -146,12 +202,21 @@ class Frontend extends BaseController
 
     public function supplies()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         $data['supplies'] = $db->table('supplies')->get()->getResultArray();
         return view('request/supplies', $data);
     }
+
     public function submitSupplies()
     {
+        if ($redir = $this->checkAcademicAuth()) {
+            return $redir;
+        }
+
         $db = \Config\Database::connect();
         $email         = (string) $this->request->getPost('email');
         $requesterName = (string) $this->request->getPost('requester_name');
@@ -212,5 +277,3 @@ class Frontend extends BaseController
         return redirect()->back()->withInput()->with('error', 'Gagal mengajukan permohonan. Silakan pilih minimal 1 barang dengan jumlah yang valid.');
     }
 }
-
-

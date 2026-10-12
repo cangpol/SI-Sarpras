@@ -280,6 +280,11 @@
             <?= session()->getFlashdata('message') ?>
         </div>
     <?php endif; ?>
+    <?php if(uri_string() !== 'dashboard' && uri_string() !== 'login' && session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger shadow-sm" style="border-radius: 12px; font-weight: 500;">
+            <?= session()->getFlashdata('error') ?>
+        </div>
+    <?php endif; ?>
     
     <?= $this->renderSection('content') ?>
 </div>
