@@ -9,174 +9,211 @@
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
             --primary-blue: #0A3A66;
-            --secondary-blue: #1C5A96;
-            --accent-blue: #3A8DD5;
-            --light-bg: #F8F9FB;
+            --secondary-blue: #0D62AC;
+            --accent-blue: #2A85D0;
+            --light-blue: #EBF3FA;
+            --card-border: #E1EDF7;
+            --light-bg: #F4F8FC;
+            --text-dark: #0F2238;
+            --text-muted: #5A7184;
+            --white: #FFFFFF;
         }
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background-color: var(--light-bg);
-            color: #333;
+            color: #334155;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        /* Navbar Premium */
+        /* Navbar Modern */
         .navbar {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 15px 0;
+            background: linear-gradient(135deg, #072B4D 0%, #0A3A66 60%, #0D62AC 100%) !important;
+            box-shadow: 0 4px 20px rgba(10, 58, 102, 0.15);
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
         .navbar-brand { 
             font-weight: 700; 
             letter-spacing: 0.5px;
             font-size: 1.4rem;
         }
+        .navbar-brand img {
+            transition: transform 0.3s ease;
+        }
+        .navbar-brand:hover img {
+            transform: scale(1.04);
+        }
         .nav-link {
             font-weight: 500;
-            padding: 10px 15px !important;
-            transition: all 0.3s ease;
+            padding: 8px 14px !important;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            color: rgba(255, 255, 255, 0.9) !important;
         }
-        .nav-link:hover, .nav-item.dropdown:hover .nav-link {
-            color: #fff !important;
-            opacity: 0.8;
+        .nav-link:hover, .nav-item.dropdown:hover > .nav-link {
+            color: #FFFFFF !important;
+            background-color: rgba(255, 255, 255, 0.12);
         }
         .dropdown-menu {
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-radius: 12px;
-            padding: 10px 0;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 15px 35px rgba(10, 58, 102, 0.12);
+            border-radius: 14px;
+            padding: 8px;
+            background: #FFFFFF;
         }
         .dropdown-item {
             font-weight: 500;
-            padding: 10px 20px;
-            transition: 0.2s;
+            padding: 9px 16px;
+            border-radius: 8px;
+            transition: 0.2s ease;
+            color: var(--text-dark);
         }
         .dropdown-item:hover {
-            background-color: var(--light-bg);
-            color: var(--primary-blue);
+            background-color: var(--light-blue);
+            color: var(--secondary-blue);
+            transform: translateX(3px);
         }
         
-        /* Hero Section */
-        .hero { 
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
-            color: white; 
-            padding: 80px 0; 
-            text-align: center;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(10, 58, 102, 0.2);
+        /* Subpage Header Banner */
+        .subpage-header {
+            background: linear-gradient(135deg, #072B4D 0%, #0A3A66 60%, #0D62AC 100%);
+            color: white;
+            padding: 32px 0;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 25px rgba(10, 58, 102, 0.12);
+            position: relative;
+            overflow: hidden;
         }
-        .hero h1 {
-            font-weight: 700;
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .hero p.lead {
-            font-weight: 300;
-            font-size: 1.2rem;
-            opacity: 0.9;
+        .subpage-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         /* Card Styling */
         .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-            background: white;
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(10, 58, 102, 0.05);
+            transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+            background: #FFFFFF;
         }
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 18px 36px rgba(10, 58, 102, 0.1);
+            border-color: rgba(13, 98, 172, 0.3);
         }
         .card-body {
-            padding: 30px;
+            padding: 28px;
         }
         .card-title {
             color: var(--primary-blue);
             font-weight: 700;
-            margin-bottom: 15px;
         }
 
-        /* Buttons */
+        /* Buttons Modern */
         .btn-primary {
-            background-color: var(--primary-blue);
-            border-color: var(--primary-blue);
-            border-radius: 8px;
-            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 22px;
             font-weight: 600;
-            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(10, 58, 102, 0.2);
+            transition: all 0.25s ease;
         }
         .btn-primary:hover {
+            background: linear-gradient(135deg, #072B4D 0%, var(--primary-blue) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(10, 58, 102, 0.3);
+            color: white;
+        }
+        .btn-outline-primary {
+            color: var(--secondary-blue);
+            border-color: var(--secondary-blue);
+            border-width: 1.5px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+        .btn-outline-primary:hover {
             background-color: var(--secondary-blue);
             border-color: var(--secondary-blue);
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(28, 90, 150, 0.3);
+            box-shadow: 0 6px 16px rgba(13, 98, 172, 0.25);
         }
         
         .btn-success {
             background-color: #0E9F6E;
             border: none;
-            border-radius: 8px;
-            padding: 10px 24px;
+            border-radius: 10px;
+            padding: 10px 22px;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: all 0.25s ease;
         }
         .btn-success:hover {
             background-color: #046C4E;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(14, 159, 110, 0.3);
+            box-shadow: 0 5px 15px rgba(14, 159, 110, 0.25);
         }
 
         .btn-warning {
             background-color: #FF8A4C;
             border: none;
             color: white;
-            border-radius: 8px;
-            padding: 10px 24px;
+            border-radius: 10px;
+            padding: 10px 22px;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: all 0.25s ease;
         }
         .btn-warning:hover {
             background-color: #E06C2C;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 138, 76, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 138, 76, 0.25);
         }
 
         /* Form Inputs */
         .form-control, .form-select {
-            border-radius: 8px;
-            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-            background-color: #fcfcfc;
+            border-radius: 10px;
+            padding: 11px 16px;
+            border: 1px solid #D5E2EE;
+            background-color: #FBFDFE;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 3px rgba(58, 141, 213, 0.2);
-            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(13, 98, 172, 0.15);
+            border-color: var(--secondary-blue);
+            background-color: #FFFFFF;
         }
         label {
             font-weight: 600;
-            color: #555;
-            margin-bottom: 8px;
+            color: var(--text-dark);
+            margin-bottom: 6px;
         }
 
-        /* Footer */
-        footer { 
-            background: white; 
-            padding: 30px 0; 
-            margin-top: 80px; 
-            text-align: center; 
-            color: #777;
-            font-weight: 500;
-            border-top: 1px solid #eaeaea;
+        .hover-white:hover {
+            color: #FFFFFF !important;
+            transition: color 0.2s;
         }
     </style>
 </head>
@@ -265,34 +302,110 @@
   </div>
 </nav>
 
-<?php if(uri_string() !== 'dashboard'): ?>
-<div class="hero">
+<?php 
+$uri = uri_string();
+$isHome = empty($uri) || $uri === '/' || $uri === 'home';
+?>
+
+<?php if (!$isHome && $uri !== 'dashboard'): ?>
+<div class="subpage-header">
     <div class="container">
-        <h1>Biro Sarana dan Prasarana</h1>
-        <p class="lead">Universitas Pignatelli Triputra</p>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 small">
+                    <i class="bi bi-building me-1"></i> Biro Sarana dan Prasarana UPT
+                </span>
+                <h2 class="fw-bold text-white mb-0">Sistem Informasi SI-Sarpras</h2>
+                <small class="text-white-50">Universitas Pignatelli Triputra</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/" class="btn btn-outline-light rounded-pill btn-sm px-3 shadow-sm">
+                    <i class="bi bi-house-door me-1"></i> Beranda
+                </a>
+                <?php if (session()->get('isLoggedIn')): ?>
+                    <a href="/dashboard" class="btn btn-light rounded-pill btn-sm px-3 text-primary fw-semibold shadow-sm">
+                        <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                    </a>
+                <?php else: ?>
+                    <a href="/login" class="btn btn-light rounded-pill btn-sm px-3 text-primary fw-semibold shadow-sm">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 <?php endif; ?>
 
-<div class="<?= (uri_string() === 'dashboard') ? 'container-fluid px-lg-4 py-3' : 'container' ?>" style="min-height: 60vh;">
-    <?php if(uri_string() !== 'dashboard' && session()->getFlashdata('message')): ?>
-        <div class="alert alert-success shadow-sm" style="border-radius: 12px; font-weight: 500;">
-            <?= session()->getFlashdata('message') ?>
+<div class="<?= ($isHome) ? 'container-fluid p-0' : (($uri === 'dashboard') ? 'container-fluid px-lg-4 py-3' : 'container pb-5') ?>" style="min-height: 60vh;">
+    <?php if(!$isHome && $uri !== 'dashboard' && session()->getFlashdata('message')): ?>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-4 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill fs-5 me-2 text-success"></i>
+                <div class="fw-medium"><?= session()->getFlashdata('message') ?></div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
-    <?php if(uri_string() !== 'dashboard' && uri_string() !== 'login' && session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger shadow-sm" style="border-radius: 12px; font-weight: 500;">
-            <?= session()->getFlashdata('error') ?>
+    <?php if(!$isHome && $uri !== 'dashboard' && $uri !== 'login' && session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-4 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-danger"></i>
+                <div class="fw-medium"><?= session()->getFlashdata('error') ?></div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
     
     <?= $this->renderSection('content') ?>
 </div>
 
-<footer>
-    <div class="container">
-        &copy; <?= date('Y') ?> Biro Sarana dan Prasarana<br>
-        <small>Universitas Pignatelli Triputra</small>
+<footer class="footer-modern mt-auto">
+    <div class="footer-top py-5 text-white" style="background: linear-gradient(135deg, #072B4D 0%, #0A3A66 100%); border-top: 3px solid var(--accent-blue);">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-5 col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="/logo.png" alt="Logo UPT" style="height: 48px; width: auto; margin-right: 12px; background: white; padding: 4px; border-radius: 8px;">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-white">BIRO SARPRAS</h5>
+                            <small class="text-white-50">Universitas Pignatelli Triputra</small>
+                        </div>
+                    </div>
+                    <p class="text-white-50 small pe-lg-4 mb-3">
+                        Pusat pengelolaan dan pelayanan sarana, prasarana, fasilitas akademik, kendaraan dinas, dan ketertiban lingkungan kampus Universitas Pignatelli Triputra yang modern, terintegrasi, dan transparan.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill small">
+                            <i class="bi bi-clock me-1 text-info"></i> Pelayanan: Senin - Jumat (08:00 - 16:30 WIB)
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white text-uppercase mb-3" style="letter-spacing: 0.5px;">Layanan Civitas</h6>
+                    <ul class="list-unstyled small text-white-50 mb-0">
+                        <li class="mb-2"><a href="/peminjaman/ruangan" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Peminjaman Ruangan</a></li>
+                        <li class="mb-2"><a href="/peminjaman/kendaraan" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Peminjaman Kendaraan</a></li>
+                        <li class="mb-2"><a href="/request/maintenance" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Request Maintenance</a></li>
+                        <li class="mb-2"><a href="/request/supplies" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Permohonan ATK (Supplies)</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <h6 class="fw-bold text-white text-uppercase mb-3" style="letter-spacing: 0.5px;">Layanan Umum & Kontak</h6>
+                    <ul class="list-unstyled small text-white-50 mb-3">
+                        <li class="mb-2"><a href="/pelaporan/lost-found" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Form Lost & Found (Umum)</a></li>
+                        <li class="mb-2"><a href="/pelaporan/visitor" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Visitor ID Pass (Buku Tamu)</a></li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-1 text-info"></i> Jl. Kolonel Sugiyono No.37, Kadipiro, Banjarsari, Surakarta</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-1 text-info"></i> sarpras@pignatelli.ac.id</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom py-3 text-center text-white-50 small" style="background: #051F38; border-top: 1px solid rgba(255,255,255,0.06);">
+        <div class="container">
+            &copy; <?= date('Y') ?> Biro Sarana dan Prasarana &bull; Universitas Pignatelli Triputra. Hak Cipta Dilindungi.
+        </div>
     </div>
 </footer>
 
