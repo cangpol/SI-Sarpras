@@ -218,7 +218,13 @@ class Auth extends BaseController
                         ->get()->getResultArray();
                 }
 
-                if ($role === 'super_admin' && $db->tableExists('users')) {
+                if ($db->tableExists('supplies')) {
+                    $suppliesList = $db->table('supplies')
+                        ->orderBy('id', 'DESC')
+                        ->get()->getResultArray();
+                }
+
+                if ($db->tableExists('users')) {
                     $allUsers = $db->table('users')
                         ->select('id, username, name, email, role, department, created_at')
                         ->orderBy('id', 'ASC')
@@ -278,6 +284,7 @@ class Auth extends BaseController
             'recentVisitors'     => $recentVisitors,
             'recentLostFound'    => $recentLostFound,
             'allUsers'           => $allUsers,
+            'suppliesList'       => $suppliesList ?? [],
             'myRequests'         => $myRequests,
         ]);
     }
@@ -313,6 +320,235 @@ class Auth extends BaseController
             return redirect()->to('/dashboard')->with('message', 'Status pengajuan berhasil diperbarui menjadi "' . strtoupper($status) . '".');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard')->with('error', 'Gagal memperbarui status: ' . $e->getMessage());
+        }
+    }
+
+    // --- CRUD SUPPLIES (Nama Barang, Jumlah, Satuan, Stock, Batas) ---
+    public function createSupply()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $itemName  = trim((string) $this->request->getPost('item_name'));
+        $quantity  = (int) $this->request->getPost('quantity');
+        $unit      = trim((string) $this->request->getPost('unit'));
+        $stock     = (int) $this->request->getPost('stock');
+        $minStock  = (int) $this->request->getPost('min_stock');
+
+        if (empty($itemName) || empty($unit)) {
+            return redirect()->to('/dashboard#supplies')->with('error', 'Nama Barang dan Satuan wajib diisi.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $db->table('supplies')->insert([
+                'item_name'  => $itemName,
+                'quantity'   => $quantity,
+                'unit'       => $unit,
+                'stock'      => $stock,
+                'min_stock'  => $minStock,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return redirect()->to('/dashboard#supplies')->with('message', 'Data barang "' . $itemName . '" berhasil ditambahkan ke daftar Supplies.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#supplies')->with('error', 'Gagal menyimpan barang: ' . $e->getMessage());
+        }
+    }
+
+    public function updateSupply()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $id        = (int) $this->request->getPost('id');
+        $itemName  = trim((string) $this->request->getPost('item_name'));
+        $quantity  = (int) $this->request->getPost('quantity');
+        $unit      = trim((string) $this->request->getPost('unit'));
+        $stock     = (int) $this->request->getPost('stock');
+        $minStock  = (int) $this->request->getPost('min_stock');
+
+        if (empty($id) || empty($itemName) || empty($unit)) {
+            return redirect()->to('/dashboard#supplies')->with('error', 'Data tidak lengkap.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $db->table('supplies')->where('id', $id)->update([
+                'item_name'  => $itemName,
+                'quantity'   => $quantity,
+                'unit'       => $unit,
+                'stock'      => $stock,
+                'min_stock'  => $minStock,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return redirect()->to('/dashboard#supplies')->with('message', 'Data barang persediaan berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#supplies')->with('error', 'Gagal update barang: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteSupply()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $id = (int) $this->request->getPost('id');
+        if (empty($id)) {
+            return redirect()->to('/dashboard#supplies')->with('error', 'ID barang tidak valid.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $db->table('supplies')->where('id', $id)->delete();
+            return redirect()->to('/dashboard#supplies')->with('message', 'Barang berhasil dihapus dari daftar persediaan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#supplies')->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
+        }
+    }
+
+    // --- CRUD USERS (SETTING MANAJEMEN USERS) ---
+    public function createUser()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $username   = trim((string) $this->request->getPost('username'));
+        $name       = trim((string) $this->request->getPost('name'));
+        $email      = trim((string) $this->request->getPost('email'));
+        $userRole   = (string) $this->request->getPost('role');
+        $department = trim((string) $this->request->getPost('department'));
+        $password   = (string) $this->request->getPost('password');
+
+        if (empty($username) || empty($name) || empty($password)) {
+            return redirect()->to('/dashboard#users')->with('error', 'Username, Nama, dan Password wajib diisi.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            
+            // Cek username kembar
+            $exist = $db->table('users')->where('username', $username)->countAllResults();
+            if ($exist > 0) {
+                return redirect()->to('/dashboard#users')->with('error', 'Username "' . $username . '" sudah digunakan.');
+            }
+
+            $db->table('users')->insert([
+                'username'   => $username,
+                'name'       => $name,
+                'email'      => $email,
+                'role'       => in_array($userRole, ['super_admin', 'admin', 'user']) ? $userRole : 'user',
+                'department' => $department ?: 'Universitas Pignatelli Triputra',
+                'password'   => password_hash($password, PASSWORD_DEFAULT),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return redirect()->to('/dashboard#users')->with('message', 'Pengguna baru "' . $name . '" berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#users')->with('error', 'Gagal menambah user: ' . $e->getMessage());
+        }
+    }
+
+    public function updateUser()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $id         = (int) $this->request->getPost('id');
+        $username   = trim((string) $this->request->getPost('username'));
+        $name       = trim((string) $this->request->getPost('name'));
+        $email      = trim((string) $this->request->getPost('email'));
+        $userRole   = (string) $this->request->getPost('role');
+        $department = trim((string) $this->request->getPost('department'));
+        $password   = (string) $this->request->getPost('password');
+
+        if (empty($id) || empty($username) || empty($name)) {
+            return redirect()->to('/dashboard#users')->with('error', 'Data pengguna tidak lengkap.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+
+            $data = [
+                'username'   => $username,
+                'name'       => $name,
+                'email'      => $email,
+                'role'       => in_array($userRole, ['super_admin', 'admin', 'user']) ? $userRole : 'user',
+                'department' => $department,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if (!empty($password)) {
+                $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            $db->table('users')->where('id', $id)->update($data);
+
+            return redirect()->to('/dashboard#users')->with('message', 'Data pengguna "' . $name . '" berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#users')->with('error', 'Gagal memperbarui user: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteUser()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $id = (int) $this->request->getPost('id');
+        if (empty($id)) {
+            return redirect()->to('/dashboard#users')->with('error', 'ID user tidak valid.');
+        }
+
+        if ($id === (int) session()->get('user_id')) {
+            return redirect()->to('/dashboard#users')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri saat sedang login.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $db->table('users')->where('id', $id)->delete();
+            return redirect()->to('/dashboard#users')->with('message', 'Akun pengguna berhasil dihapus.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#users')->with('error', 'Gagal menghapus akun: ' . $e->getMessage());
         }
     }
 }

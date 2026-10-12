@@ -265,15 +265,17 @@
   </div>
 </nav>
 
+<?php if(uri_string() !== 'dashboard'): ?>
 <div class="hero">
     <div class="container">
         <h1>Biro Sarana dan Prasarana</h1>
         <p class="lead">Universitas Pignatelli Triputra</p>
     </div>
 </div>
+<?php endif; ?>
 
-<div class="container" style="min-height: 50vh;">
-    <?php if(session()->getFlashdata('message')): ?>
+<div class="<?= (uri_string() === 'dashboard') ? 'container-fluid px-lg-4 py-3' : 'container' ?>" style="min-height: 60vh;">
+    <?php if(uri_string() !== 'dashboard' && session()->getFlashdata('message')): ?>
         <div class="alert alert-success shadow-sm" style="border-radius: 12px; font-weight: 500;">
             <?= session()->getFlashdata('message') ?>
         </div>

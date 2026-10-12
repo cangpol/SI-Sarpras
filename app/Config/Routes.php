@@ -32,4 +32,15 @@ $routes->get('logout', 'Auth::logout');
 $routes->get('dashboard', 'Auth::dashboard');
 $routes->post('dashboard/update-status', 'Auth::updateStatus');
 
+// CRUD Supplies
+$routes->post('dashboard/supplies/create', 'Auth::createSupply');
+$routes->post('dashboard/supplies/update', 'Auth::updateSupply');
+$routes->post('dashboard/supplies/delete', 'Auth::deleteSupply');
+
+// CRUD Users (Settings)
+$routes->post('dashboard/users/create', 'Auth::createUser');
+$routes->post('dashboard/users/update', 'Auth::updateUser');
+$routes->post('dashboard/users/delete', 'Auth::deleteUser');
+
+
 

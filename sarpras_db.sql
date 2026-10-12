@@ -117,15 +117,19 @@ CREATE TABLE IF NOT EXISTS `maintenance_requests` (
 CREATE TABLE IF NOT EXISTS `supplies` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `item_name` varchar(150) NOT NULL,
-  `stock` int(11) NOT NULL DEFAULT 0,
+  `quantity` int(11) NOT NULL DEFAULT 0,
   `unit` varchar(50) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `min_stock` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `supplies` (`id`, `item_name`, `stock`, `unit`) VALUES
-(1, 'Kertas A4', 50, 'Rim'),
-(2, 'Tinta Printer Hitam', 20, 'Botol'),
-(3, 'Spidol Papan Tulis', 100, 'Pcs');
+INSERT INTO `supplies` (`id`, `item_name`, `quantity`, `unit`, `stock`, `min_stock`, `created_at`, `updated_at`) VALUES
+(1, 'Kertas A4', 50, 'Rim', 50, 10, NOW(), NOW()),
+(2, 'Tinta Printer Hitam', 20, 'Botol', 20, 5, NOW(), NOW()),
+(3, 'Spidol Papan Tulis', 100, 'Pcs', 100, 20, NOW(), NOW());
 
 CREATE TABLE IF NOT EXISTS `supply_requests` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
