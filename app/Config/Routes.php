@@ -31,6 +31,7 @@ $routes->post('login', 'Auth::authenticate');
 $routes->get('logout', 'Auth::logout');
 $routes->get('dashboard', 'Auth::dashboard');
 $routes->post('dashboard/update-status', 'Auth::updateStatus');
+$routes->post('dashboard/my-request/cancel', 'Auth::cancelMyRequest');
 
 // CRUD Supplies
 $routes->post('dashboard/supplies/create', 'Auth::createSupply');

@@ -67,12 +67,13 @@ class Auth extends BaseController
             }
         }
 
-        // 2. Fallback default akun untuk 3 role jika database kosong atau belum di-import
+        // 2. Fallback default akun untuk role jika database kosong atau belum di-import
         $fallbacks = [
             'superadmin' => [
                 'password'   => 'superadmin123',
                 'id'         => 1,
                 'name'       => 'Tim Biro IT',
+                'email'      => 'it@pignatelli.ac.id',
                 'role'       => 'super_admin',
                 'department' => 'Biro IT',
             ],
@@ -80,15 +81,33 @@ class Auth extends BaseController
                 'password'   => 'admin123',
                 'id'         => 2,
                 'name'       => 'Biro Sarana dan Prasarana',
+                'email'      => 'sarpras@pignatelli.ac.id',
                 'role'       => 'admin',
                 'department' => 'Sarpras',
             ],
-            'user' => [
-                'password'   => 'user123',
+            'mahasiswa' => [
+                'password'   => 'mahasiswa123',
                 'id'         => 3,
                 'name'       => 'Budi Santoso',
+                'email'      => 'budi@student.pignatelli.ac.id',
                 'role'       => 'user',
-                'department' => 'Dosen / Mahasiswa',
+                'department' => 'Mahasiswa Informatika',
+            ],
+            'dosen' => [
+                'password'   => 'dosen123',
+                'id'         => 4,
+                'name'       => 'Dr. Siti Rahmawati, M.Kom.',
+                'email'      => 'siti.rahma@pignatelli.ac.id',
+                'role'       => 'user',
+                'department' => 'Dosen Fakultas Sains & Teknologi',
+            ],
+            'user' => [
+                'password'   => 'user123',
+                'id'         => 5,
+                'name'       => 'Budi Santoso',
+                'email'      => 'budi@pignatelli.ac.id',
+                'role'       => 'user',
+                'department' => 'Mahasiswa Informatika',
             ],
         ];
 
@@ -100,6 +119,7 @@ class Auth extends BaseController
                     'user_id'    => $f['id'],
                     'username'   => $username,
                     'user_name'  => $f['name'],
+                    'email'      => $f['email'] ?? ($username . '@pignatelli.ac.id'),
                     'role'       => $f['role'],
                     'department' => $f['department'],
                 ]);
@@ -148,6 +168,23 @@ class Auth extends BaseController
         $allUsers           = [];
         $myRequests         = [];
 
+        // Data Khusus untuk Dashboard User (Mahasiswa & Dosen)
+        $myRoomBookings     = [];
+        $myVehicleBookings  = [];
+        $myMaintenance      = [];
+        $mySupplyRequests   = [];
+        $userStats          = [
+            'total_all'         => 0,
+            'total_rooms'       => 0,
+            'total_vehicles'    => 0,
+            'total_maintenance' => 0,
+            'total_supplies'    => 0,
+            'pending_count'     => 0,
+            'approved_count'    => 0,
+            'rejected_count'    => 0,
+        ];
+        $userType           = 'Mahasiswa';
+
         // Data Lengkap untuk CRUD Admin
         $allLostFound       = [];
         $allVisitors        = [];
@@ -161,6 +198,7 @@ class Auth extends BaseController
 
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
 
             // Hitung statistik umum
             if ($db->tableExists('lost_found')) {
@@ -276,41 +314,153 @@ class Auth extends BaseController
 
             // Data untuk User (Mahasiswa & Dosen)
             if ($role === 'user') {
-                $userRequests = [];
+                $userId    = session()->get('user_id');
+                $userDept  = session()->get('department') ?? '';
+                $username  = session()->get('username') ?? '';
+                $userEmail = session()->get('email') ?? '';
 
+                $isDosen = (stripos($userDept, 'dosen') !== false || stripos($username, 'dosen') !== false || stripos($userName, 'dr.') !== false);
+                $userType = $isDosen ? 'Dosen' : 'Mahasiswa';
+
+                // 1. Peminjaman Ruangan Saya
                 if ($db->tableExists('room_bookings')) {
-                    $rooms = $db->table('room_bookings')
-                        ->select('room_bookings.id, room_bookings.event_name as title, room_bookings.booking_date as date, room_bookings.status, "Ruangan" as type, rooms.room_name as detail')
-                        ->join('rooms', 'rooms.id = room_bookings.room_id', 'left')
-                        ->where('room_bookings.booker_name', $userName)
-                        ->orderBy('room_bookings.id', 'DESC')
-                        ->limit(5)
-                        ->get()->getResultArray();
-                    $userRequests = array_merge($userRequests, $rooms);
+                    $q = $db->table('room_bookings')
+                        ->select('room_bookings.*, rooms.room_name, rooms.capacity')
+                        ->join('rooms', 'rooms.id = room_bookings.room_id', 'left');
+                    if ($db->fieldExists('user_id', 'room_bookings') && $userId) {
+                        $q->groupStart()->where('room_bookings.user_id', $userId)->orWhere('room_bookings.booker_name', $userName)->groupEnd();
+                    } else {
+                        $q->where('room_bookings.booker_name', $userName);
+                    }
+                    $myRoomBookings = $q->orderBy('room_bookings.id', 'DESC')->get()->getResultArray();
                 }
 
+                // 2. Peminjaman Kendaraan Saya
                 if ($db->tableExists('vehicle_bookings')) {
-                    $vehs = $db->table('vehicle_bookings')
-                        ->select('vehicle_bookings.id, vehicle_bookings.destination as title, vehicle_bookings.booking_date as date, vehicle_bookings.status, "Kendaraan" as type, vehicles.vehicle_name as detail')
-                        ->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left')
-                        ->where('vehicle_bookings.booker_name', $userName)
-                        ->orderBy('vehicle_bookings.id', 'DESC')
-                        ->limit(5)
-                        ->get()->getResultArray();
-                    $userRequests = array_merge($userRequests, $vehs);
+                    $q = $db->table('vehicle_bookings')
+                        ->select('vehicle_bookings.*, vehicles.vehicle_name, vehicles.plate_number')
+                        ->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left');
+                    if ($db->fieldExists('user_id', 'vehicle_bookings') && $userId) {
+                        $q->groupStart()->where('vehicle_bookings.user_id', $userId)->orWhere('vehicle_bookings.booker_name', $userName)->groupEnd();
+                    } else {
+                        $q->where('vehicle_bookings.booker_name', $userName);
+                    }
+                    $myVehicleBookings = $q->orderBy('vehicle_bookings.id', 'DESC')->get()->getResultArray();
                 }
 
+                // 3. Request Maintenance Saya
                 if ($db->tableExists('maintenance_requests')) {
-                    $maint = $db->table('maintenance_requests')
-                        ->select('id, facility as title, created_at as date, status, "Maintenance" as type, location as detail')
-                        ->where('requester_name', $userName)
-                        ->orderBy('id', 'DESC')
-                        ->limit(5)
-                        ->get()->getResultArray();
-                    $userRequests = array_merge($userRequests, $maint);
+                    $q = $db->table('maintenance_requests');
+                    if ($db->fieldExists('user_id', 'maintenance_requests') && $userId) {
+                        $q->groupStart()->where('user_id', $userId)->orWhere('requester_name', $userName)->groupEnd();
+                    } else {
+                        $q->where('requester_name', $userName);
+                    }
+                    $myMaintenance = $q->orderBy('id', 'DESC')->get()->getResultArray();
                 }
 
-                $myRequests = $userRequests;
+                // 4. Request Supplies (ATK) Saya
+                if ($db->tableExists('supply_requests')) {
+                    $q = $db->table('supply_requests')
+                        ->select('supply_requests.*, supplies.item_name, supplies.unit, supplies.stock')
+                        ->join('supplies', 'supplies.id = supply_requests.supply_id', 'left');
+                    if ($db->fieldExists('user_id', 'supply_requests') && $userId) {
+                        $q->groupStart()
+                            ->where('supply_requests.user_id', $userId)
+                            ->orWhere('supply_requests.requester_name', $userName)
+                            ->orWhere('supply_requests.email', $userEmail)
+                            ->groupEnd();
+                    } else {
+                        $q->groupStart()
+                            ->where('supply_requests.requester_name', $userName)
+                            ->orWhere('supply_requests.email', $userEmail)
+                            ->groupEnd();
+                    }
+                    $mySupplyRequests = $q->orderBy('supply_requests.id', 'DESC')->get()->getResultArray();
+                }
+
+                // Hitung Statistik Personal Pengguna
+                $userStats['total_rooms']       = count($myRoomBookings);
+                $userStats['total_vehicles']    = count($myVehicleBookings);
+                $userStats['total_maintenance'] = count($myMaintenance);
+                $userStats['total_supplies']    = count($mySupplyRequests);
+                $userStats['total_all']         = $userStats['total_rooms'] + $userStats['total_vehicles'] + $userStats['total_maintenance'] + $userStats['total_supplies'];
+
+                foreach (array_merge($myRoomBookings, $myVehicleBookings, $mySupplyRequests) as $item) {
+                    $st = $item['status'] ?? 'pending';
+                    if ($st === 'approved') {
+                        $userStats['approved_count']++;
+                    } elseif ($st === 'rejected') {
+                        $userStats['rejected_count']++;
+                    } else {
+                        $userStats['pending_count']++;
+                    }
+                }
+
+                foreach ($myMaintenance as $item) {
+                    $st = $item['status'] ?? 'pending';
+                    if ($st === 'resolved') {
+                        $userStats['approved_count']++;
+                    } elseif ($st === 'in_progress') {
+                        $userStats['pending_count']++;
+                    } else {
+                        $userStats['pending_count']++;
+                    }
+                }
+
+                // Bangun ringkasan riwayat pengajuan terkini
+                $allMyCombined = [];
+                foreach ($myRoomBookings as $r) {
+                    $allMyCombined[] = [
+                        'id'         => $r['id'],
+                        'type'       => 'Ruangan',
+                        'title'      => $r['event_name'] ?: 'Peminjaman Ruangan',
+                        'detail'     => ($r['room_name'] ?? 'Ruangan') . ' (' . ($r['start_time'] ?? '') . ' - ' . ($r['end_time'] ?? '') . ')',
+                        'date'       => $r['booking_date'],
+                        'created_at' => $r['created_at'] ?? $r['booking_date'],
+                        'status'     => $r['status'],
+                    ];
+                }
+                foreach ($myVehicleBookings as $v) {
+                    $allMyCombined[] = [
+                        'id'         => $v['id'],
+                        'type'       => 'Kendaraan',
+                        'title'      => 'Tujuan: ' . ($v['destination'] ?: '-'),
+                        'detail'     => ($v['vehicle_name'] ?? 'Mobil Dinas') . ' (' . ($v['booking_day'] ?? '') . ')',
+                        'date'       => $v['booking_date'],
+                        'created_at' => $v['created_at'] ?? $v['booking_date'],
+                        'status'     => $v['status'],
+                    ];
+                }
+                foreach ($myMaintenance as $m) {
+                    $allMyCombined[] = [
+                        'id'         => $m['id'],
+                        'type'       => 'Maintenance',
+                        'title'      => 'Fasilitas: ' . ($m['facility'] ?? '-'),
+                        'detail'     => 'Lokasi: ' . ($m['location'] ?? '-'),
+                        'date'       => substr($m['created_at'] ?? date('Y-m-d'), 0, 10),
+                        'created_at' => $m['created_at'] ?? date('Y-m-d H:i:s'),
+                        'status'     => $m['status'],
+                    ];
+                }
+                foreach ($mySupplyRequests as $s) {
+                    $allMyCombined[] = [
+                        'id'         => $s['id'],
+                        'type'       => 'Supplies (ATK)',
+                        'title'      => ($s['item_name'] ?? 'Barang ATK') . ' (' . ($s['quantity'] ?? 1) . ' ' . ($s['unit'] ?? '') . ')',
+                        'detail'     => 'Dibutuhkan: ' . ($s['date_needed'] ?? '-'),
+                        'date'       => $s['date_requested'],
+                        'created_at' => $s['created_at'] ?? $s['date_requested'],
+                        'status'     => $s['status'],
+                    ];
+                }
+
+                // Urutkan berdasarkan waktu terbaru
+                usort($allMyCombined, function($a, $b) {
+                    return strtotime($b['created_at'] ?? 'now') - strtotime($a['created_at'] ?? 'now');
+                });
+
+                $myRequests = array_slice($allMyCombined, 0, 10);
             }
         } catch (\Throwable $e) {
             // Tetap jalankan dashboard bila ada error koneksi DB
@@ -336,6 +486,13 @@ class Auth extends BaseController
             'roomsList'          => $roomsList,
             'vehiclesList'       => $vehiclesList,
             'myRequests'         => $myRequests,
+            // Variabel Khusus untuk Dashboard Mahasiswa & Dosen
+            'myRoomBookings'     => $myRoomBookings,
+            'myVehicleBookings'  => $myVehicleBookings,
+            'myMaintenance'      => $myMaintenance,
+            'mySupplyRequests'   => $mySupplyRequests,
+            'userStats'          => $userStats,
+            'userType'           => $userType,
         ]);
     }
 
@@ -1183,6 +1340,87 @@ class Auth extends BaseController
             return redirect()->to('/dashboard#request')->with('message', 'Permohonan supplies berhasil dihapus.');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard#request')->with('error', 'Gagal menghapus: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Membatalkan permohonan milik pengguna (Mahasiswa/Dosen) yang masih berstatus pending
+     */
+    public function cancelMyRequest()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $userId   = session()->get('user_id');
+        $userName = session()->get('user_name');
+        $role     = session()->get('role') ?? 'user';
+        $type     = (string) $this->request->getPost('type');
+        $id       = (int) $this->request->getPost('id');
+
+        if (empty($id) || empty($type)) {
+            return redirect()->to('/dashboard')->with('error', 'Permintaan pembatalan tidak valid.');
+        }
+
+        $tableMap = [
+            'room'        => ['table' => 'room_bookings', 'user_col' => 'booker_name', 'label' => 'Peminjaman Ruangan', 'tab' => '#myrooms'],
+            'vehicle'     => ['table' => 'vehicle_bookings', 'user_col' => 'booker_name', 'label' => 'Peminjaman Kendaraan', 'tab' => '#myvehicles'],
+            'maintenance' => ['table' => 'maintenance_requests', 'user_col' => 'requester_name', 'label' => 'Request Maintenance', 'tab' => '#mymaintenance'],
+            'supplies'    => ['table' => 'supply_requests', 'user_col' => 'requester_name', 'label' => 'Request Supplies (ATK)', 'tab' => '#mysupplies'],
+        ];
+
+        if (!isset($tableMap[$type])) {
+            return redirect()->to('/dashboard')->with('error', 'Tipe permohonan tidak dikenal.');
+        }
+
+        $info = $tableMap[$type];
+
+        try {
+            $db = \Config\Database::connect();
+            $builder = $db->table($info['table'])->where('id', $id);
+
+            // Validasi kepemilikan: non-admin hanya dapat menghapus permohonan miliknya sendiri
+            if (!in_array($role, ['super_admin', 'admin'])) {
+                if ($db->fieldExists('user_id', $info['table']) && $userId) {
+                    $builder->groupStart()
+                        ->where('user_id', $userId)
+                        ->orWhere($info['user_col'], $userName)
+                        ->groupEnd();
+                } else {
+                    $builder->where($info['user_col'], $userName);
+                }
+            }
+
+            $item = $builder->get()->getRowArray();
+            if (!$item) {
+                return redirect()->to('/dashboard' . $info['tab'])->with('error', 'Data tidak ditemukan atau Anda tidak memiliki akses untuk membatalkannya.');
+            }
+
+            if ($item['status'] !== 'pending') {
+                return redirect()->to('/dashboard' . $info['tab'])->with('error', 'Hanya permohonan dengan status "Pending" yang dapat dibatalkan.');
+            }
+
+            $db->table($info['table'])->where('id', $id)->delete();
+            return redirect()->to('/dashboard' . $info['tab'])->with('message', $info['label'] . ' berhasil dibatalkan dan dihapus.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard' . $info['tab'])->with('error', 'Gagal membatalkan permohonan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Memastikan kolom user_id tersedia di tabel-tabel permohonan untuk multi-account isolation
+     */
+    private function ensureUserIdColumns($db)
+    {
+        $tables = ['room_bookings', 'vehicle_bookings', 'maintenance_requests', 'supply_requests'];
+        foreach ($tables as $tbl) {
+            if ($db->tableExists($tbl)) {
+                if (!$db->fieldExists('user_id', $tbl)) {
+                    try {
+                        $db->query("ALTER TABLE `{$tbl}` ADD COLUMN `user_id` INT(11) UNSIGNED NULL AFTER `id`");
+                    } catch (\Throwable $e) {}
+                }
+            }
         }
     }
 }

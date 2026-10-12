@@ -76,11 +76,12 @@
                     </div>
 
                     <div class="p-3 bg-light rounded-3 mb-3 border">
-                        <small class="text-muted d-block fw-bold mb-1">Akses Akun (Level Auth):</small>
+                        <small class="text-muted d-block fw-bold mb-1">Akses Akun Default (Level Auth):</small>
                         <div class="row g-1 small text-muted">
                             <div class="col-12"><span class="badge bg-danger">Super Admin</span> <code>superadmin</code> / <code>superadmin123</code> (Biro IT)</div>
                             <div class="col-12"><span class="badge bg-primary">Admin</span> <code>admin</code> / <code>admin123</code> (Sarpras)</div>
-                            <div class="col-12"><span class="badge bg-success">User</span> <code>user</code> / <code>user123</code> (Mhs & Dosen)</div>
+                            <div class="col-12"><span class="badge bg-success">Mahasiswa</span> <code>mahasiswa</code> / <code>mahasiswa123</code> (Budi Santoso)</div>
+                            <div class="col-12"><span class="badge bg-info text-dark">Dosen</span> <code>dosen</code> / <code>dosen123</code> (Dr. Siti Rahmawati)</div>
                         </div>
                     </div>
 

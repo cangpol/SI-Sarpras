@@ -51,6 +51,7 @@ INSERT INTO `rooms` (`id`, `room_name`, `capacity`) VALUES
 
 CREATE TABLE IF NOT EXISTS `room_bookings` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) UNSIGNED DEFAULT NULL,
   `room_id` int(11) UNSIGNED NOT NULL,
   `booking_date` date NOT NULL,
   `start_time` time NOT NULL,
@@ -82,6 +83,7 @@ INSERT INTO `vehicles` (`id`, `vehicle_name`, `plate_number`) VALUES
 
 CREATE TABLE IF NOT EXISTS `vehicle_bookings` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) UNSIGNED DEFAULT NULL,
   `vehicle_id` int(11) UNSIGNED NOT NULL,
   `booking_date` date NOT NULL,
   `booking_day` varchar(50) NOT NULL,
@@ -103,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `vehicle_bookings` (
 
 CREATE TABLE IF NOT EXISTS `maintenance_requests` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) UNSIGNED DEFAULT NULL,
   `requester_name` varchar(150) NOT NULL,
   `department` varchar(100) NOT NULL,
   `location` varchar(255) NOT NULL,
@@ -133,6 +136,7 @@ INSERT INTO `supplies` (`id`, `item_name`, `quantity`, `unit`, `stock`, `min_sto
 
 CREATE TABLE IF NOT EXISTS `supply_requests` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) UNSIGNED DEFAULT NULL,
   `email` varchar(150) NOT NULL,
   `requester_name` varchar(150) NOT NULL,
   `department` varchar(150) NOT NULL,
@@ -163,7 +167,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `department`, `created_at`, `updated_at`) VALUES
 (1, 'superadmin', 'superadmin123', 'Tim Biro IT', 'it@pignatelli.ac.id', 'super_admin', 'Biro IT', NOW(), NOW()),
 (2, 'admin', 'admin123', 'Biro Sarana dan Prasarana', 'sarpras@pignatelli.ac.id', 'admin', 'Sarpras', NOW(), NOW()),
-(3, 'user', 'user123', 'Budi Santoso', 'budi@pignatelli.ac.id', 'user', 'Dosen / Mahasiswa', NOW(), NOW());
+(3, 'mahasiswa', 'mahasiswa123', 'Budi Santoso', 'budi@student.pignatelli.ac.id', 'user', 'Mahasiswa Informatika', NOW(), NOW()),
+(4, 'dosen', 'dosen123', 'Dr. Siti Rahmawati, M.Kom.', 'siti.rahma@pignatelli.ac.id', 'user', 'Dosen Fakultas Sains & Teknologi', NOW(), NOW()),
+(5, 'user', 'user123', 'Budi Santoso', 'budi@pignatelli.ac.id', 'user', 'Dosen / Mahasiswa', NOW(), NOW());
 
 COMMIT;
 

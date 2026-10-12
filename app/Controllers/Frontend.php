@@ -131,13 +131,14 @@ class Frontend extends BaseController
 
         try {
             $db = \Config\Database::connect();
-            $db->table('room_bookings')->insert([
+            $userId = session()->get('user_id');
+            $dataInsert = [
                 'room_id'         => $this->request->getPost('room_id'),
                 'booking_date'    => $this->request->getPost('booking_date'),
                 'start_time'      => $this->request->getPost('start_time'),
                 'end_time'        => $this->request->getPost('end_time'),
-                'booker_name'     => $this->request->getPost('booker_name'),
-                'department'      => $this->request->getPost('department'),
+                'booker_name'     => $this->request->getPost('booker_name') ?: session()->get('user_name'),
+                'department'      => $this->request->getPost('department') ?: session()->get('department'),
                 'event_name'      => $this->request->getPost('event_name'),
                 'setup'           => $this->request->getPost('setup'),
                 'material_needed' => $this->request->getPost('material_needed'),
@@ -145,7 +146,12 @@ class Frontend extends BaseController
                 'status'          => 'pending',
                 'created_at'      => date('Y-m-d H:i:s'),
                 'updated_at'      => date('Y-m-d H:i:s')
-            ]);
+            ];
+            if ($userId && $db->fieldExists('user_id', 'room_bookings')) {
+                $dataInsert['user_id'] = $userId;
+            }
+
+            $db->table('room_bookings')->insert($dataInsert);
             return redirect()->back()->with('message', 'Form Peminjaman Ruangan berhasil dikirim dan menunggu persetujuan!');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan peminjaman ruangan: ' . $e->getMessage());
@@ -185,14 +191,15 @@ class Frontend extends BaseController
 
         try {
             $db = \Config\Database::connect();
-            $db->table('vehicle_bookings')->insert([
+            $userId = session()->get('user_id');
+            $dataInsert = [
                 'vehicle_id'   => $this->request->getPost('vehicle_id'),
                 'booking_date' => $this->request->getPost('booking_date'),
                 'booking_day'  => $this->request->getPost('booking_day'),
                 'start_time'   => $this->request->getPost('start_time'),
                 'end_time'     => $this->request->getPost('end_time'),
-                'booker_name'  => $this->request->getPost('booker_name'),
-                'department'   => $this->request->getPost('department'),
+                'booker_name'  => $this->request->getPost('booker_name') ?: session()->get('user_name'),
+                'department'   => $this->request->getPost('department') ?: session()->get('department'),
                 'destination'  => $this->request->getPost('destination'),
                 'description'  => $this->request->getPost('description'),
                 'driver_name'  => $this->request->getPost('driver_name'),
@@ -201,7 +208,12 @@ class Frontend extends BaseController
                 'status'       => 'pending',
                 'created_at'   => date('Y-m-d H:i:s'),
                 'updated_at'   => date('Y-m-d H:i:s')
-            ]);
+            ];
+            if ($userId && $db->fieldExists('user_id', 'vehicle_bookings')) {
+                $dataInsert['user_id'] = $userId;
+            }
+
+            $db->table('vehicle_bookings')->insert($dataInsert);
             return redirect()->back()->with('message', 'Form Peminjaman Kendaraan berhasil dikirim dan menunggu persetujuan!');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan peminjaman kendaraan: ' . $e->getMessage());
@@ -228,22 +240,28 @@ class Frontend extends BaseController
 
         try {
             $db = \Config\Database::connect();
+            $userId = session()->get('user_id');
             
             $facility = $this->request->getPost('facility');
             if ($facility === 'Others') {
                 $facility = $this->request->getPost('facility_other');
             }
             
-            $db->table('maintenance_requests')->insert([
-                'requester_name' => $this->request->getPost('requester_name'),
-                'department'     => $this->request->getPost('department'),
+            $dataInsert = [
+                'requester_name' => $this->request->getPost('requester_name') ?: session()->get('user_name'),
+                'department'     => $this->request->getPost('department') ?: session()->get('department'),
                 'location'       => $this->request->getPost('location'),
                 'facility'       => $facility,
                 'description'    => $this->request->getPost('description'),
                 'status'         => 'pending',
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s')
-            ]);
+            ];
+            if ($userId && $db->fieldExists('user_id', 'maintenance_requests')) {
+                $dataInsert['user_id'] = $userId;
+            }
+
+            $db->table('maintenance_requests')->insert($dataInsert);
             return redirect()->back()->with('message', 'Request Maintenance berhasil dikirim!');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal mengirim request maintenance: ' . $e->getMessage());
@@ -283,9 +301,10 @@ class Frontend extends BaseController
 
         try {
             $db = \Config\Database::connect();
-            $email         = (string) $this->request->getPost('email');
-            $requesterName = (string) $this->request->getPost('requester_name');
-            $department    = (string) $this->request->getPost('department');
+            $userId        = session()->get('user_id');
+            $email         = (string) ($this->request->getPost('email') ?: session()->get('email'));
+            $requesterName = (string) ($this->request->getPost('requester_name') ?: session()->get('user_name'));
+            $department    = (string) ($this->request->getPost('department') ?: session()->get('department'));
             $dateRequested = (string) ($this->request->getPost('date_requested') ?: date('Y-m-d'));
             $dateNeeded    = (string) $this->request->getPost('date_needed');
 
@@ -298,7 +317,7 @@ class Frontend extends BaseController
                     $quantity = (int) ($item['quantity'] ?? 1);
 
                     if ($supplyId > 0 && $quantity > 0) {
-                        $db->table('supply_requests')->insert([
+                        $row = [
                             'email'          => $email,
                             'requester_name' => $requesterName,
                             'department'     => $department,
@@ -309,7 +328,12 @@ class Frontend extends BaseController
                             'status'         => 'pending',
                             'created_at'     => date('Y-m-d H:i:s'),
                             'updated_at'     => date('Y-m-d H:i:s'),
-                        ]);
+                        ];
+                        if ($userId && $db->fieldExists('user_id', 'supply_requests')) {
+                            $row['user_id'] = $userId;
+                        }
+
+                        $db->table('supply_requests')->insert($row);
                         $insertedCount++;
                     }
                 }
@@ -319,7 +343,7 @@ class Frontend extends BaseController
                 $quantity = (int) ($this->request->getPost('quantity') ?: 1);
 
                 if ($supplyId > 0 && $quantity > 0) {
-                    $db->table('supply_requests')->insert([
+                    $row = [
                         'email'          => $email,
                         'requester_name' => $requesterName,
                         'department'     => $department,
@@ -330,7 +354,12 @@ class Frontend extends BaseController
                         'status'         => 'pending',
                         'created_at'     => date('Y-m-d H:i:s'),
                         'updated_at'     => date('Y-m-d H:i:s'),
-                    ]);
+                    ];
+                    if ($userId && $db->fieldExists('user_id', 'supply_requests')) {
+                        $row['user_id'] = $userId;
+                    }
+
+                    $db->table('supply_requests')->insert($row);
                     $insertedCount++;
                 }
             }

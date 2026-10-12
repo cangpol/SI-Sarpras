@@ -15,8 +15,9 @@ if ($role === 'super_admin') {
     $roleName = 'Admin (Sarpras)';
     $roleBadgeClass = 'bg-primary';
 } else {
-    $roleName = 'User (Mahasiswa / Dosen)';
-    $roleBadgeClass = 'bg-success';
+    $uType = $userType ?? ((stripos($userDept, 'dosen') !== false || stripos($userLoginName, 'dosen') !== false) ? 'Dosen' : 'Mahasiswa');
+    $roleName = 'User (' . $uType . ')';
+    $roleBadgeClass = ($uType === 'Dosen') ? 'bg-info text-dark' : 'bg-success';
 }
 
 $departments = [
@@ -171,11 +172,55 @@ $departments = [
                     <?php endif; ?>
 
                     <?php if ($role === 'user'): ?>
-                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1" id="tab-myrequests-btn" data-bs-toggle="pill" data-bs-target="#tab-myrequests" type="button" role="tab">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-clock-history me-2" viewBox="0 0 16 16">
-                            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .79.522l-.492.871zM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-1 0a7 7 0 1 0-14 0 7 7 0 0 0 14 0m-6.5-4a.5.5 0 0 0-1 0v4.5a.5.5 0 0 0 .246.43l3 1.5a.5.5 0 1 0 .492-.868L8.5 8.243z"/>
-                        </svg>
-                        Pengajuan Saya
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1 d-flex justify-content-between align-items-center" id="tab-myrooms-btn" data-bs-toggle="pill" data-bs-target="#tab-myrooms" type="button" role="tab">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-door-open me-2" viewBox="0 0 16 16">
+                                <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1"/>
+                                <path d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117M11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5M4 1.934V15h6V1.077z"/>
+                            </svg>
+                            Ruangan Saya
+                        </div>
+                        <span class="badge bg-success rounded-pill"><?= count($myRoomBookings ?? []) ?></span>
+                    </button>
+
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1 d-flex justify-content-between align-items-center" id="tab-myvehicles-btn" data-bs-toggle="pill" data-bs-target="#tab-myvehicles" type="button" role="tab">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-car-front me-2" viewBox="0 0 16 16">
+                                <path d="M4 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0m10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM4.862 4.276 3.906 6.19a.51.51 0 0 0 .497.81h7.194a.51.51 0 0 0 .497-.81l-.956-1.913A1 1 0 0 0 10.244 3.75H5.756a1 1 0 0 0-.894.526M2.52 3.515A2 2 0 0 1 4.309 2.5h7.382a2 2 0 0 1 1.79 1.015l1.096 2.193A1.5 1.5 0 0 1 15 6.837V12.5a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5V12H5v.5A1.5 1.5 0 0 1 3.5 14h-1A1.5 1.5 0 0 1 1 12.5V6.837a1.5 1.5 0 0 1 .424-1.129zM2 7v5.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V11h8v1.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V7a.5.5 0 0 0-.5-.5H2.5a.5.5 0 0 0-.5.5"/>
+                            </svg>
+                            Kendaraan Saya
+                        </div>
+                        <span class="badge bg-primary rounded-pill"><?= count($myVehicleBookings ?? []) ?></span>
+                    </button>
+
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1 d-flex justify-content-between align-items-center" id="tab-mymaintenance-btn" data-bs-toggle="pill" data-bs-target="#tab-mymaintenance" type="button" role="tab">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-tools me-2" viewBox="0 0 16 16">
+                                <path d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.27 3.27a.997.997 0 0 0 1.414 0l1.586-1.586a.997.997 0 0 0 0-1.414l-3.27-3.27a1 1 0 0 0-1.023-.242L10.5 9.5l-.969-.969 2.676-2.675a1 1 0 0 1 .707-.293h.07a1 1 0 0 0 .815-.419L16 1 15 0 11.919 2.2a1 1 0 0 0-.419.815v.07a1 1 0 0 1-.293.708L8.532 6.468 6.468 4.404l2.675-2.676a1 1 0 0 1 .708-.293h.07a1 1 0 0 0 .815-.419z"/>
+                            </svg>
+                            Maintenance Saya
+                        </div>
+                        <span class="badge bg-warning text-dark rounded-pill"><?= count($myMaintenance ?? []) ?></span>
+                    </button>
+
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1 d-flex justify-content-between align-items-center" id="tab-mysupplies-btn" data-bs-toggle="pill" data-bs-target="#tab-mysupplies" type="button" role="tab">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-box-seam me-2" viewBox="0 0 16 16">
+                                <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                            </svg>
+                            Supplies (ATK) Saya
+                        </div>
+                        <span class="badge bg-danger rounded-pill"><?= count($mySupplyRequests ?? []) ?></span>
+                    </button>
+
+                    <button class="nav-link text-start py-3 px-3 rounded-3 mb-1 d-flex justify-content-between align-items-center" id="tab-myrequests-btn" data-bs-toggle="pill" data-bs-target="#tab-myrequests" type="button" role="tab">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-clock-history me-2" viewBox="0 0 16 16">
+                                <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .79.522l-.492.871zM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-1 0a7 7 0 1 0-14 0 7 7 0 0 0 14 0m-6.5-4a.5.5 0 0 0-1 0v4.5a.5.5 0 0 0 .246.43l3 1.5a.5.5 0 1 0 .492-.868L8.5 8.243z"/>
+                            </svg>
+                            Riwayat Semua Pengajuan
+                        </div>
+                        <span class="badge bg-secondary rounded-pill"><?= $userStats['total_all'] ?? 0 ?></span>
                     </button>
                     <?php endif; ?>
                 </div>
@@ -191,6 +236,231 @@ $departments = [
             <!-- TAB 1: OVERVIEW & RINGKASAN -->
             <!-- ============================================== -->
             <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
+                <?php if ($role === 'user'): ?>
+                <!-- ============================================== -->
+                <!-- OVERVIEW KHUSUS PENGGUNA (MAHASISWA / DOSEN) -->
+                <!-- ============================================== -->
+                <!-- 1. Statistik Pengajuan Saya -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm border-start border-4 border-success">
+                            <div class="card-body">
+                                <div class="text-muted small fw-semibold text-uppercase">Ruangan Saya</div>
+                                <h3 class="fw-bold my-1 text-success"><?= count($myRoomBookings ?? []) ?></h3>
+                                <small class="text-muted">Booking Ruangan Diajukan</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm border-start border-4 border-primary">
+                            <div class="card-body">
+                                <div class="text-muted small fw-semibold text-uppercase">Kendaraan Saya</div>
+                                <h3 class="fw-bold my-1 text-primary"><?= count($myVehicleBookings ?? []) ?></h3>
+                                <small class="text-muted">Booking Mobil Dinas Diajukan</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm border-start border-4 border-warning">
+                            <div class="card-body">
+                                <div class="text-muted small fw-semibold text-uppercase">Maintenance Saya</div>
+                                <h3 class="fw-bold my-1 text-warning"><?= count($myMaintenance ?? []) ?></h3>
+                                <small class="text-muted">Laporan Perbaikan Fasilitas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm border-start border-4 border-danger">
+                            <div class="card-body">
+                                <div class="text-muted small fw-semibold text-uppercase">Supplies (ATK) Saya</div>
+                                <h3 class="fw-bold my-1 text-danger"><?= count($mySupplyRequests ?? []) ?></h3>
+                                <small class="text-muted">Permohonan Alat Tulis Kantor</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Status Tracking Summary -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-warning bg-opacity-10 border-start border-4 border-warning rounded-4">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-warning-emphasis small fw-bold text-uppercase">Menunggu Konfirmasi</div>
+                                        <h4 class="fw-bold text-dark mb-0"><?= esc($userStats['pending_count'] ?? 0) ?></h4>
+                                    </div>
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-success bg-opacity-10 border-start border-4 border-success rounded-4">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-success-emphasis small fw-bold text-uppercase">Disetujui / Selesai</div>
+                                        <h4 class="fw-bold text-dark mb-0"><?= esc($userStats['approved_count'] ?? 0) ?></h4>
+                                    </div>
+                                    <span class="badge bg-success px-3 py-2 rounded-pill">Approved</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-danger bg-opacity-10 border-start border-4 border-danger rounded-4">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-danger-emphasis small fw-bold text-uppercase">Ditolak</div>
+                                        <h4 class="fw-bold text-dark mb-0"><?= esc($userStats['rejected_count'] ?? 0) ?></h4>
+                                    </div>
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill">Rejected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Form Cepat untuk Mahasiswa & Dosen -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-send me-2" viewBox="0 0 16 16">
+                                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                                </svg>
+                                Buat Pengajuan Baru
+                            </h5>
+                            <span class="badge bg-primary bg-opacity-10 text-primary">Akses Khusus <?= esc($userType ?? 'Pengguna') ?></span>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="row g-2">
+                            <div class="col-md-6 col-lg-3">
+                                <a href="/peminjaman/ruangan" class="btn btn-outline-success w-100 text-start py-2 d-flex align-items-center justify-content-between">
+                                    <span><i class="bi bi-door-open me-2"></i>Pinjam Ruangan</span>
+                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                </a>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <a href="/peminjaman/kendaraan" class="btn btn-outline-primary w-100 text-start py-2 d-flex align-items-center justify-content-between">
+                                    <span><i class="bi bi-car-front me-2"></i>Pinjam Kendaraan</span>
+                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                </a>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <a href="/request/maintenance" class="btn btn-outline-warning w-100 text-start py-2 d-flex align-items-center justify-content-between">
+                                    <span><i class="bi bi-tools me-2"></i>Request Perbaikan</span>
+                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                </a>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <a href="/request/supplies" class="btn btn-outline-danger w-100 text-start py-2 d-flex align-items-center justify-content-between">
+                                    <span><i class="bi bi-box-seam me-2"></i>Request ATK</span>
+                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Riwayat 10 Aktivitas Terkini Pengguna -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock-history me-2" viewBox="0 0 16 16">
+                                    <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .79.522l-.492.871zM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-1 0a7 7 0 1 0-14 0 7 7 0 0 0 14 0m-6.5-4a.5.5 0 0 0-1 0v4.5a.5.5 0 0 0 .246.43l3 1.5a.5.5 0 1 0 .492-.868L8.5 8.243z"/>
+                                </svg>
+                                10 Pengajuan Terkini Saya
+                            </h5>
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="document.getElementById('tab-myrequests-btn').click();">
+                                Lihat Semua &rarr;
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Layanan</th>
+                                    <th>Keterangan / Detail</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($myRequests)): ?>
+                                    <?php foreach ($myRequests as $req): ?>
+                                        <tr>
+                                            <td>
+                                                <?php if ($req['type'] === 'Ruangan'): ?>
+                                                    <span class="badge bg-success">Ruangan</span>
+                                                <?php elseif ($req['type'] === 'Kendaraan'): ?>
+                                                    <span class="badge bg-primary">Kendaraan</span>
+                                                <?php elseif ($req['type'] === 'Maintenance'): ?>
+                                                    <span class="badge bg-warning text-dark">Maintenance</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger">Supplies (ATK)</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <strong><?= esc($req['title']) ?></strong><br>
+                                                <small class="text-muted"><?= esc($req['detail'] ?? '-') ?></small>
+                                            </td>
+                                            <td><?= esc($req['date'] ?? '-') ?></td>
+                                            <td>
+                                                <?php if ($req['status'] === 'approved' || $req['status'] === 'resolved'): ?>
+                                                    <span class="badge bg-success">Disetujui / Selesai</span>
+                                                <?php elseif ($req['status'] === 'rejected'): ?>
+                                                    <span class="badge bg-danger">Ditolak</span>
+                                                <?php elseif ($req['status'] === 'in_progress'): ?>
+                                                    <span class="badge bg-info text-dark">Dalam Pengerjaan</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Menunggu Konfirmasi</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php if (($req['status'] ?? 'pending') === 'pending'): ?>
+                                                    <?php 
+                                                        $cancelType = 'room';
+                                                        if ($req['type'] === 'Kendaraan') $cancelType = 'vehicle';
+                                                        elseif ($req['type'] === 'Maintenance') $cancelType = 'maintenance';
+                                                        elseif (stripos($req['type'], 'Supplies') !== false) $cancelType = 'supplies';
+                                                    ?>
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="type" value="<?= $cancelType ?>">
+                                                        <input type="hidden" name="id" value="<?= $req['id'] ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            Belum ada aktivitas pengajuan. Silakan buat pengajuan melalui tombol di atas!
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <?php else: ?>
+                <!-- ============================================== -->
+                <!-- OVERVIEW UNTUK ADMIN SARPRAS & SUPER ADMIN BIRO IT -->
+                <!-- ============================================== -->
                 <div class="row g-3 mb-4">
                     <div class="col-sm-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm border-start border-4 border-success">
@@ -288,6 +558,7 @@ $departments = [
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
 
             <!-- ============================================== -->
@@ -1666,13 +1937,385 @@ $departments = [
             <?php endif; ?>
 
             <!-- ============================================== -->
-            <!-- TAB 8: PENGAJUAN SAYA (KHUSUS MAHASISWA & DOSEN) -->
+            <!-- TAB KHUSUS PENGGUNA: RUANGAN SAYA -->
             <!-- ============================================== -->
             <?php if ($role === 'user'): ?>
+            <div class="tab-pane fade" id="tab-myrooms" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-door-open me-2" viewBox="0 0 16 16">
+                                        <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1"/>
+                                        <path d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117M11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5M4 1.934V15h6V1.077z"/>
+                                    </svg>
+                                    Peminjaman Ruangan Saya (<?= count($myRoomBookings ?? []) ?>)
+                                </h4>
+                                <small class="text-muted">Daftar permohonan peminjaman ruangan yang telah Anda ajukan.</small>
+                            </div>
+                            <a href="/peminjaman/ruangan" class="btn btn-success rounded-pill px-4 fw-bold">
+                                + Pinjam Ruangan Baru
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Ruangan</th>
+                                    <th>Tanggal & Waktu</th>
+                                    <th>Kegiatan & Fasilitas</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($myRoomBookings)): ?>
+                                    <?php $no = 1; foreach ($myRoomBookings as $rb): ?>
+                                        <tr>
+                                            <td><?= $no++ ?></td>
+                                            <td>
+                                                <strong><?= esc($rb['room_name'] ?? 'Ruangan #' . $rb['room_id']) ?></strong><br>
+                                                <small class="text-muted">Kapasitas: <?= esc($rb['capacity'] ?? '-') ?> org</small>
+                                            </td>
+                                            <td>
+                                                <span class="fw-semibold"><?= esc($rb['booking_date']) ?></span><br>
+                                                <small class="text-muted"><?= esc($rb['start_time']) ?> - <?= esc($rb['end_time']) ?></small>
+                                            </td>
+                                            <td>
+                                                <strong><?= esc($rb['event_name']) ?></strong><br>
+                                                <small class="text-muted">Setup: <?= esc($rb['setup'] ?: 'Standar') ?></small>
+                                                <?php if (!empty($rb['material_needed'])): ?>
+                                                    <br><small class="text-muted"><i class="bi bi-box me-1"></i><?= esc($rb['material_needed']) ?></small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if ($rb['status'] === 'approved'): ?>
+                                                    <span class="badge bg-success">Disetujui</span>
+                                                <?php elseif ($rb['status'] === 'rejected'): ?>
+                                                    <span class="badge bg-danger">Ditolak</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Menunggu Konfirmasi</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php if ($rb['status'] === 'pending'): ?>
+                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan booking ruangan ini?');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="type" value="room">
+                                                        <input type="hidden" name="id" value="<?= $rb['id'] ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            Anda belum pernah mengajukan peminjaman ruangan.<br>
+                                            <a href="/peminjaman/ruangan" class="btn btn-success btn-sm rounded-pill mt-2">+ Ajukan Peminjaman Sekarang</a>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB KHUSUS PENGGUNA: KENDARAAN SAYA -->
+            <!-- ============================================== -->
+            <div class="tab-pane fade" id="tab-myvehicles" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-car-front me-2" viewBox="0 0 16 16">
+                                        <path d="M4 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0m10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM4.862 4.276 3.906 6.19a.51.51 0 0 0 .497.81h7.194a.51.51 0 0 0 .497-.81l-.956-1.913A1 1 0 0 0 10.244 3.75H5.756a1 1 0 0 0-.894.526M2.52 3.515A2 2 0 0 1 4.309 2.5h7.382a2 2 0 0 1 1.79 1.015l1.096 2.193A1.5 1.5 0 0 1 15 6.837V12.5a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5V12H5v.5A1.5 1.5 0 0 1 3.5 14h-1A1.5 1.5 0 0 1 1 12.5V6.837a1.5 1.5 0 0 1 .424-1.129zM2 7v5.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V11h8v1.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V7a.5.5 0 0 0-.5-.5H2.5a.5.5 0 0 0-.5.5"/>
+                                    </svg>
+                                    Peminjaman Kendaraan Saya (<?= count($myVehicleBookings ?? []) ?>)
+                                </h4>
+                                <small class="text-muted">Daftar permohonan peminjaman kendaraan dinas yang Anda ajukan.</small>
+                            </div>
+                            <a href="/peminjaman/kendaraan" class="btn btn-primary rounded-pill px-4 fw-bold">
+                                + Pinjam Kendaraan Baru
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Mobil Dinas</th>
+                                    <th>Tanggal & Hari</th>
+                                    <th>Tujuan & Jam</th>
+                                    <th>Keperluan</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($myVehicleBookings)): ?>
+                                    <?php $no = 1; foreach ($myVehicleBookings as $vb): ?>
+                                        <tr>
+                                            <td><?= $no++ ?></td>
+                                            <td>
+                                                <strong><?= esc($vb['vehicle_name'] ?? 'Kendaraan #' . $vb['vehicle_id']) ?></strong><br>
+                                                <span class="badge bg-secondary"><?= esc($vb['plate_number'] ?? '-') ?></span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-semibold"><?= esc($vb['booking_date']) ?></span><br>
+                                                <small class="text-muted"><?= esc($vb['booking_day'] ?: '-') ?></small>
+                                            </td>
+                                            <td>
+                                                <strong><?= esc($vb['destination']) ?></strong><br>
+                                                <small class="text-muted"><?= esc($vb['start_time']) ?> - <?= esc($vb['end_time']) ?></small>
+                                            </td>
+                                            <td>
+                                                <small><?= esc($vb['description'] ?: '-') ?></small>
+                                                <?php if (!empty($vb['driver_name'])): ?>
+                                                    <br><small class="text-muted"><i class="bi bi-person me-1"></i>Driver: <?= esc($vb['driver_name']) ?></small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if ($vb['status'] === 'approved'): ?>
+                                                    <span class="badge bg-success">Disetujui</span>
+                                                <?php elseif ($vb['status'] === 'rejected'): ?>
+                                                    <span class="badge bg-danger">Ditolak</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Menunggu Konfirmasi</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php if ($vb['status'] === 'pending'): ?>
+                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan booking kendaraan ini?');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="type" value="vehicle">
+                                                        <input type="hidden" name="id" value="<?= $vb['id'] ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">
+                                            Anda belum pernah mengajukan peminjaman kendaraan.<br>
+                                            <a href="/peminjaman/kendaraan" class="btn btn-primary btn-sm rounded-pill mt-2">+ Ajukan Peminjaman Kendaraan</a>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB KHUSUS PENGGUNA: MAINTENANCE SAYA -->
+            <!-- ============================================== -->
+            <div class="tab-pane fade" id="tab-mymaintenance" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-warning text-dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-tools me-2" viewBox="0 0 16 16">
+                                        <path d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.27 3.27a.997.997 0 0 0 1.414 0l1.586-1.586a.997.997 0 0 0 0-1.414l-3.27-3.27a1 1 0 0 0-1.023-.242L10.5 9.5l-.969-.969 2.676-2.675a1 1 0 0 1 .707-.293h.07a1 1 0 0 0 .815-.419L16 1 15 0 11.919 2.2a1 1 0 0 0-.419.815v.07a1 1 0 0 1-.293.708L8.532 6.468 6.468 4.404l2.675-2.676a1 1 0 0 1 .708-.293h.07a1 1 0 0 0 .815-.419z"/>
+                                    </svg>
+                                    Request Maintenance Saya (<?= count($myMaintenance ?? []) ?>)
+                                </h4>
+                                <small class="text-muted">Pantau status pengerjaan laporan perbaikan fasilitas kampus Anda.</small>
+                            </div>
+                            <a href="/request/maintenance" class="btn btn-warning rounded-pill px-4 fw-bold">
+                                + Lapor Perbaikan Fasilitas
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Fasilitas & Lokasi</th>
+                                    <th>Keterangan Kerusakan</th>
+                                    <th>Tanggal Lapor</th>
+                                    <th>Status Pengerjaan</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($myMaintenance)): ?>
+                                    <?php $no = 1; foreach ($myMaintenance as $mt): ?>
+                                        <tr>
+                                            <td><?= $no++ ?></td>
+                                            <td>
+                                                <span class="badge bg-secondary"><?= esc($mt['facility']) ?></span><br>
+                                                <strong><?= esc($mt['location']) ?></strong>
+                                            </td>
+                                            <td>
+                                                <small><?= esc($mt['description']) ?></small>
+                                            </td>
+                                            <td>
+                                                <?= esc(substr($mt['created_at'] ?? '-', 0, 10)) ?>
+                                            </td>
+                                            <td>
+                                                <?php if ($mt['status'] === 'resolved'): ?>
+                                                    <span class="badge bg-success">Selesai (Resolved)</span>
+                                                <?php elseif ($mt['status'] === 'in_progress'): ?>
+                                                    <span class="badge bg-info text-dark">Sedang Dikerjakan</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Menunggu Antrian</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php if ($mt['status'] === 'pending'): ?>
+                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan laporan maintenance ini?');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="type" value="maintenance">
+                                                        <input type="hidden" name="id" value="<?= $mt['id'] ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            Anda belum pernah mengajukan laporan maintenance perbaikan fasilitas.<br>
+                                            <a href="/request/maintenance" class="btn btn-warning btn-sm rounded-pill mt-2">+ Buat Laporan Maintenance</a>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB KHUSUS PENGGUNA: SUPPLIES (ATK) SAYA -->
+            <!-- ============================================== -->
+            <div class="tab-pane fade" id="tab-mysupplies" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-danger">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-box-seam me-2" viewBox="0 0 16 16">
+                                        <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                                    </svg>
+                                    Permohonan Supplies (ATK) Saya (<?= count($mySupplyRequests ?? []) ?>)
+                                </h4>
+                                <small class="text-muted">Daftar permohonan pengambilan barang/alat tulis kantor Anda.</small>
+                            </div>
+                            <a href="/request/supplies" class="btn btn-danger rounded-pill px-4 fw-bold">
+                                + Request Barang ATK
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Barang (ATK)</th>
+                                    <th>Jumlah Diminta</th>
+                                    <th>Tanggal Diajukan</th>
+                                    <th>Dibutuhkan Tanggal</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($mySupplyRequests)): ?>
+                                    <?php $no = 1; foreach ($mySupplyRequests as $sr): ?>
+                                        <tr>
+                                            <td><?= $no++ ?></td>
+                                            <td>
+                                                <strong><?= esc($sr['item_name'] ?? 'Barang #' . $sr['supply_id']) ?></strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary fs-6"><?= esc($sr['quantity']) ?> <?= esc($sr['unit'] ?? 'Unit') ?></span>
+                                            </td>
+                                            <td><?= esc($sr['date_requested']) ?></td>
+                                            <td><?= esc($sr['date_needed']) ?></td>
+                                            <td>
+                                                <?php if ($sr['status'] === 'approved'): ?>
+                                                    <span class="badge bg-success">Disetujui</span>
+                                                <?php elseif ($sr['status'] === 'rejected'): ?>
+                                                    <span class="badge bg-danger">Ditolak</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Menunggu Konfirmasi</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php if ($sr['status'] === 'pending'): ?>
+                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan permohonan barang ATK ini?');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="type" value="supplies">
+                                                        <input type="hidden" name="id" value="<?= $sr['id'] ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">
+                                            Anda belum pernah mengajukan permohonan barang supplies ATK.<br>
+                                            <a href="/request/supplies" class="btn btn-danger btn-sm rounded-pill mt-2">+ Ajukan Permohonan ATK</a>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB KHUSUS PENGGUNA: SEMUA RIWAYAT PENGAJUAN -->
+            <!-- ============================================== -->
             <div class="tab-pane fade" id="tab-myrequests" role="tabpanel">
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-0 py-3">
-                        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-clock-history me-2"></i>Status & Riwayat Pengajuan Saya</h5>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-clock-history me-2" viewBox="0 0 16 16">
+                                        <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .79.522l-.492.871zM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-1 0a7 7 0 1 0-14 0 7 7 0 0 0 14 0m-6.5-4a.5.5 0 0 0-1 0v4.5a.5.5 0 0 0 .246.43l3 1.5a.5.5 0 1 0 .492-.868L8.5 8.243z"/>
+                                    </svg>
+                                    Riwayat Semua Pengajuan Saya (<?= $userStats['total_all'] ?? 0 ?>)
+                                </h4>
+                                <small class="text-muted">Seluruh arsip permohonan peminjaman ruangan, mobil dinas, maintenance, dan ATK Anda.</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body pt-0 table-responsive">
                         <table class="table table-hover align-middle mb-0">
@@ -1682,13 +2325,24 @@ $departments = [
                                     <th>Keterangan / Detail</th>
                                     <th>Tanggal Pengajuan</th>
                                     <th>Status</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($myRequests)): ?>
                                     <?php foreach ($myRequests as $req): ?>
                                         <tr>
-                                            <td><span class="badge bg-secondary"><?= esc($req['type']) ?></span></td>
+                                            <td>
+                                                <?php if ($req['type'] === 'Ruangan'): ?>
+                                                    <span class="badge bg-success">Ruangan</span>
+                                                <?php elseif ($req['type'] === 'Kendaraan'): ?>
+                                                    <span class="badge bg-primary">Kendaraan</span>
+                                                <?php elseif ($req['type'] === 'Maintenance'): ?>
+                                                    <span class="badge bg-warning text-dark">Maintenance</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger">Supplies (ATK)</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                 <strong><?= esc($req['title']) ?></strong><br>
                                                 <small class="text-muted"><?= esc($req['detail'] ?? '-') ?></small>
@@ -1705,11 +2359,31 @@ $departments = [
                                                     <span class="badge bg-warning text-dark">Menunggu Konfirmasi</span>
                                                 <?php endif; ?>
                                             </td>
+                                            <td class="text-center">
+                                                <?php if (($req['status'] ?? 'pending') === 'pending'): ?>
+                                                    <?php 
+                                                        $cancelType = 'room';
+                                                        if ($req['type'] === 'Kendaraan') $cancelType = 'vehicle';
+                                                        elseif ($req['type'] === 'Maintenance') $cancelType = 'maintenance';
+                                                        elseif (stripos($req['type'], 'Supplies') !== false) $cancelType = 'supplies';
+                                                    ?>
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="type" value="<?= $cancelType ?>">
+                                                        <input type="hidden" name="id" value="<?= $req['id'] ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">-</span>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="4" class="text-center py-4 text-muted">Belum ada riwayat permohonan.</td>
+                                        <td colspan="5" class="text-center py-4 text-muted">Belum ada riwayat permohonan.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -2303,6 +2977,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btn) btn.click();
         } else if (hash === '#verifikasi') {
             var btn = document.getElementById('tab-verifikasi-btn');
+            if (btn) btn.click();
+        } else if (hash === '#myrooms') {
+            var btn = document.getElementById('tab-myrooms-btn');
+            if (btn) btn.click();
+        } else if (hash === '#myvehicles') {
+            var btn = document.getElementById('tab-myvehicles-btn');
+            if (btn) btn.click();
+        } else if (hash === '#mymaintenance') {
+            var btn = document.getElementById('tab-mymaintenance-btn');
+            if (btn) btn.click();
+        } else if (hash === '#mysupplies') {
+            var btn = document.getElementById('tab-mysupplies-btn');
             if (btn) btn.click();
         } else if (hash === '#myrequests') {
             var btn = document.getElementById('tab-myrequests-btn');
