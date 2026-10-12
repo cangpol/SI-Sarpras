@@ -143,6 +143,21 @@ CREATE TABLE IF NOT EXISTS `supply_requests` (
   FOREIGN KEY (`supply_id`) REFERENCES `supplies`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) NOT NULL UNIQUE,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `role` enum('admin','staff') NOT NULL DEFAULT 'admin',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `created_at`, `updated_at`) VALUES
+(1, 'admin', 'admin123', 'Administrator Sarpras', 'admin@pignatelli.ac.id', 'admin', NOW(), NOW());
+
 COMMIT;
 
 

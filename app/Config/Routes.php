@@ -24,3 +24,10 @@ $routes->get('request/maintenance', 'Frontend::maintenance');
 $routes->post('request/maintenance', 'Frontend::submitMaintenance');
 $routes->get('request/supplies', 'Frontend::supplies');
 $routes->post('request/supplies', 'Frontend::submitSupplies');
+
+// Auth & Login
+$routes->get('login', 'Auth::login');
+$routes->post('login', 'Auth::authenticate');
+$routes->get('logout', 'Auth::logout');
+$routes->get('dashboard', 'Auth::dashboard');
+
