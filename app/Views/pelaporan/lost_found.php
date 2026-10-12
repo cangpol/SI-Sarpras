@@ -1,11 +1,21 @@
 <?= $this->extend('layout/main') ?>
 <?= $this->section('content') ?>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h2 class="fw-bold mb-1" style="color: var(--primary-blue);">Form Pelaporan Kehilangan Barang</h2>
+        <p class="text-muted mb-0">Layanan pelaporan barang hilang / tertinggal (Lost & Found) di lingkungan kampus.</p>
+    </div>
+    <a href="/" class="btn btn-outline-secondary rounded-pill px-3">
+        &larr; Kembali ke Beranda
+    </a>
+</div>
+
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <h2 class="mb-4 text-center" style="color: var(--primary-blue); font-weight: 700;">Form Pelaporan Kehilangan Barang</h2>
-        <div class="card">
-            <div class="card-body">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
                 <form method="post" action="/pelaporan/lost-found">
+                    <?= csrf_field() ?>
                     
                     <div class="mb-3">
                         <label>Nama Pelapor</label>
