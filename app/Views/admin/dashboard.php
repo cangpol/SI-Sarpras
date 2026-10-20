@@ -59,12 +59,40 @@ body.modal-open .table-responsive-scroll {
     will-change: transform;
 }
 
-/* Tabel Dashboard Rapi, Proporsional & Anti-Besar Sebelah */
+/* Tabel Dashboard Responsif Mengikuti Tinggi Layar & Anti-Tenggelam (Super Admin, Admin, User) */
 .table-responsive-scroll {
-    max-height: 520px;
+    max-height: calc(100vh - 290px);
+    min-height: 280px;
     overflow-y: auto;
     overflow-x: auto;
     border-radius: 0.75rem;
+    margin-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 #f1f5f9;
+}
+@media (max-height: 720px) {
+    .table-responsive-scroll {
+        max-height: calc(100vh - 210px);
+        min-height: 220px;
+    }
+}
+/* Custom WebKit Scrollbar (Chrome, Edge, Safari, Opera) */
+.table-responsive-scroll::-webkit-scrollbar {
+    height: 10px;
+    width: 8px;
+}
+.table-responsive-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+.table-responsive-scroll::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 6px;
+    border: 2px solid #f1f5f9;
+}
+.table-responsive-scroll::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
 }
 .table-responsive-scroll table {
     min-width: 820px;
@@ -150,31 +178,6 @@ body.modal-open .table-responsive-scroll {
         </div>
     </div>
 </div>
-
-<!-- Alert Notifikasi Flashdata -->
-<?php if (session()->getFlashdata('message') && stripos(session()->getFlashdata('message'), 'Selamat datang') === false && stripos(session()->getFlashdata('message'), 'Login berhasil') === false): ?>
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-        <div class="d-flex align-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check-circle-fill me-2 flex-shrink-0" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-            </svg>
-            <div><?= session()->getFlashdata('message') ?></div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if (session()->getFlashdata('error')): ?>
-    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-        <div class="d-flex align-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0" viewBox="0 0 16 16">
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-            </svg>
-            <div><?= session()->getFlashdata('error') ?></div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
 
 <!-- ============================================== -->
 <!-- LAYOUT UTAMA: SIDEBAR + CONTENT AREA -->
@@ -852,8 +855,8 @@ body.modal-open .table-responsive-scroll {
                                                             <?php else: ?>
                                                                 <span class="badge bg-warning text-dark">Pending</span>
                                                             <?php endif; ?>
-                                                            <?php if (!empty($rb['admin_note'])): ?>
-                                                                <br><small class="text-muted"><i class="bi bi-chat-left-dots me-1"></i><?= esc($rb['admin_note']) ?></small>
+                                                            <?php if ($rb['status'] === 'rejected' && !empty($rb['admin_note'])): ?>
+                                                                <br><small class="text-danger"><i class="bi bi-x-circle me-1"></i><?= esc($rb['admin_note']) ?></small>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="text-center">
@@ -1033,8 +1036,8 @@ body.modal-open .table-responsive-scroll {
                                                             <?php else: ?>
                                                                 <span class="badge bg-warning text-dark">Pending</span>
                                                             <?php endif; ?>
-                                                            <?php if (!empty($vb['admin_note'])): ?>
-                                                                <br><small class="text-muted"><i class="bi bi-chat-left-dots me-1"></i><?= esc($vb['admin_note']) ?></small>
+                                                            <?php if ($vb['status'] === 'rejected' && !empty($vb['admin_note'])): ?>
+                                                                <br><small class="text-danger"><i class="bi bi-x-circle me-1"></i><?= esc($vb['admin_note']) ?></small>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="text-center">
@@ -1250,8 +1253,8 @@ body.modal-open .table-responsive-scroll {
                                                             <?php else: ?>
                                                                 <span class="badge bg-warning text-dark">Pending</span>
                                                             <?php endif; ?>
-                                                            <?php if (!empty($m['admin_note'])): ?>
-                                                                <br><small class="text-muted"><i class="bi bi-chat-left-dots me-1"></i><?= esc($m['admin_note']) ?></small>
+                                                            <?php if ($m['status'] === 'rejected' && !empty($m['admin_note'])): ?>
+                                                                <br><small class="text-danger"><i class="bi bi-x-circle me-1"></i><?= esc($m['admin_note']) ?></small>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="text-center">
@@ -1268,6 +1271,7 @@ body.modal-open .table-responsive-scroll {
                                                                 <form method="post" action="/dashboard/request/maintenance/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus request maintenance di <?= esc($m['location']) ?>?');">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $m['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="request-maintenance">
                                                                     <button type="submit" class="btn btn-outline-danger">Hapus</button>
                                                                 </form>
                                                             </div>
@@ -1406,8 +1410,8 @@ body.modal-open .table-responsive-scroll {
                                                             <?php else: ?>
                                                                 <span class="badge bg-warning text-dark">Pending</span>
                                                             <?php endif; ?>
-                                                            <?php if (!empty($sr['admin_note'])): ?>
-                                                                <br><small class="text-muted"><i class="bi bi-chat-left-dots me-1"></i><?= esc($sr['admin_note']) ?></small>
+                                                            <?php if ($sr['status'] === 'rejected' && !empty($sr['admin_note'])): ?>
+                                                                <br><small class="text-danger"><i class="bi bi-x-circle me-1"></i><?= esc($sr['admin_note']) ?></small>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td class="text-center">
@@ -1424,6 +1428,7 @@ body.modal-open .table-responsive-scroll {
                                                                 <form method="post" action="/dashboard/request/supplies/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus permohonan barang <?= esc($sr['item_name'] ?? '') ?>?');">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $sr['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="request-supplies">
                                                                     <button type="submit" class="btn btn-outline-danger">Hapus</button>
                                                                 </form>
                                                             </div>
@@ -1780,8 +1785,8 @@ body.modal-open .table-responsive-scroll {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if (!empty($r['admin_note'])): ?>
-                                                    <small class="text-muted fst-italic"><?= esc($r['admin_note']) ?></small>
+                                                <?php if ($r['status'] === 'rejected' && !empty($r['admin_note'])): ?>
+                                                    <small class="text-danger fst-italic"><?= esc($r['admin_note']) ?></small>
                                                 <?php else: ?>
                                                     <small class="text-muted">-</small>
                                                 <?php endif; ?>
@@ -1876,8 +1881,8 @@ body.modal-open .table-responsive-scroll {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if (!empty($v['admin_note'])): ?>
-                                                    <small class="text-muted fst-italic"><?= esc($v['admin_note']) ?></small>
+                                                <?php if ($v['status'] === 'rejected' && !empty($v['admin_note'])): ?>
+                                                    <small class="text-danger fst-italic"><?= esc($v['admin_note']) ?></small>
                                                 <?php else: ?>
                                                     <small class="text-muted">-</small>
                                                 <?php endif; ?>
@@ -1970,8 +1975,8 @@ body.modal-open .table-responsive-scroll {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if (!empty($m['admin_note'])): ?>
-                                                    <small class="text-muted fst-italic"><?= esc($m['admin_note']) ?></small>
+                                                <?php if ($m['status'] === 'rejected' && !empty($m['admin_note'])): ?>
+                                                    <small class="text-danger fst-italic"><?= esc($m['admin_note']) ?></small>
                                                 <?php else: ?>
                                                     <small class="text-muted">-</small>
                                                 <?php endif; ?>
@@ -2076,8 +2081,8 @@ body.modal-open .table-responsive-scroll {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if (!empty($s['admin_note'])): ?>
-                                                    <small class="text-muted fst-italic"><?= esc($s['admin_note']) ?></small>
+                                                <?php if ($s['status'] === 'rejected' && !empty($s['admin_note'])): ?>
+                                                    <small class="text-danger fst-italic"><?= esc($s['admin_note']) ?></small>
                                                 <?php else: ?>
                                                     <small class="text-muted">-</small>
                                                 <?php endif; ?>
@@ -2654,9 +2659,9 @@ body.modal-open .table-responsive-scroll {
                                                 <?php else: ?>
                                                     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Konfirmasi</span>
                                                 <?php endif; ?>
-                                                <?php if (!empty($rb['admin_note'])): ?>
-                                                    <div class="mt-1 small <?= $rb['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $rb['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $rb['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
-                                                        <i class="bi <?= $rb['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $rb['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($rb['admin_note']) ?>
+                                                <?php if ($rb['status'] === 'rejected' && !empty($rb['admin_note'])): ?>
+                                                    <div class="mt-1 small text-danger p-1 px-2 rounded bg-danger bg-opacity-10 border border-danger border-opacity-25" style="max-width: 250px;">
+                                                        <i class="bi bi-exclamation-circle me-1"></i><strong>Alasan Ditolak:</strong> <?= esc($rb['admin_note']) ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </td>
@@ -2666,6 +2671,7 @@ body.modal-open .table-responsive-scroll {
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="room">
                                                         <input type="hidden" name="id" value="<?= $rb['id'] ?>">
+                                                        <input type="hidden" name="redirect_tab" value="myrooms">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                                             Batalkan
                                                         </button>
@@ -2760,9 +2766,9 @@ body.modal-open .table-responsive-scroll {
                                                 <?php else: ?>
                                                     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Konfirmasi</span>
                                                 <?php endif; ?>
-                                                <?php if (!empty($vb['admin_note'])): ?>
-                                                    <div class="mt-1 small <?= $vb['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $vb['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $vb['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
-                                                        <i class="bi <?= $vb['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $vb['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($vb['admin_note']) ?>
+                                                <?php if ($vb['status'] === 'rejected' && !empty($vb['admin_note'])): ?>
+                                                    <div class="mt-1 small text-danger p-1 px-2 rounded bg-danger bg-opacity-10 border border-danger border-opacity-25" style="max-width: 250px;">
+                                                        <i class="bi bi-exclamation-circle me-1"></i><strong>Alasan Ditolak:</strong> <?= esc($vb['admin_note']) ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </td>
@@ -2772,6 +2778,7 @@ body.modal-open .table-responsive-scroll {
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="vehicle">
                                                         <input type="hidden" name="id" value="<?= $vb['id'] ?>">
+                                                        <input type="hidden" name="redirect_tab" value="myvehicles">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                                             Batalkan
                                                         </button>
@@ -2859,9 +2866,9 @@ body.modal-open .table-responsive-scroll {
                                                 <?php else: ?>
                                                     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Antrian</span>
                                                 <?php endif; ?>
-                                                <?php if (!empty($mt['admin_note'])): ?>
-                                                    <div class="mt-1 small <?= $mt['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $mt['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $mt['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
-                                                        <i class="bi <?= $mt['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $mt['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($mt['admin_note']) ?>
+                                                <?php if ($mt['status'] === 'rejected' && !empty($mt['admin_note'])): ?>
+                                                    <div class="mt-1 small text-danger p-1 px-2 rounded bg-danger bg-opacity-10 border border-danger border-opacity-25" style="max-width: 250px;">
+                                                        <i class="bi bi-exclamation-circle me-1"></i><strong>Alasan Ditolak:</strong> <?= esc($mt['admin_note']) ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </td>
@@ -2871,6 +2878,7 @@ body.modal-open .table-responsive-scroll {
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="maintenance">
                                                         <input type="hidden" name="id" value="<?= $mt['id'] ?>">
+                                                        <input type="hidden" name="redirect_tab" value="mymaintenance">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                                             Batalkan
                                                         </button>
@@ -2955,9 +2963,9 @@ body.modal-open .table-responsive-scroll {
                                                 <?php else: ?>
                                                     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Konfirmasi</span>
                                                 <?php endif; ?>
-                                                <?php if (!empty($sr['admin_note'])): ?>
-                                                    <div class="mt-1 small <?= $sr['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $sr['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $sr['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
-                                                        <i class="bi <?= $sr['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $sr['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($sr['admin_note']) ?>
+                                                <?php if ($sr['status'] === 'rejected' && !empty($sr['admin_note'])): ?>
+                                                    <div class="mt-1 small text-danger p-1 px-2 rounded bg-danger bg-opacity-10 border border-danger border-opacity-25" style="max-width: 250px;">
+                                                        <i class="bi bi-exclamation-circle me-1"></i><strong>Alasan Ditolak:</strong> <?= esc($sr['admin_note']) ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </td>
@@ -2967,6 +2975,7 @@ body.modal-open .table-responsive-scroll {
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="supplies">
                                                         <input type="hidden" name="id" value="<?= $sr['id'] ?>">
+                                                        <input type="hidden" name="redirect_tab" value="mysupplies">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                                             Batalkan
                                                         </button>
@@ -3058,9 +3067,9 @@ body.modal-open .table-responsive-scroll {
                                                 <?php else: ?>
                                                     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Konfirmasi</span>
                                                 <?php endif; ?>
-                                                <?php if (!empty($req['admin_note'])): ?>
-                                                    <div class="mt-1 small <?= $req['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $req['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $req['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
-                                                        <i class="bi <?= $req['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $req['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($req['admin_note']) ?>
+                                                <?php if ($req['status'] === 'rejected' && !empty($req['admin_note'])): ?>
+                                                    <div class="mt-1 small text-danger p-1 px-2 rounded bg-danger bg-opacity-10 border border-danger border-opacity-25" style="max-width: 250px;">
+                                                        <i class="bi bi-exclamation-circle me-1"></i><strong>Alasan Ditolak:</strong> <?= esc($req['admin_note']) ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </td>
@@ -3076,6 +3085,7 @@ body.modal-open .table-responsive-scroll {
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="<?= $cancelType ?>">
                                                         <input type="hidden" name="id" value="<?= $req['id'] ?>">
+                                                        <input type="hidden" name="redirect_tab" value="myrequests">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                                             Batalkan
                                                         </button>
@@ -3891,11 +3901,8 @@ body.modal-open .table-responsive-scroll {
                             <option value="approved">Approved (Disetujui)</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Catatan Persetujuan / Petunjuk (Opsional)</label>
-                        <textarea name="admin_note" id="approveAdminNote" class="form-control rounded-3" rows="3" placeholder="Contoh: Permohonan disetujui. Kunci dapat diambil di pos satpam / barang dapat diambil di bagian perlengkapan."></textarea>
-                        <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Catatan ini akan langsung terlihat di dashboard pemohon.</small>
-                    </div>
+                    <input type="hidden" name="admin_note" id="approveAdminNote" value="">
+                    <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i>Klik konfirmasi untuk menyetujui permohonan ini. Status permohonan akan otomatis diperbarui.</p>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
@@ -3998,18 +4005,39 @@ document.addEventListener('DOMContentLoaded', function() {
         var myRoomsBtn = document.getElementById('tab-myrooms-btn');
         if (myRoomsBtn) myRoomsBtn.click();
     }
-    // Sinkronisasi tab dengan URL Hash (#pelaporan, #peminjaman, #request, #supplies, #users, dll.)
+    // Sinkronisasi tab & sub-tab dengan URL Hash di semua level (Super Admin, Admin, dan User)
     var hash = window.location.hash;
     if (hash) {
-        if (hash === '#pelaporan') {
+        if (hash === '#pelaporan' || hash === '#sub-lostfound' || hash === '#pelaporan-lostfound') {
             var btn = document.getElementById('tab-pelaporan-btn');
             if (btn) btn.click();
-        } else if (hash === '#peminjaman') {
+            var subBtn = document.getElementById('sub-lostfound-tab');
+            if (subBtn) subBtn.click();
+        } else if (hash === '#pelaporan-visitor' || hash === '#sub-visitor') {
+            var btn = document.getElementById('tab-pelaporan-btn');
+            if (btn) btn.click();
+            var subBtn = document.getElementById('sub-visitor-tab');
+            if (subBtn) subBtn.click();
+        } else if (hash === '#peminjaman' || hash === '#sub-room' || hash === '#peminjaman-ruangan') {
             var btn = document.getElementById('tab-peminjaman-btn');
             if (btn) btn.click();
-        } else if (hash === '#request') {
+            var subBtn = document.getElementById('sub-ruangan-tab');
+            if (subBtn) subBtn.click();
+        } else if (hash === '#peminjaman-kendaraan' || hash === '#sub-kendaraan') {
+            var btn = document.getElementById('tab-peminjaman-btn');
+            if (btn) btn.click();
+            var subBtn = document.getElementById('sub-kendaraan-tab');
+            if (subBtn) subBtn.click();
+        } else if (hash === '#request' || hash === '#sub-maint' || hash === '#request-maintenance') {
             var btn = document.getElementById('tab-request-btn');
             if (btn) btn.click();
+            var subBtn = document.getElementById('sub-maint-tab');
+            if (subBtn) subBtn.click();
+        } else if (hash === '#request-supplies' || hash === '#sub-supp') {
+            var btn = document.getElementById('tab-request-btn');
+            if (btn) btn.click();
+            var subBtn = document.getElementById('sub-supp-tab');
+            if (subBtn) subBtn.click();
         } else if (hash === '#supplies') {
             var btn = document.getElementById('tab-supplies-btn');
             if (btn) btn.click();

@@ -629,8 +629,13 @@ class Auth extends BaseController
             ];
 
             if ($db->fieldExists('admin_note', $table)) {
-                if ($this->request->getPost('admin_note') !== null) {
-                    $updateData['admin_note'] = $adminNote;
+                if ($status === 'approved' || $status === 'resolved') {
+                    // Sesuai arahan: Didalam status approve tidak perlu ada keterangan cukup statusnya saja
+                    $updateData['admin_note'] = null;
+                } else {
+                    if ($this->request->getPost('admin_note') !== null) {
+                        $updateData['admin_note'] = $adminNote;
+                    }
                 }
             }
 
@@ -1770,8 +1775,10 @@ class Auth extends BaseController
         $description   = trim((string) $this->request->getPost('description'));
         $status        = (string) ($this->request->getPost('status') ?: 'pending');
 
+        $redirectTab   = $this->request->getPost('redirect_tab') ?: 'request-maintenance';
+
         if (empty($requesterName) || empty($location) || empty($description)) {
-            return redirect()->to('/dashboard#request')->with('error', 'Nama Pemohon, Lokasi, dan Keterangan Kerusakan wajib diisi.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Nama Pemohon, Lokasi, dan Keterangan Kerusakan wajib diisi.');
         }
 
         try {
@@ -1787,9 +1794,9 @@ class Auth extends BaseController
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->to('/dashboard#request')->with('message', 'Data Request Maintenance berhasil ditambahkan.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Data Request Maintenance berhasil ditambahkan.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#request')->with('error', 'Gagal menambahkan request maintenance: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menambahkan request maintenance: ' . $e->getMessage());
         }
     }
 
@@ -1805,9 +1812,10 @@ class Auth extends BaseController
         $facility      = trim((string) $this->request->getPost('facility'));
         $description   = trim((string) $this->request->getPost('description'));
         $status        = (string) $this->request->getPost('status');
+        $redirectTab   = $this->request->getPost('redirect_tab') ?: 'request-maintenance';
 
         if (empty($id) || empty($requesterName) || empty($location)) {
-            return redirect()->to('/dashboard#request')->with('error', 'Data maintenance tidak lengkap.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Data maintenance tidak lengkap.');
         }
 
         try {
@@ -1823,12 +1831,13 @@ class Auth extends BaseController
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
             if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'maintenance_requests')) {
-                $updateData['admin_note'] = $adminNote;
+                // Sesuai arahan: Pada status approve tidak perlu ada keterangan
+                $updateData['admin_note'] = ($status === 'resolved' || $status === 'approved') ? null : $adminNote;
             }
             $db->table('maintenance_requests')->where('id', $id)->update($updateData);
-            return redirect()->to('/dashboard#request')->with('message', 'Request maintenance berhasil diperbarui.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Request maintenance berhasil diperbarui.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#request')->with('error', 'Gagal memperbarui maintenance: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal memperbarui maintenance: ' . $e->getMessage());
         }
     }
 
@@ -1838,12 +1847,13 @@ class Auth extends BaseController
         if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
 
         $id = (int) $this->request->getPost('id');
+        $redirectTab = $this->request->getPost('redirect_tab') ?: 'request-maintenance';
         try {
             $db = \Config\Database::connect();
             $db->table('maintenance_requests')->where('id', $id)->delete();
-            return redirect()->to('/dashboard#request')->with('message', 'Request maintenance berhasil dihapus.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Request maintenance berhasil dihapus.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#request')->with('error', 'Gagal menghapus: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
 
@@ -1863,9 +1873,10 @@ class Auth extends BaseController
         $supplyId      = (int) $this->request->getPost('supply_id');
         $quantity      = (int) ($this->request->getPost('quantity') ?: 1);
         $status        = (string) ($this->request->getPost('status') ?: 'pending');
+        $redirectTab   = $this->request->getPost('redirect_tab') ?: 'request-supplies';
 
         if (empty($requesterName) || empty($supplyId) || empty($dateNeeded)) {
-            return redirect()->to('/dashboard#request')->with('error', 'Nama Pemohon, Barang, dan Tanggal Dibutuhkan wajib diisi.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Nama Pemohon, Barang, dan Tanggal Dibutuhkan wajib diisi.');
         }
 
         try {
@@ -1883,9 +1894,9 @@ class Auth extends BaseController
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->to('/dashboard#request')->with('message', 'Permohonan Supplies berhasil ditambahkan.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Permohonan Supplies berhasil ditambahkan.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#request')->with('error', 'Gagal menambahkan permohonan supplies: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menambahkan permohonan supplies: ' . $e->getMessage());
         }
     }
 
@@ -1903,9 +1914,10 @@ class Auth extends BaseController
         $supplyId      = (int) $this->request->getPost('supply_id');
         $quantity      = (int) ($this->request->getPost('quantity') ?: 1);
         $status        = (string) $this->request->getPost('status');
+        $redirectTab   = $this->request->getPost('redirect_tab') ?: 'request-supplies';
 
         if (empty($id) || empty($requesterName) || empty($supplyId)) {
-            return redirect()->to('/dashboard#request')->with('error', 'Data permohonan supplies tidak lengkap.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Data permohonan supplies tidak lengkap.');
         }
 
         try {
@@ -1923,12 +1935,13 @@ class Auth extends BaseController
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
             if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'supply_requests')) {
-                $updateData['admin_note'] = $adminNote;
+                // Sesuai arahan: Pada status approve tidak perlu ada keterangan
+                $updateData['admin_note'] = ($status === 'approved') ? null : $adminNote;
             }
             $db->table('supply_requests')->where('id', $id)->update($updateData);
-            return redirect()->to('/dashboard#request')->with('message', 'Permohonan supplies berhasil diperbarui.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Permohonan supplies berhasil diperbarui.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#request')->with('error', 'Gagal memperbarui permohonan supplies: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal memperbarui permohonan supplies: ' . $e->getMessage());
         }
     }
 
@@ -1938,12 +1951,13 @@ class Auth extends BaseController
         if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
 
         $id = (int) $this->request->getPost('id');
+        $redirectTab = $this->request->getPost('redirect_tab') ?: 'request-supplies';
         try {
             $db = \Config\Database::connect();
             $db->table('supply_requests')->where('id', $id)->delete();
-            return redirect()->to('/dashboard#request')->with('message', 'Permohonan supplies berhasil dihapus.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Permohonan supplies berhasil dihapus.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#request')->with('error', 'Gagal menghapus: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
 
@@ -1978,6 +1992,8 @@ class Auth extends BaseController
         }
 
         $info = $tableMap[$type];
+        $redirectTab = $this->request->getPost('redirect_tab');
+        $targetTab = $redirectTab ? '#' . ltrim($redirectTab, '#') : $info['tab'];
 
         try {
             $db = \Config\Database::connect();
@@ -1997,17 +2013,17 @@ class Auth extends BaseController
 
             $item = $builder->get()->getRowArray();
             if (!$item) {
-                return redirect()->to('/dashboard' . $info['tab'])->with('error', 'Data tidak ditemukan atau Anda tidak memiliki akses untuk membatalkannya.');
+                return redirect()->to('/dashboard' . $targetTab)->with('error', 'Data tidak ditemukan atau Anda tidak memiliki akses untuk membatalkannya.');
             }
 
             if ($item['status'] !== 'pending') {
-                return redirect()->to('/dashboard' . $info['tab'])->with('error', 'Hanya permohonan dengan status "Pending" yang dapat dibatalkan.');
+                return redirect()->to('/dashboard' . $targetTab)->with('error', 'Hanya permohonan dengan status "Pending" yang dapat dibatalkan.');
             }
 
             $db->table($info['table'])->where('id', $id)->delete();
-            return redirect()->to('/dashboard' . $info['tab'])->with('message', $info['label'] . ' berhasil dibatalkan dan dihapus.');
+            return redirect()->to('/dashboard' . $targetTab)->with('message', $info['label'] . ' berhasil dibatalkan dan dihapus.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard' . $info['tab'])->with('error', 'Gagal membatalkan permohonan: ' . $e->getMessage());
+            return redirect()->to('/dashboard' . $targetTab)->with('error', 'Gagal membatalkan permohonan: ' . $e->getMessage());
         }
     }
 

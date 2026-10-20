@@ -14,6 +14,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- SweetAlert2 Modern Modal Notification -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-blue: #0A3A66;
@@ -191,6 +193,42 @@
         }
         .modal {
             transform: none !important;
+        }
+
+        /* Tabel Dashboard Responsif Mengikuti Tinggi Layar & Anti-Tenggelam (Super Admin, Admin, User) */
+        .table-responsive-scroll {
+            max-height: calc(100vh - 290px);
+            min-height: 280px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #94a3b8 #f1f5f9;
+        }
+        @media (max-height: 720px) {
+            .table-responsive-scroll {
+                max-height: calc(100vh - 210px);
+                min-height: 220px;
+            }
+        }
+        /* Custom WebKit Scrollbar (Chrome, Edge, Safari, Opera) */
+        .table-responsive-scroll::-webkit-scrollbar {
+            height: 10px;
+            width: 8px;
+        }
+        .table-responsive-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 6px;
+        }
+        .table-responsive-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 6px;
+            border: 2px solid #f1f5f9;
+        }
+        .table-responsive-scroll::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
         .card-body {
             padding: 28px;
@@ -584,6 +622,29 @@ document.addEventListener('show.bs.modal', function(event) {
     if (modal && modal.parentElement !== document.body) {
         document.body.appendChild(modal);
     }
+});
+
+// Pemicu Notifikasi SweetAlert2 Otomatis setelah Berhasil / Gagal CRUD
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (session()->getFlashdata('message')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: <?= json_encode(session()->getFlashdata('message')) ?>,
+            confirmButtonColor: '#0A3A66',
+            timer: 2600,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Perhatian / Terjadi Kesalahan',
+            text: <?= json_encode(session()->getFlashdata('error')) ?>,
+            confirmButtonColor: '#0A3A66'
+        });
+    <?php endif; ?>
 });
 </script>
 </body>
