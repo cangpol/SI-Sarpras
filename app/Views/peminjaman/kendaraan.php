@@ -6,8 +6,8 @@
         <h2 class="fw-bold mb-1" style="color: var(--primary-blue);">Peminjaman Kendaraan</h2>
         <p class="text-muted mb-0">Formulir reservasi kendaraan dinas operasional untuk keperluan kedinasan/kegiatan universitas.</p>
     </div>
-    <a href="/" class="btn btn-outline-secondary rounded-pill px-3">
-        &larr; Kembali ke Beranda
+    <a href="<?= session()->get('isLoggedIn') ? '/dashboard' : '/' ?>" class="btn btn-outline-secondary rounded-pill px-3">
+        &larr; <?= session()->get('isLoggedIn') ? 'Kembali ke Dashboard' : 'Kembali ke Beranda' ?>
     </a>
 </div>
 
@@ -118,6 +118,93 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- DAFTAR PENGAJUAN TERKINI (LIST SUBMIT) -->
+<!-- ============================================== -->
+<div class="card shadow-sm border-0 rounded-4 mt-4">
+    <div class="card-header bg-white border-0 pt-4 px-4 px-md-5 pb-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">
+                <i class="bi bi-card-checklist me-2"></i>Daftar Pengajuan Peminjaman Kendaraan (List Submit)
+            </h5>
+            <small class="text-muted">Data permohonan mobil dinas yang telah Anda kirimkan lengkap dengan nama user yang menginput.</small>
+        </div>
+        <?php if (session()->get('isLoggedIn')): ?>
+            <a href="/dashboard" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard Saya &rarr;
+            </a>
+        <?php endif; ?>
+    </div>
+    <div class="card-body p-4 p-md-5 pt-3 table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>No</th>
+                    <th>Nama Penginput / Peminjam</th>
+                    <th>Mobil Dinas</th>
+                    <th>Tanggal & Hari</th>
+                    <th>Tujuan Perjalanan</th>
+                    <th>Driver</th>
+                    <th>Status</th>
+                    <th>Waktu Submit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($mySubmissions)): ?>
+                    <?php $no = 1; foreach ($mySubmissions as $sub): ?>
+                        <tr>
+                            <td><?= $no++ ?></td>
+                            <td>
+                                <strong class="text-dark"><i class="bi bi-person-fill text-primary me-1"></i><?= esc($sub['booker_name']) ?></strong><br>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i><?= esc($sub['department']) ?></span>
+                            </td>
+                            <td>
+                                <strong class="text-primary"><?= esc($sub['vehicle_name'] ?? 'Kendaraan #' . $sub['vehicle_id']) ?></strong><br>
+                                <small class="text-muted"><?= esc($sub['plate_number'] ?? '-') ?></small>
+                            </td>
+                            <td>
+                                <span class="fw-semibold"><?= esc($sub['booking_date']) ?></span><br>
+                                <small class="text-muted"><?= esc($sub['booking_day'] ?: '-') ?> (<?= esc($sub['start_time']) ?> - <?= esc($sub['end_time']) ?>)</small>
+                            </td>
+                            <td>
+                                <strong><?= esc($sub['destination']) ?></strong><br>
+                                <small class="text-muted"><?= esc($sub['description'] ?: '-') ?></small>
+                            </td>
+                            <td>
+                                <span><i class="bi bi-person me-1"></i><?= esc($sub['driver_name'] ?: '-') ?></span>
+                            </td>
+                            <td>
+                                <?php if ($sub['status'] === 'approved'): ?>
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Disetujui</span>
+                                <?php elseif ($sub['status'] === 'rejected'): ?>
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Ditolak</span>
+                                <?php else: ?>
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Konfirmasi</span>
+                                <?php endif; ?>
+                                <?php if (!empty($sub['admin_note'])): ?>
+                                    <div class="mt-1 small <?= $sub['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $sub['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $sub['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
+                                        <i class="bi <?= $sub['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $sub['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($sub['admin_note']) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <small class="text-muted"><?= esc($sub['created_at'] ?? '-') ?></small>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-2 text-secondary"></i>
+                            Belum ada riwayat permohonan kendaraan yang disubmit.
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 <?= $this->endSection() ?>

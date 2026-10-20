@@ -26,6 +26,9 @@
             --text-muted: #5A7184;
             --white: #FFFFFF;
         }
+        html, body {
+            height: 100%;
+        }
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background-color: var(--light-bg);
@@ -35,34 +38,90 @@
             flex-direction: column;
             min-height: 100vh;
         }
+        .main-content-wrapper {
+            flex: 1 0 auto;
+            width: 100%;
+        }
+        footer {
+            flex-shrink: 0;
+            width: 100%;
+            margin-top: auto;
+        }
+        /* Utility Opacity Support for Bootstrap & Glass Badges */
+        .bg-opacity-10 { --bs-bg-opacity: 0.10 !important; }
+        .bg-opacity-15 { --bs-bg-opacity: 0.15 !important; }
+        .bg-opacity-20 { --bs-bg-opacity: 0.20 !important; }
+        .bg-opacity-25 { --bs-bg-opacity: 0.25 !important; }
+        
+        /* Direct background-color overrides for bg-white with opacity (prevents solid #fff fallback) */
+        .bg-white.bg-opacity-10 { background-color: rgba(255, 255, 255, 0.10) !important; }
+        .bg-white.bg-opacity-15 { background-color: rgba(255, 255, 255, 0.15) !important; }
+        .bg-white.bg-opacity-20 { background-color: rgba(255, 255, 255, 0.20) !important; }
+        .bg-white.bg-opacity-25 { background-color: rgba(255, 255, 255, 0.25) !important; }
+        .bg-white.bg-opacity-50 { background-color: rgba(255, 255, 255, 0.50) !important; }
+
         /* Navbar Modern */
         .navbar {
             background: linear-gradient(135deg, #072B4D 0%, #0A3A66 60%, #0D62AC 100%) !important;
-            box-shadow: 0 4px 20px rgba(10, 58, 102, 0.15);
-            padding: 14px 0;
+            box-shadow: 0 4px 18px rgba(10, 58, 102, 0.18);
+            padding: 9px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
         .navbar-brand { 
             font-weight: 700; 
             letter-spacing: 0.5px;
-            font-size: 1.4rem;
+            font-size: 1.25rem;
+            padding: 0;
         }
         .navbar-brand img {
-            transition: transform 0.3s ease;
+            transition: transform 0.25s ease;
         }
         .navbar-brand:hover img {
             transform: scale(1.04);
         }
-        .nav-link {
+        /* Navbar Links */
+        .navbar .nav-link {
+            font-size: 0.885rem;
             font-weight: 500;
-            padding: 8px 14px !important;
+            padding: 6px 12px !important;
             border-radius: 8px;
-            transition: all 0.25s ease;
+            letter-spacing: 0.2px;
+            transition: all 0.2s ease;
             color: rgba(255, 255, 255, 0.9) !important;
         }
-        .nav-link:hover, .nav-item.dropdown:hover > .nav-link {
+        .navbar .nav-link:hover, 
+        .navbar .nav-item.dropdown:hover > .navbar .nav-link,
+        .navbar .nav-item.dropdown.show > .navbar .nav-link {
             color: #FFFFFF !important;
-            background-color: rgba(255, 255, 255, 0.12);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .navbar .btn-login-nav {
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 20px;
+            padding: 5px 12px !important;
+            transition: all 0.2s ease;
+        }
+        .navbar .btn-login-nav:hover {
+            background: rgba(255, 255, 255, 0.22);
+            color: #FFFFFF !important;
+        }
+
+        /* General Nav Pills (Dashboard tabs, Sub-tabs, etc.) */
+        .nav-pills .nav-link {
+            color: #1e293b !important;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .nav-pills .nav-link:hover {
+            color: var(--secondary-blue) !important;
+            background-color: #f1f5f9 !important;
+        }
+        .nav-pills .nav-link.active {
+            background-color: var(--primary-blue) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 10px rgba(10, 58, 102, 0.2);
         }
         .dropdown-menu {
             border: 1px solid var(--card-border);
@@ -72,8 +131,9 @@
             background: #FFFFFF;
         }
         .dropdown-item {
+            font-size: 0.875rem;
             font-weight: 500;
-            padding: 9px 16px;
+            padding: 8px 14px;
             border-radius: 8px;
             transition: 0.2s ease;
             color: var(--text-dark);
@@ -120,6 +180,17 @@
             transform: translateY(-4px);
             box-shadow: 0 18px 36px rgba(10, 58, 102, 0.1);
             border-color: rgba(13, 98, 172, 0.3);
+        }
+        /* Anti-Blink & Anti-Jitter untuk Bootstrap Modal */
+        body.modal-open .card,
+        body.modal-open .card:hover,
+        body.modal-open .table-responsive,
+        body.modal-open .table-responsive-scroll {
+            transform: none !important;
+            transition: none !important;
+        }
+        .modal {
+            transform: none !important;
         }
         .card-body {
             padding: 28px;
@@ -223,10 +294,10 @@
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="/">
         <!-- Pastikan Anda menyimpan file logo.png di dalam folder public -->
-        <img src="/logo.png" alt="Logo UPT" style="height: 50px; width: auto; margin-right: 15px; border-radius: 8px;">
-        <div style="line-height: 1.2;">
-            <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: 1px;">SARPRAS</div>
-            <div style="font-size: 0.85rem; font-weight: 400; opacity: 0.9; letter-spacing: 0.5px;">Universitas Pignatelli Triputra</div>
+        <img src="/logo.png" alt="Logo UPT" style="height: 44px; width: auto; margin-right: 12px; border-radius: 8px;">
+        <div style="line-height: 1.15;">
+            <div style="font-weight: 800; font-size: 1.2rem; letter-spacing: 0.8px; color: #ffffff;">SARPRAS</div>
+            <div style="font-size: 0.76rem; font-weight: 400; opacity: 0.9; letter-spacing: 0.3px; color: #E0E7FF;">Universitas Pignatelli Triputra</div>
         </div>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -235,6 +306,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/#jadwal-kalender"><i class="bi bi-calendar3 me-1"></i>Kalender Jadwal</a></li>
         
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Pelaporan</a>
@@ -288,12 +360,12 @@
         </li>
         <?php else: ?>
         <li class="nav-item ms-lg-3 my-auto">
-          <a class="btn btn-outline-light px-3 py-1 rounded-pill fw-semibold shadow-sm d-inline-flex align-items-center" href="/login" style="border-width: 1.5px; transition: all 0.2s;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right me-1" viewBox="0 0 16 16">
+          <a class="btn btn-outline-light px-3 py-1 rounded-pill fw-semibold shadow-sm d-inline-flex align-items-center" href="/login" style="border-width: 1.5px; font-size: 0.85rem; transition: all 0.2s;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-box-arrow-in-right me-1" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14 2H6a1.5 1.5 0 0 0-1.5 1.5v2a.5.5 0 0 0 1 0z"/>
               <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
             </svg>
-            Login
+            <span>Login</span>
           </a>
         </li>
         <?php endif; ?>
@@ -312,7 +384,7 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
     <div class="container">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div>
-                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 small">
+                <span class="badge rounded-pill px-3 py-1 mb-2 small" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff !important;">
                     <i class="bi bi-building me-1"></i> Biro Sarana dan Prasarana UPT
                 </span>
                 <h2 class="fw-bold text-white mb-0">Sistem Informasi SI-Sarpras</h2>
@@ -337,7 +409,7 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
 </div>
 <?php endif; ?>
 
-<div class="<?= ($isHome) ? 'container-fluid p-0' : (($uri === 'dashboard') ? 'container-fluid px-lg-4 py-3' : 'container pb-5') ?>" style="min-height: 60vh;">
+<div class="<?= ($isHome) ? 'container-fluid p-0' : (($uri === 'dashboard') ? 'container-fluid px-lg-4 py-3' : 'container pb-5') ?> main-content-wrapper flex-grow-1">
     <?php if(!$isHome && $uri !== 'dashboard' && session()->getFlashdata('message')): ?>
         <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-4 mb-4" role="alert">
             <div class="d-flex align-items-center">
@@ -360,6 +432,91 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
     <?= $this->renderSection('content') ?>
 </div>
 
+<?php if ($uri === 'dashboard'): ?>
+    <?php 
+        $currentRole = session()->get('role') ?? 'user';
+    ?>
+    <?php if ($currentRole === 'super_admin'): ?>
+    <!-- FOOTER KHUSUS DASHBOARD SUPER ADMIN (BIRO IT) -->
+    <footer class="footer-dashboard-superadmin mt-auto py-3 text-white" style="background: linear-gradient(135deg, #041424 0%, #08223B 100%); border-top: 2px solid #F59E0B; box-shadow: 0 -4px 15px rgba(0,0,0,0.15);">
+        <div class="container-fluid px-lg-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="/logo.png" alt="Logo UPT" style="height: 32px; width: auto; background: white; padding: 3px; border-radius: 6px;">
+                    <div>
+                        <div class="fw-bold text-white small" style="letter-spacing: 0.3px;">
+                            Console Super Admin &bull; Biro Sistem Informasi & IT
+                        </div>
+                        <div class="text-white-50" style="font-size: 0.75rem;">
+                            Universitas Pignatelli Triputra &bull; Integrated Infrastructure System
+                        </div>
+                    </div>
+                    <span class="badge bg-warning text-dark fw-bold ms-2 px-2 py-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-shield-lock-fill me-1"></i>SUPER ADMIN (BIRO IT)
+                    </span>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3 small text-white-50">
+                    <span class="d-flex align-items-center"><i class="bi bi-person-gear text-warning me-1"></i>Full CRUD Otoritas User</span>
+                    <span class="d-none d-md-inline">&bull;</span>
+                    <span class="d-flex align-items-center"><i class="bi bi-hdd-network-fill text-success me-1"></i>Server: Normal (Active)</span>
+                    <span class="d-none d-md-inline">&bull;</span>
+                    <span class="d-flex align-items-center">&copy; <?= date('Y') ?> Biro IT &bull; UPT</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <?php elseif ($currentRole === 'admin'): ?>
+    <!-- FOOTER KHUSUS DASHBOARD ADMIN (SARPRAS) -->
+    <footer class="footer-dashboard-admin mt-auto py-3 text-white" style="background: linear-gradient(135deg, #06223D 0%, #09375F 100%); border-top: 2px solid #00B4D8; box-shadow: 0 -4px 15px rgba(0,0,0,0.15);">
+        <div class="container-fluid px-lg-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="/logo.png" alt="Logo UPT" style="height: 32px; width: auto; background: white; padding: 3px; border-radius: 6px;">
+                    <div>
+                        <div class="fw-bold text-white small" style="letter-spacing: 0.3px;">
+                            Panel Administrasi Operasional &bull; Biro Sarana dan Prasarana
+                        </div>
+                        <div class="text-white-50" style="font-size: 0.75rem;">
+                            Universitas Pignatelli Triputra &bull; Pelayanan Terpadu Civitas Kampus
+                        </div>
+                    </div>
+                    <span class="badge bg-info text-dark fw-bold ms-2 px-2 py-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-gear-fill me-1"></i>ADMIN SARPRAS
+                    </span>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3 small text-white-50">
+                    <span class="d-flex align-items-center"><i class="bi bi-people-fill text-info me-1"></i>Kelola Pengguna: Dosen & Mahasiswa</span>
+                    <span class="d-none d-md-inline">&bull;</span>
+                    <span class="d-flex align-items-center"><i class="bi bi-envelope-at text-warning me-1"></i>IT Support: it@upitra.ac.id</span>
+                    <span class="d-none d-md-inline">&bull;</span>
+                    <span class="d-flex align-items-center">&copy; <?= date('Y') ?> Biro Sarpras &bull; UPT</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <?php else: ?>
+    <!-- FOOTER KHUSUS DASHBOARD USER (MAHASISWA & DOSEN) -->
+    <footer class="footer-dashboard-user mt-auto py-3 text-white" style="background: linear-gradient(135deg, #072B4D 0%, #0A3A66 100%); border-top: 2px solid #10B981; box-shadow: 0 -4px 15px rgba(0,0,0,0.15);">
+        <div class="container-fluid px-lg-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="/logo.png" alt="Logo UPT" style="height: 30px; width: auto; background: white; padding: 3px; border-radius: 6px;">
+                    <div>
+                        <div class="fw-bold text-white small">Portal Layanan Terpadu Sarpras &bull; Universitas Pignatelli Triputra</div>
+                        <div class="text-white-50" style="font-size: 0.75rem;">Peminjaman Ruangan, Kendaraan, Maintenance & Supplies ATK</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3 small text-white-50">
+                    <span><i class="bi bi-clock-history text-success me-1"></i>Pelayanan: Senin - Jumat (08:00 - 16:30 WIB)</span>
+                    <span class="d-none d-md-inline">&bull;</span>
+                    <span>&copy; <?= date('Y') ?> Sarpras UPT</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <?php endif; ?>
+<?php else: ?>
+<!-- FOOTER HALAMAN PUBLIK (HOME, PELAPORAN, REQUEST, DLL.) -->
 <footer class="footer-modern mt-auto">
     <div class="footer-top py-5 text-white" style="background: linear-gradient(135deg, #072B4D 0%, #0A3A66 100%); border-top: 3px solid var(--accent-blue);">
         <div class="container">
@@ -376,7 +533,7 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
                         Pusat pengelolaan dan pelayanan sarana, prasarana, fasilitas akademik, kendaraan dinas, dan ketertiban lingkungan kampus Universitas Pignatelli Triputra yang modern, terintegrasi, dan transparan.
                     </p>
                     <div class="d-flex flex-wrap gap-2">
-                        <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill small">
+                        <span class="badge px-3 py-2 rounded-pill small" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: #ffffff !important;">
                             <i class="bi bi-clock me-1 text-info"></i> Pelayanan: Senin - Jumat (08:00 - 16:30 WIB)
                         </span>
                     </div>
@@ -396,7 +553,7 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
                         <li class="mb-2"><a href="/pelaporan/lost-found" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Form Lost & Found (Umum)</a></li>
                         <li class="mb-2"><a href="/pelaporan/visitor" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Visitor ID Pass (Buku Tamu)</a></li>
                         <li class="mb-2"><i class="bi bi-geo-alt me-1 text-info"></i> Jl. Kolonel Sugiyono No.37, Kadipiro, Banjarsari, Surakarta</li>
-                        <li class="mb-2"><i class="bi bi-envelope me-1 text-info"></i> sarpras@pignatelli.ac.id</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-1 text-info"></i> sarpras@upitra.ac.id</li>
                     </ul>
                 </div>
             </div>
@@ -408,7 +565,26 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
         </div>
     </div>
 </footer>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Global Anti-Flicker & Modal Teleportation Safeguard
+// Memindahkan semua modal langsung ke document.body agar tidak berkedip/flicker
+// akibat transform CSS pada card atau scroll container tabel.
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+    });
+});
+document.addEventListener('show.bs.modal', function(event) {
+    var modal = event.target;
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+});
+</script>
 </body>
 </html>

@@ -9,9 +9,9 @@
     <div class="container position-relative py-5">
         <div class="row align-items-center py-4 py-lg-5">
             <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
-                <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-white bg-opacity-15 border border-white border-opacity-25 mb-3 shadow-sm">
-                    <span class="badge bg-white text-primary rounded-pill px-2 py-1 fw-bold">RESMI</span>
-                    <span class="small fw-semibold text-white">Biro Sarana dan Prasarana &bull; Universitas Pignatelli Triputra</span>
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill border border-white border-opacity-25 mb-3 shadow-sm" style="background-color: rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+                    <span class="badge bg-white text-primary rounded-pill px-2.5 py-1 fw-bold shadow-sm" style="font-size: 0.75rem; letter-spacing: 0.5px;">RESMI</span>
+                    <span class="small fw-semibold text-white pe-1">Biro Sarana dan Prasarana &bull; Universitas Pignatelli Triputra</span>
                 </div>
                 
                 <h1 class="display-4 fw-extrabold mb-3 tracking-tight lh-sm">
@@ -376,6 +376,143 @@
 </section>
 
 <!-- ============================================== -->
+<!-- 3.5. KALENDER JADWAL FASILITAS KAMPUS (ANTI DOUBLE BOOKING) -->
+<!-- ============================================== -->
+<section class="py-5" id="jadwal-kalender" style="background-color: var(--light-bg);">
+    <div class="container py-3">
+        <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-4 gap-3">
+            <div>
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold text-uppercase mb-2">
+                    <i class="bi bi-calendar-week-fill me-1"></i> JADWAL FASILITAS REAL-TIME
+                </span>
+                <h2 class="fw-bold display-6 mb-2 text-dark">
+                    Kalender Ruangan & Kendaraan Dinas
+                </h2>
+                <p class="text-muted fs-6 mb-0">
+                    Jadwal pemakaian sarana dan prasarana kampus terpadu. Sistem otomatis memproteksi bentrok jadwal (Anti Double Booking) berdasarkan tanggal dan rentang jam.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/peminjaman/ruangan" class="btn btn-outline-success rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm">
+                    <i class="bi bi-door-open-fill"></i>
+                    <span>Pinjam Ruangan</span>
+                </a>
+                <a href="/peminjaman/kendaraan" class="btn btn-outline-primary rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm">
+                    <i class="bi bi-car-front-fill"></i>
+                    <span>Pinjam Kendaraan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter & Legenda Warna -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
+            <div class="row g-3 align-items-center justify-content-between">
+                <div class="col-md-6 col-lg-5">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small fw-bold text-dark text-nowrap"><i class="bi bi-funnel-fill text-primary"></i> Filter Kategori:</span>
+                        <div class="btn-group w-100" role="group" id="calendarFilterButtons">
+                            <button type="button" class="btn btn-sm btn-primary active fw-semibold" data-filter="all">Semua Jadwal</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-filter="room">🏢 Ruangan</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-filter="vehicle">🚗 Kendaraan</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-7">
+                    <div class="d-flex flex-wrap align-items-center justify-content-md-end gap-3 small">
+                        <span class="text-muted fw-semibold">Legenda:</span>
+                        <span class="d-inline-flex align-items-center gap-1.5">
+                            <span class="rounded-circle d-inline-block" style="width: 11px; height: 11px; background-color: #059669;"></span>
+                            <span class="text-secondary fw-medium">Ruangan (Approved)</span>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1.5">
+                            <span class="rounded-circle d-inline-block" style="width: 11px; height: 11px; background-color: #0284c7;"></span>
+                            <span class="text-secondary fw-medium">Kendaraan (Approved)</span>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1.5">
+                            <span class="rounded-circle d-inline-block" style="width: 11px; height: 11px; background-color: #ea580c;"></span>
+                            <span class="text-secondary fw-medium">Menunggu Verifikasi (Pending)</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wadah FullCalendar -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 bg-white">
+            <div id="facilityCalendar" style="min-height: 600px;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Detail Event Kalender -->
+<div class="modal fade" id="modalCalendarEventDetail" tabindex="-1" aria-labelledby="modalCalendarEventDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4 bg-light">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="calModalBadge" class="badge rounded-pill px-3 py-1.5 fw-semibold"></span>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="modalCalendarEventDetailLabel">Rincian Jadwal Peminjaman</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-dark">
+                <div class="mb-3">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Kegiatan / Acara / Keperluan</small>
+                    <h5 class="fw-bold text-primary mb-0" id="calModalEventTitle">-</h5>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 bg-light border">
+                            <small class="text-muted d-block fw-semibold mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Fasilitas / Armada:</small>
+                            <span class="fw-bold text-dark d-block" id="calModalResourceName">-</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 bg-light border">
+                            <small class="text-muted d-block fw-semibold mb-1"><i class="bi bi-clock-fill text-warning me-1"></i>Tanggal & Waktu:</small>
+                            <span class="fw-bold text-dark d-block" id="calModalDateTime">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3 bg-light border mb-3">
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block fw-semibold">Nama Peminjam:</small>
+                            <span class="fw-medium text-dark" id="calModalBooker">-</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block fw-semibold">Prodi / Unit Kerja:</small>
+                            <span class="fw-medium text-dark" id="calModalDepartment">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3 bg-light border mb-3" id="calModalExtraBox">
+                    <small class="text-muted d-block fw-semibold mb-1" id="calModalExtraLabel">Keterangan:</small>
+                    <span class="text-dark small" id="calModalExtraValue">-</span>
+                </div>
+
+                <div class="alert alert-info border-0 rounded-3 mb-0 d-none" id="calModalAdminNoteBox">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-info-circle-fill fs-5 text-info"></i>
+                        <div>
+                            <strong class="d-block text-dark small">Catatan Verifikasi Admin:</strong>
+                            <span class="small text-dark" id="calModalAdminNote">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top bg-light px-4 py-3 justify-content-between">
+                <span class="small text-muted" id="calModalStatusText">Status: -</span>
+                <button type="button" class="btn btn-secondary rounded-pill px-4 btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
 <!-- 4. ALUR PROSES PENGAJUAN (STEP BY STEP) -->
 <!-- ============================================== -->
 <section class="py-5 bg-white border-top border-bottom">
@@ -450,7 +587,7 @@
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm rounded-4 p-4 p-md-4 h-100" style="background: linear-gradient(135deg, #072B4D 0%, #0A3A66 100%); color: white;">
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="p-3 bg-white bg-opacity-20 rounded-circle text-white">
+                        <div class="rounded-circle text-white d-inline-flex align-items-center justify-content-center" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35); width: 60px; height: 60px;">
                             <i class="bi bi-shield-lock fs-3"></i>
                         </div>
                         <div>
@@ -596,6 +733,89 @@
     flex-shrink: 0;
 }
 
+/* FullCalendar Custom Theme Styles */
+#facilityCalendar {
+    font-family: inherit;
+    --fc-border-color: #e2e8f0;
+    --fc-today-bg-color: #f0f7ff;
+}
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.fc .fc-toolbar-title {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: var(--primary-blue) !important;
+    letter-spacing: -0.3px;
+}
+.fc .fc-button-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(10, 58, 102, 0.15) !important;
+    transition: all 0.2s ease !important;
+}
+.fc .fc-button-primary:hover {
+    background: linear-gradient(135deg, #072B4D 0%, var(--primary-blue) 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(10, 58, 102, 0.25) !important;
+}
+.fc .fc-button-primary:disabled {
+    background: #94a3b8 !important;
+    border-color: #94a3b8 !important;
+    opacity: 0.65;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active, 
+.fc .fc-button-primary:not(:disabled):active {
+    background: #072B4D !important;
+}
+.fc .fc-col-header-cell {
+    background-color: #f8fafc;
+    padding: 10px 0 !important;
+}
+.fc .fc-col-header-cell-cushion {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.fc .fc-daygrid-day-number {
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-weight: 600;
+    padding: 6px 8px !important;
+}
+.fc .fc-event {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 3px 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.fc .fc-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.18);
+}
+.fc .fc-daygrid-more-link {
+    font-weight: 700;
+    color: var(--secondary-blue) !important;
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+.fc-theme-standard td, .fc-theme-standard th {
+    border-color: #e2e8f0 !important;
+}
+
 @media (max-width: 991.98px) {
     .hero-section {
         border-bottom-left-radius: 28px;
@@ -607,5 +827,146 @@
 }
 </style>
 
+<!-- FullCalendar v6 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('facilityCalendar');
+    if (!calendarEl) return;
+
+    let allCalendarEvents = [];
+    let currentFilter = 'all';
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listMonth'
+        },
+        buttonText: {
+            today: 'Hari Ini',
+            month: 'Bulan',
+            week: 'Minggu',
+            list: 'Daftar'
+        },
+        locale: 'id',
+        navLinks: true,
+        editable: false,
+        selectable: false,
+        dayMaxEvents: 3,
+        moreLinkClick: 'popover',
+        height: 'auto',
+        events: function(fetchInfo, successCallback, failureCallback) {
+            fetch('/api/calendar-events')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    allCalendarEvents = data;
+                    if (currentFilter === 'all') {
+                        successCallback(allCalendarEvents);
+                    } else {
+                        const filtered = allCalendarEvents.filter(evt => evt.extendedProps && evt.extendedProps.category === currentFilter);
+                        successCallback(filtered);
+                    }
+                })
+                .catch(err => {
+                    console.error('Gagal mengambil jadwal kalender:', err);
+                    failureCallback(err);
+                });
+        },
+        eventClick: function(info) {
+            info.jsEvent.preventDefault();
+            const event = info.event;
+            const props = event.extendedProps || {};
+            const isRoom = props.category === 'room';
+            const isApproved = props.status === 'approved';
+
+            // Modal Badge
+            const badgeEl = document.getElementById('calModalBadge');
+            if (badgeEl) {
+                badgeEl.className = 'badge rounded-pill px-3 py-1.5 fw-semibold ' + 
+                    (isApproved ? (isRoom ? 'bg-success text-white' : 'bg-info text-white') : 'bg-warning text-dark');
+                badgeEl.innerHTML = (isRoom ? '<i class="bi bi-door-open-fill me-1"></i> Ruangan' : '<i class="bi bi-car-front-fill me-1"></i> Kendaraan') + 
+                    ' &bull; ' + (isApproved ? 'Approved' : 'Pending');
+            }
+
+            document.getElementById('calModalEventTitle').textContent = props.eventTitle || event.title;
+            document.getElementById('calModalResourceName').textContent = props.resourceName || '-';
+            document.getElementById('calModalDateTime').textContent = (props.date || '-') + ' (' + (props.time || '-') + ')';
+            document.getElementById('calModalBooker').textContent = props.bookerName || '-';
+            document.getElementById('calModalDepartment').textContent = props.department || '-';
+
+            const extraLabel = document.getElementById('calModalExtraLabel');
+            const extraValue = document.getElementById('calModalExtraValue');
+            if (isRoom) {
+                extraLabel.innerHTML = '<i class="bi bi-gear-fill text-secondary me-1"></i>Setup & Perlengkapan:';
+                let extraTxt = [];
+                if (props.setup) extraTxt.push('Setup Ruangan: ' + props.setup);
+                if (props.materials) extraTxt.push('Perlengkapan: ' + props.materials);
+                if (props.special) extraTxt.push('Permintaan Khusus: ' + props.special);
+                extraValue.textContent = extraTxt.length > 0 ? extraTxt.join(' | ') : 'Tidak ada catatan tambahan.';
+            } else {
+                extraLabel.innerHTML = '<i class="bi bi-info-circle-fill text-secondary me-1"></i>Supir & Keterangan Dinas:';
+                let extraTxt = [];
+                if (props.driver) extraTxt.push('Supir: ' + props.driver);
+                if (props.description) extraTxt.push('Keterangan: ' + props.description);
+                extraValue.textContent = extraTxt.length > 0 ? extraTxt.join(' | ') : 'Tidak ada keterangan tambahan.';
+            }
+
+            const adminNoteBox = document.getElementById('calModalAdminNoteBox');
+            const adminNoteVal = document.getElementById('calModalAdminNote');
+            if (props.adminNote && props.adminNote.trim() !== '') {
+                adminNoteVal.textContent = props.adminNote;
+                adminNoteBox.classList.remove('d-none');
+            } else {
+                adminNoteBox.classList.add('d-none');
+            }
+
+            const statusText = document.getElementById('calModalStatusText');
+            if (statusText) {
+                statusText.innerHTML = 'Status: <strong class="' + (isApproved ? 'text-success' : 'text-warning') + '">' + 
+                    (props.statusLabel || (isApproved ? 'Disetujui' : 'Menunggu Konfirmasi')) + '</strong>';
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('modalCalendarEventDetail'));
+            modal.show();
+        }
+    });
+
+    calendar.render();
+
+    // Filter Buttons Listener
+    const filterButtons = document.querySelectorAll('#calendarFilterButtons button');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            filterButtons.forEach(b => {
+                b.classList.remove('active', 'btn-primary');
+                b.classList.add('btn-outline-primary');
+            });
+            this.classList.add('active', 'btn-primary');
+            this.classList.remove('btn-outline-primary');
+
+            currentFilter = this.getAttribute('data-filter');
+            calendar.refetchEvents();
+        });
+    });
+
+    // Handle Window Resize Responsiveness
+    window.addEventListener('resize', function () {
+        if (window.innerWidth < 768 && calendar.view.type !== 'listMonth') {
+            calendar.changeView('listMonth');
+        } else if (window.innerWidth >= 768 && calendar.view.type === 'listMonth') {
+            calendar.changeView('dayGridMonth');
+        }
+    });
+});
+</script>
+
 <?= $this->endSection() ?>
+
 

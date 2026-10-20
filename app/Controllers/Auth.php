@@ -50,6 +50,11 @@ class Auth extends BaseController
             }
 
             if ($isValid) {
+                if (!empty($user['is_suspended'])) {
+                    $reason = !empty($user['suspend_reason']) ? ' (' . $user['suspend_reason'] . ')' : '';
+                    return redirect()->back()->withInput()->with('error', 'Akun Anda telah DITANGGUHKAN (SUSPEND) karena terindikasi penginputan spam/asal-asalan' . $reason . '. Silakan hubungi Super Admin (Biro IT) untuk membuka kembali akses akun Anda.');
+                }
+
                 session()->set([
                     'isLoggedIn' => true,
                     'user_id'    => $user['id'],
@@ -63,7 +68,7 @@ class Auth extends BaseController
                 $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
                 session()->remove('redirect_after_login');
 
-                return redirect()->to($targetUrl)->with('message', 'Selamat datang kembali, ' . ($user['name'] ?? 'User') . '!');
+                return redirect()->to($targetUrl);
             }
         }
 
@@ -73,7 +78,7 @@ class Auth extends BaseController
                 'password'   => 'superadmin123',
                 'id'         => 1,
                 'name'       => 'Tim Biro IT',
-                'email'      => 'it@pignatelli.ac.id',
+                'email'      => 'it@upitra.ac.id',
                 'role'       => 'super_admin',
                 'department' => 'Biro IT',
             ],
@@ -81,7 +86,7 @@ class Auth extends BaseController
                 'password'   => 'admin123',
                 'id'         => 2,
                 'name'       => 'Biro Sarana dan Prasarana',
-                'email'      => 'sarpras@pignatelli.ac.id',
+                'email'      => 'sarpras@upitra.ac.id',
                 'role'       => 'admin',
                 'department' => 'Sarpras',
             ],
@@ -89,7 +94,7 @@ class Auth extends BaseController
                 'password'   => 'mahasiswa123',
                 'id'         => 3,
                 'name'       => 'Budi Santoso',
-                'email'      => 'budi@student.pignatelli.ac.id',
+                'email'      => 'budi@student.upitra.ac.id',
                 'role'       => 'user',
                 'department' => 'Mahasiswa Informatika',
             ],
@@ -97,7 +102,7 @@ class Auth extends BaseController
                 'password'   => 'dosen123',
                 'id'         => 4,
                 'name'       => 'Dr. Siti Rahmawati, M.Kom.',
-                'email'      => 'siti.rahma@pignatelli.ac.id',
+                'email'      => 'siti.rahma@upitra.ac.id',
                 'role'       => 'user',
                 'department' => 'Dosen Fakultas Sains & Teknologi',
             ],
@@ -105,7 +110,7 @@ class Auth extends BaseController
                 'password'   => 'user123',
                 'id'         => 5,
                 'name'       => 'Budi Santoso',
-                'email'      => 'budi@pignatelli.ac.id',
+                'email'      => 'budi@student.upitra.ac.id',
                 'role'       => 'user',
                 'department' => 'Mahasiswa Informatika',
             ],
@@ -119,7 +124,7 @@ class Auth extends BaseController
                     'user_id'    => $f['id'],
                     'username'   => $username,
                     'user_name'  => $f['name'],
-                    'email'      => $f['email'] ?? ($username . '@pignatelli.ac.id'),
+                    'email'      => $f['email'] ?? ($username . '@upitra.ac.id'),
                     'role'       => $f['role'],
                     'department' => $f['department'],
                 ]);
@@ -127,7 +132,7 @@ class Auth extends BaseController
                 $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
                 session()->remove('redirect_after_login');
 
-                return redirect()->to($targetUrl)->with('message', 'Login berhasil sebagai ' . $f['name'] . '!');
+                return redirect()->to($targetUrl);
             }
         }
 
@@ -146,8 +151,24 @@ class Auth extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu untuk mengakses dashboard.');
         }
 
-        $role = session()->get('role') ?? 'user';
-        $userName = session()->get('user_name') ?? 'Pengguna';
+        $role          = session()->get('role') ?? 'user';
+        $userName      = session()->get('user_name') ?? 'Pengguna';
+        $userId        = session()->get('user_id');
+        $userLoginName = session()->get('username') ?? '';
+        $userEmail     = session()->get('email') ?? '';
+        $userDept      = session()->get('department') ?? 'Universitas Pignatelli Triputra';
+
+        $myProfile = [
+            'id'              => $userId,
+            'username'        => $userLoginName,
+            'name'            => $userName,
+            'email'           => $userEmail,
+            'department'      => $userDept,
+            'phone'           => '',
+            'identity_number' => '',
+            'role'            => $role,
+            'is_suspended'    => 0,
+        ];
 
         $stats = [
             'lost_found'       => 0,
@@ -169,10 +190,14 @@ class Auth extends BaseController
         $myRequests         = [];
 
         // Data Khusus untuk Dashboard User (Mahasiswa & Dosen)
-        $myRoomBookings     = [];
-        $myVehicleBookings  = [];
-        $myMaintenance      = [];
-        $mySupplyRequests   = [];
+        $myRoomBookings          = [];
+        $myVehicleBookings       = [];
+        $myMaintenance           = [];
+        $mySupplyRequests        = [];
+        $pendingRoomsCount       = 0;
+        $pendingVehiclesCount    = 0;
+        $pendingMaintenanceCount = 0;
+        $pendingSuppliesCount    = 0;
         $userStats          = [
             'total_all'         => 0,
             'total_rooms'       => 0,
@@ -223,65 +248,96 @@ class Auth extends BaseController
                 $stats['users_count'] = $db->table('users')->countAllResults();
             }
 
+            // Profil Pengguna Aktif
+            if ($userId && $db->tableExists('users')) {
+                $userRec = $db->table('users')->where('id', $userId)->get()->getRowArray();
+                if ($userRec) {
+                    $myProfile['name']            = $userRec['name'] ?? $myProfile['name'];
+                    $myProfile['email']           = $userRec['email'] ?? $myProfile['email'];
+                    $myProfile['department']      = $userRec['department'] ?? $myProfile['department'];
+                    $myProfile['phone']           = $userRec['phone'] ?? '';
+                    $myProfile['identity_number'] = $userRec['identity_number'] ?? '';
+                    $myProfile['is_suspended']    = $userRec['is_suspended'] ?? 0;
+                }
+            }
+
             // Master Ruangan & Kendaraan
             if ($db->tableExists('rooms')) {
-                $roomsList = $db->table('rooms')->get()->getResultArray();
+                $roomsList = $db->table('rooms')->orderBy('id', 'ASC')->get()->getResultArray();
             }
             if (empty($roomsList)) {
                 $roomsList = [
-                    ['id' => 1, 'room_name' => 'Excellent Meeting Room', 'capacity' => 50],
-                    ['id' => 2, 'room_name' => 'Compassion Meeting Room', 'capacity' => 40],
-                    ['id' => 3, 'room_name' => 'Integrity Meeting Room', 'capacity' => 40],
-                    ['id' => 4, 'room_name' => 'Auditorium', 'capacity' => 200],
-                    ['id' => 5, 'room_name' => 'Multi Function Hall', 'capacity' => 150],
+                    ['id' => 1, 'room_name' => 'Excellent Meeting Room', 'capacity' => 50, 'location' => 'Gedung A Lantai 2', 'status' => 'active'],
+                    ['id' => 2, 'room_name' => 'Compassion Meeting Room', 'capacity' => 40, 'location' => 'Gedung A Lantai 2', 'status' => 'active'],
+                    ['id' => 3, 'room_name' => 'Integrity Meeting Room', 'capacity' => 40, 'location' => 'Gedung B Lantai 1', 'status' => 'active'],
+                    ['id' => 4, 'room_name' => 'Auditorium', 'capacity' => 200, 'location' => 'Gedung Utama Lantai 3', 'status' => 'active'],
+                    ['id' => 5, 'room_name' => 'Multi Function Hall', 'capacity' => 150, 'location' => 'Gedung C Lantai Dasar', 'status' => 'active'],
                 ];
             }
 
             if ($db->tableExists('vehicles')) {
-                $vehiclesList = $db->table('vehicles')->get()->getResultArray();
+                $vehiclesList = $db->table('vehicles')->orderBy('id', 'ASC')->get()->getResultArray();
             }
             if (empty($vehiclesList)) {
                 $vehiclesList = [
-                    ['id' => 1, 'vehicle_name' => 'Toyota Avanza', 'plate_number' => 'B 1234 ABC'],
-                    ['id' => 2, 'vehicle_name' => 'Toyota Innova', 'plate_number' => 'B 5678 DEF'],
-                    ['id' => 3, 'vehicle_name' => 'Isuzu Elf', 'plate_number' => 'B 9101 GHI'],
+                    ['id' => 1, 'vehicle_name' => 'Toyota Avanza', 'plate_number' => 'B 1234 ABC', 'capacity' => 7, 'status' => 'available'],
+                    ['id' => 2, 'vehicle_name' => 'Toyota Innova Reborn', 'plate_number' => 'B 5678 DEF', 'capacity' => 8, 'status' => 'available'],
+                    ['id' => 3, 'vehicle_name' => 'Isuzu Elf Microbus', 'plate_number' => 'B 9101 GHI', 'capacity' => 16, 'status' => 'available'],
+                    ['id' => 4, 'vehicle_name' => 'Toyota Hiace Commuter', 'plate_number' => 'AD 8899 UP', 'capacity' => 14, 'status' => 'available'],
                 ];
             }
 
             // Data untuk Super Admin & Admin Sarpras
             if (in_array($role, ['super_admin', 'admin'])) {
                 if ($db->tableExists('room_bookings')) {
-                    $allRoomBookings = $db->table('room_bookings')
-                        ->select('room_bookings.*, rooms.room_name, rooms.capacity')
-                        ->join('rooms', 'rooms.id = room_bookings.room_id', 'left')
+                    $q = $db->table('room_bookings')
+                        ->select('room_bookings.*, rooms.room_name, rooms.capacity');
+                    if ($db->tableExists('users') && $db->fieldExists('user_id', 'room_bookings')) {
+                        $q->select('users.username as submitter_username, users.name as submitter_user_name')
+                          ->join('users', 'users.id = room_bookings.user_id', 'left');
+                    }
+                    $allRoomBookings = $q->join('rooms', 'rooms.id = room_bookings.room_id', 'left')
                         ->orderBy('room_bookings.id', 'DESC')
                         ->get()->getResultArray();
-                    $pendingRooms = array_slice($allRoomBookings, 0, 5);
+                    $pendingRooms = array_values(array_filter($allRoomBookings, fn($r) => ($r['status'] ?? '') === 'pending'));
                 }
 
                 if ($db->tableExists('vehicle_bookings')) {
-                    $allVehicleBookings = $db->table('vehicle_bookings')
-                        ->select('vehicle_bookings.*, vehicles.vehicle_name, vehicles.plate_number')
-                        ->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left')
+                    $q = $db->table('vehicle_bookings')
+                        ->select('vehicle_bookings.*, vehicles.vehicle_name, vehicles.plate_number');
+                    if ($db->tableExists('users') && $db->fieldExists('user_id', 'vehicle_bookings')) {
+                        $q->select('users.username as submitter_username, users.name as submitter_user_name')
+                          ->join('users', 'users.id = vehicle_bookings.user_id', 'left');
+                    }
+                    $allVehicleBookings = $q->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left')
                         ->orderBy('vehicle_bookings.id', 'DESC')
                         ->get()->getResultArray();
-                    $pendingVehicles = array_slice($allVehicleBookings, 0, 5);
+                    $pendingVehicles = array_values(array_filter($allVehicleBookings, fn($v) => ($v['status'] ?? '') === 'pending'));
                 }
 
                 if ($db->tableExists('maintenance_requests')) {
-                    $allMaintenance = $db->table('maintenance_requests')
-                        ->orderBy('id', 'DESC')
+                    $q = $db->table('maintenance_requests')
+                        ->select('maintenance_requests.*');
+                    if ($db->tableExists('users') && $db->fieldExists('user_id', 'maintenance_requests')) {
+                        $q->select('users.username as submitter_username, users.name as submitter_user_name')
+                          ->join('users', 'users.id = maintenance_requests.user_id', 'left');
+                    }
+                    $allMaintenance = $q->orderBy('maintenance_requests.id', 'DESC')
                         ->get()->getResultArray();
-                    $pendingMaintenance = array_slice($allMaintenance, 0, 5);
+                    $pendingMaintenance = array_values(array_filter($allMaintenance, fn($m) => in_array($m['status'] ?? '', ['pending', 'in_progress'])));
                 }
 
                 if ($db->tableExists('supply_requests')) {
-                    $allSupplyRequests = $db->table('supply_requests')
-                        ->select('supply_requests.*, supplies.item_name, supplies.unit, supplies.stock')
-                        ->join('supplies', 'supplies.id = supply_requests.supply_id', 'left')
+                    $q = $db->table('supply_requests')
+                        ->select('supply_requests.*, supplies.item_name, supplies.unit, supplies.stock');
+                    if ($db->tableExists('users') && $db->fieldExists('user_id', 'supply_requests')) {
+                        $q->select('users.username as submitter_username, users.name as submitter_user_name')
+                          ->join('users', 'users.id = supply_requests.user_id', 'left');
+                    }
+                    $allSupplyRequests = $q->join('supplies', 'supplies.id = supply_requests.supply_id', 'left')
                         ->orderBy('supply_requests.id', 'DESC')
                         ->get()->getResultArray();
-                    $pendingSupplies = array_slice($allSupplyRequests, 0, 5);
+                    $pendingSupplies = array_values(array_filter($allSupplyRequests, fn($s) => ($s['status'] ?? '') === 'pending'));
                 }
 
                 if ($db->tableExists('visitors')) {
@@ -305,10 +361,28 @@ class Auth extends BaseController
                 }
 
                 if ($db->tableExists('users')) {
-                    $allUsers = $db->table('users')
-                        ->select('id, username, name, email, role, department, created_at')
-                        ->orderBy('id', 'ASC')
-                        ->get()->getResultArray();
+                    $usersQuery = $db->table('users')
+                        ->select('id, username, name, email, role, department, phone, identity_number, is_suspended, suspend_reason, created_at');
+                    if ($role === 'admin') {
+                        // Admin Sarpras hanya boleh mengelola dan melihat akun level 'user' (Dosen & Mahasiswa)
+                        $usersQuery->where('role', 'user');
+                    }
+                    // Super Admin (Biro IT) dapat melihat semua level: super_admin, admin, user
+                    $allUsers = $usersQuery->orderBy('id', 'ASC')->get()->getResultArray();
+                }
+
+                if (empty($allUsers)) {
+                    $defaultUsers = [
+                        ['id' => 1, 'username' => 'superadmin', 'name' => 'Biro Sistem Informasi & IT', 'email' => 'it@upitra.ac.id', 'role' => 'super_admin', 'department' => 'Biro IT & Sistem Informasi', 'phone' => '081200000001', 'identity_number' => 'IT-001', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 2, 'username' => 'admin', 'name' => 'Biro Sarana dan Prasarana', 'email' => 'sarpras@upitra.ac.id', 'role' => 'admin', 'department' => 'Sarpras', 'phone' => '081200000002', 'identity_number' => 'SP-002', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 3, 'username' => 'mahasiswa', 'name' => 'Budi Santoso', 'email' => 'budi@student.upitra.ac.id', 'role' => 'user', 'department' => 'Mahasiswa Informatika', 'phone' => '081234567890', 'identity_number' => '2023010045', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 4, 'username' => 'dosen', 'name' => 'Dr. Siti Rahmawati, M.Kom.', 'email' => 'siti.rahma@upitra.ac.id', 'role' => 'user', 'department' => 'Dosen Fakultas Sains & Teknologi', 'phone' => '081298765432', 'identity_number' => '0412058001', 'is_suspended' => 0, 'suspend_reason' => null],
+                    ];
+                    if ($role === 'admin') {
+                        $allUsers = array_values(array_filter($defaultUsers, fn($u) => $u['role'] === 'user'));
+                    } else {
+                        $allUsers = $defaultUsers;
+                    }
                 }
             }
 
@@ -386,9 +460,14 @@ class Auth extends BaseController
                 $userStats['total_supplies']    = count($mySupplyRequests);
                 $userStats['total_all']         = $userStats['total_rooms'] + $userStats['total_vehicles'] + $userStats['total_maintenance'] + $userStats['total_supplies'];
 
+                $pendingRoomsCount       = count(array_filter($myRoomBookings, fn($r) => ($r['status'] ?? '') === 'pending'));
+                $pendingVehiclesCount    = count(array_filter($myVehicleBookings, fn($v) => ($v['status'] ?? '') === 'pending'));
+                $pendingMaintenanceCount = count(array_filter($myMaintenance, fn($m) => in_array($m['status'] ?? '', ['pending', 'in_progress'])));
+                $pendingSuppliesCount    = count(array_filter($mySupplyRequests, fn($s) => ($s['status'] ?? '') === 'pending'));
+
                 foreach (array_merge($myRoomBookings, $myVehicleBookings, $mySupplyRequests) as $item) {
                     $st = $item['status'] ?? 'pending';
-                    if ($st === 'approved') {
+                    if ($st === 'approved' || $st === 'resolved') {
                         $userStats['approved_count']++;
                     } elseif ($st === 'rejected') {
                         $userStats['rejected_count']++;
@@ -399,10 +478,10 @@ class Auth extends BaseController
 
                 foreach ($myMaintenance as $item) {
                     $st = $item['status'] ?? 'pending';
-                    if ($st === 'resolved') {
+                    if ($st === 'resolved' || $st === 'approved') {
                         $userStats['approved_count']++;
-                    } elseif ($st === 'in_progress') {
-                        $userStats['pending_count']++;
+                    } elseif ($st === 'rejected') {
+                        $userStats['rejected_count']++;
                     } else {
                         $userStats['pending_count']++;
                     }
@@ -412,46 +491,58 @@ class Auth extends BaseController
                 $allMyCombined = [];
                 foreach ($myRoomBookings as $r) {
                     $allMyCombined[] = [
-                        'id'         => $r['id'],
-                        'type'       => 'Ruangan',
-                        'title'      => $r['event_name'] ?: 'Peminjaman Ruangan',
-                        'detail'     => ($r['room_name'] ?? 'Ruangan') . ' (' . ($r['start_time'] ?? '') . ' - ' . ($r['end_time'] ?? '') . ')',
-                        'date'       => $r['booking_date'],
-                        'created_at' => $r['created_at'] ?? $r['booking_date'],
-                        'status'     => $r['status'],
+                        'id'             => $r['id'],
+                        'type'           => 'Ruangan',
+                        'submitter_name' => $r['booker_name'] ?: $userName,
+                        'department'     => $r['department'] ?: $userDept,
+                        'title'          => $r['event_name'] ?: 'Peminjaman Ruangan',
+                        'detail'         => ($r['room_name'] ?? 'Ruangan') . ' (' . ($r['start_time'] ?? '') . ' - ' . ($r['end_time'] ?? '') . ')',
+                        'date'           => $r['booking_date'],
+                        'created_at'     => $r['created_at'] ?? $r['booking_date'],
+                        'status'         => $r['status'],
+                        'admin_note'     => $r['admin_note'] ?? null,
                     ];
                 }
                 foreach ($myVehicleBookings as $v) {
                     $allMyCombined[] = [
-                        'id'         => $v['id'],
-                        'type'       => 'Kendaraan',
-                        'title'      => 'Tujuan: ' . ($v['destination'] ?: '-'),
-                        'detail'     => ($v['vehicle_name'] ?? 'Mobil Dinas') . ' (' . ($v['booking_day'] ?? '') . ')',
-                        'date'       => $v['booking_date'],
-                        'created_at' => $v['created_at'] ?? $v['booking_date'],
-                        'status'     => $v['status'],
+                        'id'             => $v['id'],
+                        'type'           => 'Kendaraan',
+                        'submitter_name' => $v['booker_name'] ?: $userName,
+                        'department'     => $v['department'] ?: $userDept,
+                        'title'          => 'Tujuan: ' . ($v['destination'] ?: '-'),
+                        'detail'         => ($v['vehicle_name'] ?? 'Mobil Dinas') . ' (' . ($v['booking_day'] ?? '') . ')',
+                        'date'           => $v['booking_date'],
+                        'created_at'     => $v['created_at'] ?? $v['booking_date'],
+                        'status'         => $v['status'],
+                        'admin_note'     => $v['admin_note'] ?? null,
                     ];
                 }
                 foreach ($myMaintenance as $m) {
                     $allMyCombined[] = [
-                        'id'         => $m['id'],
-                        'type'       => 'Maintenance',
-                        'title'      => 'Fasilitas: ' . ($m['facility'] ?? '-'),
-                        'detail'     => 'Lokasi: ' . ($m['location'] ?? '-'),
+                        'id'             => $m['id'],
+                        'type'           => 'Maintenance',
+                        'submitter_name' => $m['requester_name'] ?: $userName,
+                        'department'     => $m['department'] ?: $userDept,
+                        'title'          => 'Fasilitas: ' . ($m['facility'] ?? '-'),
+                        'detail'         => 'Lokasi: ' . ($m['location'] ?? '-'),
                         'date'       => substr($m['created_at'] ?? date('Y-m-d'), 0, 10),
                         'created_at' => $m['created_at'] ?? date('Y-m-d H:i:s'),
                         'status'     => $m['status'],
+                        'admin_note' => $m['admin_note'] ?? null,
                     ];
                 }
                 foreach ($mySupplyRequests as $s) {
                     $allMyCombined[] = [
-                        'id'         => $s['id'],
-                        'type'       => 'Supplies (ATK)',
-                        'title'      => ($s['item_name'] ?? 'Barang ATK') . ' (' . ($s['quantity'] ?? 1) . ' ' . ($s['unit'] ?? '') . ')',
+                        'id'             => $s['id'],
+                        'type'           => 'Supplies (ATK)',
+                        'submitter_name' => $s['requester_name'] ?: $userName,
+                        'department'     => $s['department'] ?: $userDept,
+                        'title'          => ($s['item_name'] ?? 'Barang ATK') . ' (' . ($s['quantity'] ?? 1) . ' ' . ($s['unit'] ?? '') . ')',
                         'detail'     => 'Dibutuhkan: ' . ($s['date_needed'] ?? '-'),
                         'date'       => $s['date_requested'],
                         'created_at' => $s['created_at'] ?? $s['date_requested'],
                         'status'     => $s['status'],
+                        'admin_note' => $s['admin_note'] ?? null,
                     ];
                 }
 
@@ -466,6 +557,8 @@ class Auth extends BaseController
             // Tetap jalankan dashboard bila ada error koneksi DB
         }
 
+        $totalPendingCount = count($pendingRooms) + count($pendingVehicles) + count($pendingMaintenance) + count($pendingSupplies);
+
         return view('admin/dashboard', [
             'role'               => $role,
             'stats'              => $stats,
@@ -473,6 +566,7 @@ class Auth extends BaseController
             'pendingVehicles'    => $pendingVehicles,
             'pendingMaintenance' => $pendingMaintenance,
             'pendingSupplies'    => $pendingSupplies,
+            'totalPendingCount'  => $totalPendingCount,
             'recentVisitors'     => $recentVisitors,
             'recentLostFound'    => $recentLostFound,
             'allUsers'           => $allUsers,
@@ -486,13 +580,19 @@ class Auth extends BaseController
             'roomsList'          => $roomsList,
             'vehiclesList'       => $vehiclesList,
             'myRequests'         => $myRequests,
+            'allMyRequests'      => $allMyCombined ?? [],
             // Variabel Khusus untuk Dashboard Mahasiswa & Dosen
-            'myRoomBookings'     => $myRoomBookings,
-            'myVehicleBookings'  => $myVehicleBookings,
-            'myMaintenance'      => $myMaintenance,
-            'mySupplyRequests'   => $mySupplyRequests,
-            'userStats'          => $userStats,
-            'userType'           => $userType,
+            'myRoomBookings'          => $myRoomBookings,
+            'myVehicleBookings'       => $myVehicleBookings,
+            'myMaintenance'           => $myMaintenance,
+            'mySupplyRequests'        => $mySupplyRequests,
+            'pendingRoomsCount'       => $pendingRoomsCount,
+            'pendingVehiclesCount'    => $pendingVehiclesCount,
+            'pendingMaintenanceCount' => $pendingMaintenanceCount,
+            'pendingSuppliesCount'    => $pendingSuppliesCount,
+            'myProfile'               => $myProfile,
+            'userStats'               => $userStats,
+            'userType'                => $userType,
         ]);
     }
 
@@ -507,26 +607,55 @@ class Auth extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Anda tidak memiliki hak akses untuk mengubah status permohonan.');
         }
 
-        $table  = (string) $this->request->getPost('table');
-        $id     = (int) $this->request->getPost('id');
-        $status = (string) $this->request->getPost('status');
+        $table       = (string) $this->request->getPost('table');
+        $id          = (int) $this->request->getPost('id');
+        $status      = (string) $this->request->getPost('status');
+        $adminNote   = trim((string) $this->request->getPost('admin_note'));
+        $redirectTab = (string) $this->request->getPost('redirect_tab');
 
         $allowedTables = ['room_bookings', 'vehicle_bookings', 'maintenance_requests', 'supply_requests', 'lost_found', 'visitors'];
 
         if (!in_array($table, $allowedTables) || empty($id) || empty($status)) {
-            return redirect()->to('/dashboard')->with('error', 'Parameter perubahan status tidak valid.');
+            return redirect()->to('/dashboard#verifikasi')->with('error', 'Parameter perubahan status tidak valid.');
         }
 
         try {
             $db = \Config\Database::connect();
-            $db->table($table)->where('id', $id)->update([
+            $this->ensureUserIdColumns($db);
+
+            $updateData = [
                 'status'     => $status,
                 'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            ];
 
-            return redirect()->to('/dashboard')->with('message', 'Status pengajuan berhasil diperbarui menjadi "' . strtoupper($status) . '".');
+            if ($db->fieldExists('admin_note', $table)) {
+                if ($this->request->getPost('admin_note') !== null) {
+                    $updateData['admin_note'] = $adminNote;
+                }
+            }
+
+            // Jika status supply_requests disetujui (approved), kurangi stok barang jika belum dikurangi
+            if ($table === 'supply_requests' && $status === 'approved' && $db->tableExists('supplies')) {
+                $sr = $db->table('supply_requests')->where('id', $id)->get()->getRowArray();
+                if ($sr && ($sr['status'] ?? '') !== 'approved') {
+                    $supply = $db->table('supplies')->where('id', $sr['supply_id'])->get()->getRowArray();
+                    if ($supply) {
+                        $newStock = max(0, ((int)$supply['stock']) - ((int)$sr['quantity']));
+                        $db->table('supplies')->where('id', $sr['supply_id'])->update([
+                            'stock'      => $newStock,
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+
+            $db->table($table)->where('id', $id)->update($updateData);
+
+            $tabAnchor = $redirectTab ? '#' . ltrim($redirectTab, '#') : '#verifikasi';
+            $statusLabel = ($status === 'approved' || $status === 'resolved') ? 'DISETUJUI (APPROVED)' : (($status === 'rejected') ? 'DITOLAK (DECLINED)' : strtoupper($status));
+            return redirect()->to('/dashboard' . $tabAnchor)->with('message', 'Status permohonan berhasil diperbarui menjadi "' . $statusLabel . '". Pemohon akan langsung melihat pembaruan status dan catatan admin di dashboard mereka.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard')->with('error', 'Gagal memperbarui status: ' . $e->getMessage());
+            return redirect()->to('/dashboard#verifikasi')->with('error', 'Gagal memperbarui status: ' . $e->getMessage());
         }
     }
 
@@ -648,17 +777,30 @@ class Auth extends BaseController
 
         $username   = trim((string) $this->request->getPost('username'));
         $name       = trim((string) $this->request->getPost('name'));
-        $email      = trim((string) $this->request->getPost('email'));
-        $userRole   = (string) $this->request->getPost('role');
-        $department = trim((string) $this->request->getPost('department'));
-        $password   = (string) $this->request->getPost('password');
+        $email          = trim((string) $this->request->getPost('email'));
+        $userRole       = (string) $this->request->getPost('role');
+        $department     = trim((string) $this->request->getPost('department'));
+        $phone          = trim((string) $this->request->getPost('phone'));
+        $identityNumber = trim((string) $this->request->getPost('identity_number'));
+        $password       = (string) $this->request->getPost('password');
 
         if (empty($username) || empty($name) || empty($password)) {
             return redirect()->to('/dashboard#users')->with('error', 'Username, Nama, dan Password wajib diisi.');
         }
 
+        // Penentuan role berdasarkan level hak akses pembuat:
+        // Super Admin dapat membuat akun super_admin, admin, atau user
+        // Admin (Sarpras) HANYA diizinkan membuat akun berlevel 'user' (Dosen & Mahasiswa)
+        $finalRole = 'user';
+        if ($role === 'super_admin') {
+            $finalRole = in_array($userRole, ['super_admin', 'admin', 'user']) ? $userRole : 'user';
+        } else {
+            $finalRole = 'user';
+        }
+
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
             
             // Cek username kembar
             $exist = $db->table('users')->where('username', $username)->countAllResults();
@@ -666,16 +808,24 @@ class Auth extends BaseController
                 return redirect()->to('/dashboard#users')->with('error', 'Username "' . $username . '" sudah digunakan.');
             }
 
-            $db->table('users')->insert([
-                'username'   => $username,
-                'name'       => $name,
-                'email'      => $email,
-                'role'       => in_array($userRole, ['super_admin', 'admin', 'user']) ? $userRole : 'user',
-                'department' => $department ?: 'Universitas Pignatelli Triputra',
-                'password'   => password_hash($password, PASSWORD_DEFAULT),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            $insertData = [
+                'username'        => $username,
+                'name'            => $name,
+                'email'           => $email,
+                'role'            => $finalRole,
+                'department'      => $department ?: 'Universitas Pignatelli Triputra',
+                'password'        => password_hash($password, PASSWORD_DEFAULT),
+                'created_at'      => date('Y-m-d H:i:s'),
+                'updated_at'      => date('Y-m-d H:i:s'),
+            ];
+            if ($db->fieldExists('phone', 'users')) {
+                $insertData['phone'] = $phone;
+            }
+            if ($db->fieldExists('identity_number', 'users')) {
+                $insertData['identity_number'] = $identityNumber;
+            }
+
+            $db->table('users')->insert($insertData);
 
             return redirect()->to('/dashboard#users')->with('message', 'Pengguna baru "' . $name . '" berhasil ditambahkan.');
         } catch (\Throwable $e) {
@@ -694,13 +844,15 @@ class Auth extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $id         = (int) $this->request->getPost('id');
-        $username   = trim((string) $this->request->getPost('username'));
-        $name       = trim((string) $this->request->getPost('name'));
-        $email      = trim((string) $this->request->getPost('email'));
-        $userRole   = (string) $this->request->getPost('role');
-        $department = trim((string) $this->request->getPost('department'));
-        $password   = (string) $this->request->getPost('password');
+        $id             = (int) $this->request->getPost('id');
+        $username       = trim((string) $this->request->getPost('username'));
+        $name           = trim((string) $this->request->getPost('name'));
+        $email          = trim((string) $this->request->getPost('email'));
+        $userRole       = (string) $this->request->getPost('role');
+        $department     = trim((string) $this->request->getPost('department'));
+        $phone          = trim((string) $this->request->getPost('phone'));
+        $identityNumber = trim((string) $this->request->getPost('identity_number'));
+        $password       = (string) $this->request->getPost('password');
 
         if (empty($id) || empty($username) || empty($name)) {
             return redirect()->to('/dashboard#users')->with('error', 'Data pengguna tidak lengkap.');
@@ -708,15 +860,43 @@ class Auth extends BaseController
 
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            // Cek pengguna target yang akan diubah
+            $targetUser = $db->table('users')->where('id', $id)->get()->getRowArray();
+            if (!$targetUser) {
+                return redirect()->to('/dashboard#users')->with('error', 'Data pengguna tidak ditemukan.');
+            }
+
+            // Validasi batasan hak akses:
+            // Admin (Sarpras) HANYA boleh mengelola level 'user' (Dosen & Mahasiswa)
+            // Seluruh akun Admin dan Super Admin hanya boleh diedit oleh Super Admin (Biro IT)
+            if ($role === 'admin') {
+                if ($targetUser['role'] !== 'user') {
+                    return redirect()->to('/dashboard#users')->with('error', 'Akses ditolak: Admin hanya berhak mengelola akun Dosen dan Mahasiswa. Akun Admin & Super Admin dikelola oleh Super Admin (Biro IT).');
+                }
+                // Pastikan role tetap 'user' (mencegah eskalasi hak akses)
+                $finalRole = 'user';
+            } else {
+                // Super Admin bebas mengubah role
+                $finalRole = in_array($userRole, ['super_admin', 'admin', 'user']) ? $userRole : $targetUser['role'];
+            }
 
             $data = [
                 'username'   => $username,
                 'name'       => $name,
                 'email'      => $email,
-                'role'       => in_array($userRole, ['super_admin', 'admin', 'user']) ? $userRole : 'user',
+                'role'       => $finalRole,
                 'department' => $department,
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
+
+            if ($this->request->getPost('phone') !== null && $db->fieldExists('phone', 'users')) {
+                $data['phone'] = $phone;
+            }
+            if ($this->request->getPost('identity_number') !== null && $db->fieldExists('identity_number', 'users')) {
+                $data['identity_number'] = $identityNumber;
+            }
 
             if (!empty($password)) {
                 $data['password'] = password_hash($password, PASSWORD_DEFAULT);
@@ -752,10 +932,346 @@ class Auth extends BaseController
 
         try {
             $db = \Config\Database::connect();
+
+            // Cek target akun yang hendak dihapus
+            $targetUser = $db->table('users')->where('id', $id)->get()->getRowArray();
+            if (!$targetUser) {
+                return redirect()->to('/dashboard#users')->with('error', 'Akun pengguna tidak ditemukan.');
+            }
+
+            // Validasi batasan hak akses:
+            // Admin (Sarpras) HANYA berhak menghapus level 'user' (Dosen & Mahasiswa)
+            // Akun admin dan super_admin hanya dapat dihapus oleh Super Admin
+            if ($role === 'admin') {
+                if ($targetUser['role'] !== 'user') {
+                    return redirect()->to('/dashboard#users')->with('error', 'Akses ditolak: Admin hanya berhak menghapus akun Dosen atau Mahasiswa.');
+                }
+            }
+
             $db->table('users')->where('id', $id)->delete();
-            return redirect()->to('/dashboard#users')->with('message', 'Akun pengguna berhasil dihapus.');
+            return redirect()->to('/dashboard#users')->with('message', 'Akun pengguna "' . esc($targetUser['name']) . '" berhasil dihapus.');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard#users')->with('error', 'Gagal menghapus akun: ' . $e->getMessage());
+        }
+    }
+
+    public function suspendUser()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $id     = (int) $this->request->getPost('id');
+        $reason = trim((string) $this->request->getPost('suspend_reason')) ?: 'Terindikasi melakukan penginputan asal-asalan (spam)';
+
+        if (empty($id)) {
+            return redirect()->to('/dashboard#users')->with('error', 'ID pengguna tidak valid.');
+        }
+
+        if ($id === (int) session()->get('user_id')) {
+            return redirect()->to('/dashboard#users')->with('error', 'Anda tidak dapat menangguhkan akun Anda sendiri.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $targetUser = $db->table('users')->where('id', $id)->get()->getRowArray();
+            if (!$targetUser) {
+                return redirect()->to('/dashboard#users')->with('error', 'Pengguna tidak ditemukan.');
+            }
+
+            // Batasan: Admin Sarpras hanya boleh men-suspend level user (mahasiswa/dosen)
+            if ($role === 'admin' && $targetUser['role'] !== 'user') {
+                return redirect()->to('/dashboard#users')->with('error', 'Akses ditolak: Admin hanya berwenang menangguhkan akun Mahasiswa atau Dosen.');
+            }
+
+            $db->table('users')->where('id', $id)->update([
+                'is_suspended'   => 1,
+                'suspend_reason' => $reason,
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ]);
+
+            return redirect()->to('/dashboard#users')->with('message', 'Akun "' . esc($targetUser['name']) . '" berhasil DITANGGUHKAN (SUSPEND). Alasan: ' . esc($reason));
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#users')->with('error', 'Gagal menangguhkan akun: ' . $e->getMessage());
+        }
+    }
+
+    public function unsuspendUser()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+
+        // ATURAN KRUSIAL: Suspend hanya bisa dibuka oleh Super Admin!
+        if ($role !== 'super_admin') {
+            return redirect()->to('/dashboard#users')->with('error', 'Akses Ditolak: Hanya Super Admin (Biro IT) yang memiliki wewenang untuk membuka status suspend pengguna.');
+        }
+
+        $id = (int) $this->request->getPost('id');
+        if (empty($id)) {
+            return redirect()->to('/dashboard#users')->with('error', 'ID pengguna tidak valid.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $targetUser = $db->table('users')->where('id', $id)->get()->getRowArray();
+            if (!$targetUser) {
+                return redirect()->to('/dashboard#users')->with('error', 'Pengguna tidak ditemukan.');
+            }
+
+            $db->table('users')->where('id', $id)->update([
+                'is_suspended'   => 0,
+                'suspend_reason' => null,
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ]);
+
+            return redirect()->to('/dashboard#users')->with('message', 'Status suspend untuk akun "' . esc($targetUser['name']) . '" telah berhasil DIBUKA oleh Super Admin.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#users')->with('error', 'Gagal membuka status suspend: ' . $e->getMessage());
+        }
+    }
+
+    // --- CRUD MASTER DATA: RUANGAN ---
+    public function createRoom()
+    {
+        if (!session()->get('isLoggedIn')) return redirect()->to('/login');
+        if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+
+        $roomName = trim((string) $this->request->getPost('room_name'));
+        $capacity = (int) $this->request->getPost('capacity');
+        $location = trim((string) $this->request->getPost('location')) ?: 'Gedung Utama';
+        $status   = (string) $this->request->getPost('status') ?: 'active';
+
+        if (empty($roomName) || $capacity <= 0) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Nama ruangan dan kapasitas (minimal 1 orang) wajib diisi.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $db->table('rooms')->insert([
+                'room_name' => $roomName,
+                'capacity'  => $capacity,
+                'location'  => $location,
+                'status'    => in_array($status, ['active', 'maintenance']) ? $status : 'active',
+            ]);
+
+            return redirect()->to('/dashboard#master-sarpras')->with('message', 'Master ruangan baru "' . esc($roomName) . '" berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Gagal menambah ruangan: ' . $e->getMessage());
+        }
+    }
+
+    public function updateRoom()
+    {
+        if (!session()->get('isLoggedIn')) return redirect()->to('/login');
+        if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+
+        $id       = (int) $this->request->getPost('id');
+        $roomName = trim((string) $this->request->getPost('room_name'));
+        $capacity = (int) $this->request->getPost('capacity');
+        $location = trim((string) $this->request->getPost('location')) ?: 'Gedung Utama';
+        $status   = (string) $this->request->getPost('status') ?: 'active';
+
+        if (empty($id) || empty($roomName) || $capacity <= 0) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Data ruangan tidak lengkap atau kapasitas tidak valid.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $db->table('rooms')->where('id', $id)->update([
+                'room_name' => $roomName,
+                'capacity'  => $capacity,
+                'location'  => $location,
+                'status'    => in_array($status, ['active', 'maintenance']) ? $status : 'active',
+            ]);
+
+            return redirect()->to('/dashboard#master-sarpras')->with('message', 'Data ruangan "' . esc($roomName) . '" berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Gagal memperbarui ruangan: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteRoom()
+    {
+        if (!session()->get('isLoggedIn')) return redirect()->to('/login');
+        if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+
+        $id = (int) $this->request->getPost('id');
+        if (empty($id)) return redirect()->to('/dashboard#master-sarpras')->with('error', 'ID ruangan tidak valid.');
+
+        try {
+            $db = \Config\Database::connect();
+            $target = $db->table('rooms')->where('id', $id)->get()->getRowArray();
+            if ($target) {
+                $db->table('rooms')->where('id', $id)->delete();
+                return redirect()->to('/dashboard#master-sarpras')->with('message', 'Ruangan "' . esc($target['room_name']) . '" berhasil dihapus.');
+            }
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Ruangan tidak ditemukan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Gagal menghapus ruangan: ' . $e->getMessage());
+        }
+    }
+
+    // --- CRUD MASTER DATA: KENDARAAN (MOBIL) ---
+    public function createVehicle()
+    {
+        if (!session()->get('isLoggedIn')) return redirect()->to('/login');
+        if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+
+        $vehicleName = trim((string) $this->request->getPost('vehicle_name'));
+        $plateNumber = strtoupper(trim((string) $this->request->getPost('plate_number')));
+        $capacity    = (int) $this->request->getPost('capacity') ?: 7;
+        $status      = (string) $this->request->getPost('status') ?: 'available';
+
+        if (empty($vehicleName) || empty($plateNumber)) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Nama kendaraan dan plat nomor polisi wajib diisi.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $db->table('vehicles')->insert([
+                'vehicle_name' => $vehicleName,
+                'plate_number' => $plateNumber,
+                'capacity'     => $capacity,
+                'status'       => in_array($status, ['available', 'maintenance']) ? $status : 'available',
+            ]);
+
+            return redirect()->to('/dashboard#master-sarpras')->with('message', 'Master mobil baru "' . esc($vehicleName) . ' (' . esc($plateNumber) . ')" berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Gagal menambah kendaraan: ' . $e->getMessage());
+        }
+    }
+
+    public function updateVehicle()
+    {
+        if (!session()->get('isLoggedIn')) return redirect()->to('/login');
+        if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+
+        $id          = (int) $this->request->getPost('id');
+        $vehicleName = trim((string) $this->request->getPost('vehicle_name'));
+        $plateNumber = strtoupper(trim((string) $this->request->getPost('plate_number')));
+        $capacity    = (int) $this->request->getPost('capacity') ?: 7;
+        $status      = (string) $this->request->getPost('status') ?: 'available';
+
+        if (empty($id) || empty($vehicleName) || empty($plateNumber)) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Data kendaraan tidak lengkap.');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $db->table('vehicles')->where('id', $id)->update([
+                'vehicle_name' => $vehicleName,
+                'plate_number' => $plateNumber,
+                'capacity'     => $capacity,
+                'status'       => in_array($status, ['available', 'maintenance']) ? $status : 'available',
+            ]);
+
+            return redirect()->to('/dashboard#master-sarpras')->with('message', 'Data kendaraan "' . esc($vehicleName) . '" berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Gagal memperbarui kendaraan: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteVehicle()
+    {
+        if (!session()->get('isLoggedIn')) return redirect()->to('/login');
+        if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+
+        $id = (int) $this->request->getPost('id');
+        if (empty($id)) return redirect()->to('/dashboard#master-sarpras')->with('error', 'ID kendaraan tidak valid.');
+
+        try {
+            $db = \Config\Database::connect();
+            $target = $db->table('vehicles')->where('id', $id)->get()->getRowArray();
+            if ($target) {
+                $db->table('vehicles')->where('id', $id)->delete();
+                return redirect()->to('/dashboard#master-sarpras')->with('message', 'Kendaraan "' . esc($target['vehicle_name']) . '" berhasil dihapus.');
+            }
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Kendaraan tidak ditemukan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#master-sarpras')->with('error', 'Gagal menghapus kendaraan: ' . $e->getMessage());
+        }
+    }
+
+    // --- FORM BIODATA PROFIL MANDIRI ---
+    public function updateProfile()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $userId = (int) session()->get('user_id');
+        $name   = trim((string) $this->request->getPost('name'));
+        $email  = trim((string) $this->request->getPost('email'));
+        $phone  = trim((string) $this->request->getPost('phone'));
+        $dept   = trim((string) $this->request->getPost('department'));
+        $idNum  = trim((string) $this->request->getPost('identity_number'));
+        $pw     = (string) $this->request->getPost('password');
+        $pwConf = (string) $this->request->getPost('password_confirm');
+
+        if (empty($name)) {
+            return redirect()->to('/dashboard#biodata')->with('error', 'Nama lengkap tidak boleh kosong.');
+        }
+
+        if (!empty($pw)) {
+            if ($pw !== $pwConf) {
+                return redirect()->to('/dashboard#biodata')->with('error', 'Konfirmasi password baru tidak sesuai.');
+            }
+            if (strlen($pw) < 6) {
+                return redirect()->to('/dashboard#biodata')->with('error', 'Password baru minimal terdiri dari 6 karakter.');
+            }
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $updateData = [
+                'name'            => $name,
+                'email'           => $email,
+                'phone'           => $phone,
+                'department'      => $dept,
+                'identity_number' => $idNum,
+                'updated_at'      => date('Y-m-d H:i:s'),
+            ];
+
+            if (!empty($pw)) {
+                $updateData['password'] = password_hash($pw, PASSWORD_DEFAULT);
+            }
+
+            if ($db->tableExists('users')) {
+                $db->table('users')->where('id', $userId)->update($updateData);
+            }
+
+            // Segarkan data sesi aktif
+            session()->set([
+                'user_name'  => $name,
+                'email'      => $email,
+                'department' => $dept,
+            ]);
+
+            return redirect()->to('/dashboard#biodata')->with('message', 'Biodata profil Anda berhasil disimpan.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/dashboard#biodata')->with('error', 'Gagal menyimpan biodata: ' . $e->getMessage());
         }
     }
 
@@ -952,9 +1468,9 @@ class Auth extends BaseController
         if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
 
         $roomId         = (int) $this->request->getPost('room_id');
-        $bookingDate    = (string) $this->request->getPost('booking_date');
-        $startTime      = (string) $this->request->getPost('start_time');
-        $endTime        = (string) $this->request->getPost('end_time');
+        $bookingDate    = trim((string) $this->request->getPost('booking_date'));
+        $startTime      = trim((string) $this->request->getPost('start_time'));
+        $endTime        = trim((string) $this->request->getPost('end_time'));
         $bookerName     = trim((string) $this->request->getPost('booker_name'));
         $department     = trim((string) $this->request->getPost('department'));
         $eventName      = trim((string) $this->request->getPost('event_name'));
@@ -963,13 +1479,30 @@ class Auth extends BaseController
         $specialRequest = trim((string) $this->request->getPost('special_request'));
         $status         = (string) ($this->request->getPost('status') ?: 'pending');
 
-        if (empty($roomId) || empty($bookingDate) || empty($bookerName) || empty($eventName)) {
-            return redirect()->to('/dashboard#peminjaman')->with('error', 'Ruangan, Tanggal, Nama Peminjam, dan Nama Event wajib diisi.');
+        if (empty($roomId) || empty($bookingDate) || empty($startTime) || empty($endTime) || empty($bookerName) || empty($eventName)) {
+            return redirect()->to('/dashboard#peminjaman')->with('error', 'Ruangan, Tanggal, Jam Masuk, Jam Keluar, Nama Peminjam, dan Nama Event wajib diisi.');
+        }
+
+        if (strtotime($startTime) >= strtotime($endTime)) {
+            return redirect()->to('/dashboard#peminjaman')->with('error', 'Validasi Waktu Gagal: Jam keluar (' . $endTime . ') harus lebih besar / setelah jam masuk (' . $startTime . ').');
         }
 
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $conflict = $this->checkRoomConflict($db, $roomId, $bookingDate, $startTime, $endTime);
+            if ($conflict) {
+                $roomName   = esc($conflict['room_name'] ?: 'Ruangan #' . $roomId);
+                $confStart  = esc(substr($conflict['start_time'], 0, 5));
+                $confEnd    = esc(substr($conflict['end_time'], 0, 5));
+                $confEvent  = esc($conflict['event_name']);
+                $confBooker = esc($conflict['booker_name']);
+                return redirect()->to('/dashboard#peminjaman')->with('error', "Jadwal Bentrok! Ruangan '{$roomName}' sudah dibooking pada tanggal {$bookingDate} pukul {$confStart} - {$confEnd} untuk kegiatan '{$confEvent}' oleh {$confBooker}. Silakan pilih jam atau ruangan lain.");
+            }
+
             $db->table('room_bookings')->insert([
+                'user_id'         => session()->get('user_id'),
                 'room_id'         => $roomId,
                 'booking_date'    => $bookingDate,
                 'start_time'      => $startTime,
@@ -997,9 +1530,9 @@ class Auth extends BaseController
 
         $id             = (int) $this->request->getPost('id');
         $roomId         = (int) $this->request->getPost('room_id');
-        $bookingDate    = (string) $this->request->getPost('booking_date');
-        $startTime      = (string) $this->request->getPost('start_time');
-        $endTime        = (string) $this->request->getPost('end_time');
+        $bookingDate    = trim((string) $this->request->getPost('booking_date'));
+        $startTime      = trim((string) $this->request->getPost('start_time'));
+        $endTime        = trim((string) $this->request->getPost('end_time'));
         $bookerName     = trim((string) $this->request->getPost('booker_name'));
         $department     = trim((string) $this->request->getPost('department'));
         $eventName      = trim((string) $this->request->getPost('event_name'));
@@ -1008,13 +1541,30 @@ class Auth extends BaseController
         $specialRequest = trim((string) $this->request->getPost('special_request'));
         $status         = (string) $this->request->getPost('status');
 
-        if (empty($id) || empty($roomId) || empty($bookerName)) {
+        if (empty($id) || empty($roomId) || empty($bookerName) || empty($bookingDate) || empty($startTime) || empty($endTime)) {
             return redirect()->to('/dashboard#peminjaman')->with('error', 'Data booking ruangan tidak lengkap.');
+        }
+
+        if (strtotime($startTime) >= strtotime($endTime)) {
+            return redirect()->to('/dashboard#peminjaman')->with('error', 'Validasi Waktu Gagal: Jam keluar (' . $endTime . ') harus lebih besar / setelah jam masuk (' . $startTime . ').');
         }
 
         try {
             $db = \Config\Database::connect();
-            $db->table('room_bookings')->where('id', $id)->update([
+            $this->ensureUserIdColumns($db);
+
+            $conflict = $this->checkRoomConflict($db, $roomId, $bookingDate, $startTime, $endTime, $id);
+            if ($conflict) {
+                $roomName   = esc($conflict['room_name'] ?: 'Ruangan #' . $roomId);
+                $confStart  = esc(substr($conflict['start_time'], 0, 5));
+                $confEnd    = esc(substr($conflict['end_time'], 0, 5));
+                $confEvent  = esc($conflict['event_name']);
+                $confBooker = esc($conflict['booker_name']);
+                return redirect()->to('/dashboard#peminjaman')->with('error', "Jadwal Bentrok! Ruangan '{$roomName}' sudah dibooking pada tanggal {$bookingDate} pukul {$confStart} - {$confEnd} untuk kegiatan '{$confEvent}' oleh {$confBooker}. Silakan pilih jam atau ruangan lain.");
+            }
+
+            $adminNote = trim((string) $this->request->getPost('admin_note'));
+            $updateData = [
                 'room_id'         => $roomId,
                 'booking_date'    => $bookingDate,
                 'start_time'      => $startTime,
@@ -1027,7 +1577,11 @@ class Auth extends BaseController
                 'special_request' => $specialRequest,
                 'status'          => in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending',
                 'updated_at'      => date('Y-m-d H:i:s'),
-            ]);
+            ];
+            if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'room_bookings')) {
+                $updateData['admin_note'] = $adminNote;
+            }
+            $db->table('room_bookings')->where('id', $id)->update($updateData);
             return redirect()->to('/dashboard#peminjaman')->with('message', 'Peminjaman ruangan berhasil diperbarui.');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard#peminjaman')->with('error', 'Gagal memperbarui booking ruangan: ' . $e->getMessage());
@@ -1060,8 +1614,8 @@ class Auth extends BaseController
         $vehicleId   = (int) $this->request->getPost('vehicle_id');
         $bookingDate = (string) $this->request->getPost('booking_date');
         $bookingDay  = (string) ($this->request->getPost('booking_day') ?: date('l', strtotime($bookingDate)));
-        $startTime   = (string) $this->request->getPost('start_time');
-        $endTime     = (string) $this->request->getPost('end_time');
+        $startTime   = trim((string) $this->request->getPost('start_time'));
+        $endTime     = trim((string) $this->request->getPost('end_time'));
         $bookerName  = trim((string) $this->request->getPost('booker_name'));
         $department  = trim((string) $this->request->getPost('department'));
         $destination = trim((string) $this->request->getPost('destination'));
@@ -1071,13 +1625,30 @@ class Auth extends BaseController
         $kmOut       = $this->request->getPost('km_out') !== '' ? (int) $this->request->getPost('km_out') : null;
         $status      = (string) ($this->request->getPost('status') ?: 'pending');
 
-        if (empty($vehicleId) || empty($bookingDate) || empty($bookerName) || empty($destination)) {
-            return redirect()->to('/dashboard#peminjaman')->with('error', 'Kendaraan, Tanggal, Peminjam, dan Tujuan wajib diisi.');
+        if (empty($vehicleId) || empty($bookingDate) || empty($startTime) || empty($endTime) || empty($bookerName) || empty($destination)) {
+            return redirect()->to('/dashboard#peminjaman')->with('error', 'Kendaraan, Tanggal, Jam Berangkat, Jam Selesai, Peminjam, dan Tujuan wajib diisi.');
+        }
+
+        if (strtotime($startTime) >= strtotime($endTime)) {
+            return redirect()->to('/dashboard#peminjaman')->with('error', 'Validasi Waktu Gagal: Jam kembali/selesai (' . $endTime . ') harus lebih besar / setelah jam berangkat (' . $startTime . ').');
         }
 
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $conflict = $this->checkVehicleConflict($db, $vehicleId, $bookingDate, $startTime, $endTime);
+            if ($conflict) {
+                $vehName    = esc(($conflict['vehicle_name'] ?: 'Kendaraan #' . $vehicleId) . ($conflict['plate_number'] ? ' (' . $conflict['plate_number'] . ')' : ''));
+                $confStart  = esc(substr($conflict['start_time'], 0, 5));
+                $confEnd    = esc(substr($conflict['end_time'], 0, 5));
+                $confDest   = esc($conflict['destination']);
+                $confBooker = esc($conflict['booker_name']);
+                return redirect()->to('/dashboard#peminjaman')->with('error', "Jadwal Bentrok! Kendaraan '{$vehName}' sudah dibooking pada tanggal {$bookingDate} pukul {$confStart} - {$confEnd} untuk tujuan '{$confDest}' oleh {$confBooker}. Silakan pilih jam atau kendaraan lain.");
+            }
+
             $db->table('vehicle_bookings')->insert([
+                'user_id'      => session()->get('user_id'),
                 'vehicle_id'   => $vehicleId,
                 'booking_date' => $bookingDate,
                 'booking_day'  => $bookingDay,
@@ -1109,8 +1680,8 @@ class Auth extends BaseController
         $vehicleId   = (int) $this->request->getPost('vehicle_id');
         $bookingDate = (string) $this->request->getPost('booking_date');
         $bookingDay  = (string) ($this->request->getPost('booking_day') ?: date('l', strtotime($bookingDate)));
-        $startTime   = (string) $this->request->getPost('start_time');
-        $endTime     = (string) $this->request->getPost('end_time');
+        $startTime   = trim((string) $this->request->getPost('start_time'));
+        $endTime     = trim((string) $this->request->getPost('end_time'));
         $bookerName  = trim((string) $this->request->getPost('booker_name'));
         $department  = trim((string) $this->request->getPost('department'));
         $destination = trim((string) $this->request->getPost('destination'));
@@ -1120,13 +1691,30 @@ class Auth extends BaseController
         $kmOut       = $this->request->getPost('km_out') !== '' ? (int) $this->request->getPost('km_out') : null;
         $status      = (string) $this->request->getPost('status');
 
-        if (empty($id) || empty($vehicleId) || empty($bookerName)) {
+        if (empty($id) || empty($vehicleId) || empty($bookerName) || empty($bookingDate) || empty($startTime) || empty($endTime)) {
             return redirect()->to('/dashboard#peminjaman')->with('error', 'Data booking kendaraan tidak lengkap.');
+        }
+
+        if (strtotime($startTime) >= strtotime($endTime)) {
+            return redirect()->to('/dashboard#peminjaman')->with('error', 'Validasi Waktu Gagal: Jam kembali/selesai (' . $endTime . ') harus lebih besar / setelah jam berangkat (' . $startTime . ').');
         }
 
         try {
             $db = \Config\Database::connect();
-            $db->table('vehicle_bookings')->where('id', $id)->update([
+            $this->ensureUserIdColumns($db);
+
+            $conflict = $this->checkVehicleConflict($db, $vehicleId, $bookingDate, $startTime, $endTime, $id);
+            if ($conflict) {
+                $vehName    = esc(($conflict['vehicle_name'] ?: 'Kendaraan #' . $vehicleId) . ($conflict['plate_number'] ? ' (' . $conflict['plate_number'] . ')' : ''));
+                $confStart  = esc(substr($conflict['start_time'], 0, 5));
+                $confEnd    = esc(substr($conflict['end_time'], 0, 5));
+                $confDest   = esc($conflict['destination']);
+                $confBooker = esc($conflict['booker_name']);
+                return redirect()->to('/dashboard#peminjaman')->with('error', "Jadwal Bentrok! Kendaraan '{$vehName}' sudah dibooking pada tanggal {$bookingDate} pukul {$confStart} - {$confEnd} untuk tujuan '{$confDest}' oleh {$confBooker}. Silakan pilih jam atau kendaraan lain.");
+            }
+
+            $adminNote = trim((string) $this->request->getPost('admin_note'));
+            $updateData = [
                 'vehicle_id'   => $vehicleId,
                 'booking_date' => $bookingDate,
                 'booking_day'  => $bookingDay,
@@ -1141,7 +1729,11 @@ class Auth extends BaseController
                 'km_out'       => $kmOut,
                 'status'       => in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending',
                 'updated_at'   => date('Y-m-d H:i:s'),
-            ]);
+            ];
+            if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'vehicle_bookings')) {
+                $updateData['admin_note'] = $adminNote;
+            }
+            $db->table('vehicle_bookings')->where('id', $id)->update($updateData);
             return redirect()->to('/dashboard#peminjaman')->with('message', 'Peminjaman kendaraan berhasil diperbarui.');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard#peminjaman')->with('error', 'Gagal memperbarui booking kendaraan: ' . $e->getMessage());
@@ -1185,6 +1777,7 @@ class Auth extends BaseController
         try {
             $db = \Config\Database::connect();
             $db->table('maintenance_requests')->insert([
+                'user_id'        => session()->get('user_id'),
                 'requester_name' => $requesterName,
                 'department'     => $department,
                 'location'       => $location,
@@ -1219,15 +1812,20 @@ class Auth extends BaseController
 
         try {
             $db = \Config\Database::connect();
-            $db->table('maintenance_requests')->where('id', $id)->update([
+            $adminNote = trim((string) $this->request->getPost('admin_note'));
+            $updateData = [
                 'requester_name' => $requesterName,
                 'department'     => $department,
                 'location'       => $location,
                 'facility'       => $facility,
                 'description'    => $description,
-                'status'         => in_array($status, ['pending', 'in_progress', 'resolved']) ? $status : 'pending',
+                'status'         => in_array($status, ['pending', 'in_progress', 'resolved', 'rejected', 'approved']) ? $status : 'pending',
                 'updated_at'     => date('Y-m-d H:i:s'),
-            ]);
+            ];
+            if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'maintenance_requests')) {
+                $updateData['admin_note'] = $adminNote;
+            }
+            $db->table('maintenance_requests')->where('id', $id)->update($updateData);
             return redirect()->to('/dashboard#request')->with('message', 'Request maintenance berhasil diperbarui.');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard#request')->with('error', 'Gagal memperbarui maintenance: ' . $e->getMessage());
@@ -1273,6 +1871,7 @@ class Auth extends BaseController
         try {
             $db = \Config\Database::connect();
             $db->table('supply_requests')->insert([
+                'user_id'        => session()->get('user_id'),
                 'email'          => $email,
                 'requester_name' => $requesterName,
                 'department'     => $department,
@@ -1311,7 +1910,8 @@ class Auth extends BaseController
 
         try {
             $db = \Config\Database::connect();
-            $db->table('supply_requests')->where('id', $id)->update([
+            $adminNote = trim((string) $this->request->getPost('admin_note'));
+            $updateData = [
                 'email'          => $email,
                 'requester_name' => $requesterName,
                 'department'     => $department,
@@ -1321,7 +1921,11 @@ class Auth extends BaseController
                 'quantity'       => $quantity,
                 'status'         => in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending',
                 'updated_at'     => date('Y-m-d H:i:s'),
-            ]);
+            ];
+            if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'supply_requests')) {
+                $updateData['admin_note'] = $adminNote;
+            }
+            $db->table('supply_requests')->where('id', $id)->update($updateData);
             return redirect()->to('/dashboard#request')->with('message', 'Permohonan supplies berhasil diperbarui.');
         } catch (\Throwable $e) {
             return redirect()->to('/dashboard#request')->with('error', 'Gagal memperbarui permohonan supplies: ' . $e->getMessage());
@@ -1408,12 +2012,12 @@ class Auth extends BaseController
     }
 
     /**
-     * Memastikan kolom user_id tersedia di tabel-tabel permohonan untuk multi-account isolation
+     * Memastikan kolom user_id, admin_note, dan status tersedia di tabel-tabel permohonan untuk multi-account isolation dan approval notes
      */
     private function ensureUserIdColumns($db)
     {
-        $tables = ['room_bookings', 'vehicle_bookings', 'maintenance_requests', 'supply_requests'];
-        foreach ($tables as $tbl) {
+        $requestTables = ['room_bookings', 'vehicle_bookings', 'maintenance_requests', 'supply_requests'];
+        foreach ($requestTables as $tbl) {
             if ($db->tableExists($tbl)) {
                 if (!$db->fieldExists('user_id', $tbl)) {
                     try {
@@ -1422,5 +2026,108 @@ class Auth extends BaseController
                 }
             }
         }
+
+        // Pastikan kolom admin_note tersedia di semua tabel permohonan & pelaporan
+        $allStatusTables = ['room_bookings', 'vehicle_bookings', 'maintenance_requests', 'supply_requests', 'lost_found', 'visitors'];
+        foreach ($allStatusTables as $tbl) {
+            if ($db->tableExists($tbl)) {
+                if (!$db->fieldExists('admin_note', $tbl)) {
+                    try {
+                        $db->query("ALTER TABLE `{$tbl}` ADD COLUMN `admin_note` TEXT NULL AFTER `status`");
+                    } catch (\Throwable $e) {}
+                }
+            }
+        }
+
+        // Pastikan status di maintenance_requests mendukung approved dan rejected
+        if ($db->tableExists('maintenance_requests')) {
+            try {
+                $db->query("ALTER TABLE `maintenance_requests` MODIFY COLUMN `status` VARCHAR(50) NOT NULL DEFAULT 'pending'");
+            } catch (\Throwable $e) {}
+        }
+
+        // Pastikan kolom phone, identity_number, is_suspended, suspend_reason tersedia di tabel users
+        if ($db->tableExists('users')) {
+            if (!$db->fieldExists('phone', 'users')) {
+                try { $db->query("ALTER TABLE `users` ADD COLUMN `phone` VARCHAR(50) NULL AFTER `department`"); } catch (\Throwable $e) {}
+            }
+            if (!$db->fieldExists('identity_number', 'users')) {
+                try { $db->query("ALTER TABLE `users` ADD COLUMN `identity_number` VARCHAR(50) NULL AFTER `phone`"); } catch (\Throwable $e) {}
+            }
+            if (!$db->fieldExists('is_suspended', 'users')) {
+                try { $db->query("ALTER TABLE `users` ADD COLUMN `is_suspended` TINYINT(1) NOT NULL DEFAULT 0 AFTER `identity_number`"); } catch (\Throwable $e) {}
+            }
+            if (!$db->fieldExists('suspend_reason', 'users')) {
+                try { $db->query("ALTER TABLE `users` ADD COLUMN `suspend_reason` TEXT NULL AFTER `is_suspended`"); } catch (\Throwable $e) {}
+            }
+        }
+
+        // Pastikan kolom location dan status tersedia di tabel rooms
+        if ($db->tableExists('rooms')) {
+            if (!$db->fieldExists('location', 'rooms')) {
+                try { $db->query("ALTER TABLE `rooms` ADD COLUMN `location` VARCHAR(150) DEFAULT 'Gedung Utama' AFTER `capacity`"); } catch (\Throwable $e) {}
+            }
+            if (!$db->fieldExists('status', 'rooms')) {
+                try { $db->query("ALTER TABLE `rooms` ADD COLUMN `status` ENUM('active','maintenance') NOT NULL DEFAULT 'active' AFTER `location`"); } catch (\Throwable $e) {}
+            }
+        }
+
+        // Pastikan kolom capacity dan status tersedia di tabel vehicles
+        if ($db->tableExists('vehicles')) {
+            if (!$db->fieldExists('capacity', 'vehicles')) {
+                try { $db->query("ALTER TABLE `vehicles` ADD COLUMN `capacity` INT(11) NOT NULL DEFAULT 7 AFTER `plate_number`"); } catch (\Throwable $e) {}
+            }
+            if (!$db->fieldExists('status', 'vehicles')) {
+                try { $db->query("ALTER TABLE `vehicles` ADD COLUMN `status` ENUM('available','maintenance') NOT NULL DEFAULT 'available' AFTER `capacity`"); } catch (\Throwable $e) {}
+            }
+        }
+    }
+
+    /**
+     * Memeriksa bentrok jadwal peminjaman ruangan pada tanggal dan rentang jam yang sama
+     */
+    private function checkRoomConflict($db, $roomId, $bookingDate, $startTime, $endTime, $excludeId = null)
+    {
+        $startTime = substr($startTime, 0, 5);
+        $endTime   = substr($endTime, 0, 5);
+
+        $builder = $db->table('room_bookings')
+            ->select('room_bookings.*, rooms.room_name')
+            ->join('rooms', 'rooms.id = room_bookings.room_id', 'left')
+            ->where('room_bookings.room_id', $roomId)
+            ->where('room_bookings.booking_date', $bookingDate)
+            ->where('room_bookings.status !=', 'rejected')
+            ->where('room_bookings.start_time <', $endTime)
+            ->where('room_bookings.end_time >', $startTime);
+
+        if ($excludeId) {
+            $builder->where('room_bookings.id !=', $excludeId);
+        }
+
+        return $builder->get()->getRowArray();
+    }
+
+    /**
+     * Memeriksa bentrok jadwal peminjaman kendaraan pada tanggal dan rentang jam yang sama
+     */
+    private function checkVehicleConflict($db, $vehicleId, $bookingDate, $startTime, $endTime, $excludeId = null)
+    {
+        $startTime = substr($startTime, 0, 5);
+        $endTime   = substr($endTime, 0, 5);
+
+        $builder = $db->table('vehicle_bookings')
+            ->select('vehicle_bookings.*, vehicles.vehicle_name, vehicles.plate_number')
+            ->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left')
+            ->where('vehicle_bookings.vehicle_id', $vehicleId)
+            ->where('vehicle_bookings.booking_date', $bookingDate)
+            ->where('vehicle_bookings.status !=', 'rejected')
+            ->where('vehicle_bookings.start_time <', $endTime)
+            ->where('vehicle_bookings.end_time >', $startTime);
+
+        if ($excludeId) {
+            $builder->where('vehicle_bookings.id !=', $excludeId);
+        }
+
+        return $builder->get()->getRowArray();
     }
 }

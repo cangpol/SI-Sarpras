@@ -6,8 +6,8 @@
         <h2 class="fw-bold mb-1" style="color: var(--primary-blue);">Request Maintenance</h2>
         <p class="text-muted mb-0">Formulir pelaporan dan permohonan perbaikan fasilitas kampus yang mengalami kerusakan.</p>
     </div>
-    <a href="/" class="btn btn-outline-secondary rounded-pill px-3">
-        &larr; Kembali ke Beranda
+    <a href="<?= session()->get('isLoggedIn') ? '/dashboard' : '/' ?>" class="btn btn-outline-secondary rounded-pill px-3">
+        &larr; <?= session()->get('isLoggedIn') ? 'Kembali ke Dashboard' : 'Kembali ke Beranda' ?>
     </a>
 </div>
 
@@ -90,11 +90,93 @@
                 <span class="text-muted small">
                     <i class="bi bi-info-circle me-1"></i> Teknisi Sarpras akan menindaklanjuti laporan perbaikan ini.
                 </span>
-                <button type="submit" class="btn btn-warning px-5 py-2 fw-bold shadow-sm rounded-pill text-white">
+                <button type="submit" class="btn btn-warning px-5 py-2 fw-bold shadow-sm rounded-pill text-white" style="background-color: #E06C2C; border: none;">
                     Submit Request Maintenance
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- DAFTAR LAPORAN TERKINI (LIST SUBMIT) -->
+<!-- ============================================== -->
+<div class="card shadow-sm border-0 rounded-4 mt-4">
+    <div class="card-header bg-white border-0 pt-4 px-4 px-md-5 pb-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h5 class="fw-bold mb-1 text-warning text-dark">
+                <i class="bi bi-card-checklist me-2"></i>Daftar Laporan Maintenance Saya (List Submit)
+            </h5>
+            <small class="text-muted">Data permohonan perbaikan fasilitas yang telah Anda submit lengkap dengan nama user yang menginput.</small>
+        </div>
+        <?php if (session()->get('isLoggedIn')): ?>
+            <a href="/dashboard" class="btn btn-outline-warning text-dark btn-sm rounded-pill px-3">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard Saya &rarr;
+            </a>
+        <?php endif; ?>
+    </div>
+    <div class="card-body p-4 p-md-5 pt-3 table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>No</th>
+                    <th>Nama Penginput / Pemohon</th>
+                    <th>Fasilitas</th>
+                    <th>Lokasi Kerusakan</th>
+                    <th>Keterangan Kerusakan</th>
+                    <th>Status Pengerjaan</th>
+                    <th>Waktu Submit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($mySubmissions)): ?>
+                    <?php $no = 1; foreach ($mySubmissions as $sub): ?>
+                        <tr>
+                            <td><?= $no++ ?></td>
+                            <td>
+                                <strong class="text-dark"><i class="bi bi-person-fill text-warning text-dark me-1"></i><?= esc($sub['requester_name']) ?></strong><br>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i><?= esc($sub['department']) ?></span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark"><?= esc($sub['facility']) ?></span>
+                            </td>
+                            <td>
+                                <strong><?= esc($sub['location']) ?></strong>
+                            </td>
+                            <td>
+                                <small class="text-muted"><?= esc($sub['description']) ?></small>
+                            </td>
+                            <td>
+                                <?php if ($sub['status'] === 'resolved' || $sub['status'] === 'approved'): ?>
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Selesai (Resolved)</span>
+                                <?php elseif ($sub['status'] === 'rejected'): ?>
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Ditolak</span>
+                                <?php elseif ($sub['status'] === 'in_progress'): ?>
+                                    <span class="badge bg-info text-dark"><i class="bi bi-gear-wide-connected me-1"></i>Sedang Dikerjakan</span>
+                                <?php else: ?>
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Antrian</span>
+                                <?php endif; ?>
+                                <?php if (!empty($sub['admin_note'])): ?>
+                                    <div class="mt-1 small <?= $sub['status'] === 'rejected' ? 'text-danger' : 'text-success' ?> p-1 px-2 rounded <?= $sub['status'] === 'rejected' ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 border border-<?= $sub['status'] === 'rejected' ? 'danger' : 'success' ?> border-opacity-25" style="max-width: 250px;">
+                                        <i class="bi <?= $sub['status'] === 'rejected' ? 'bi-exclamation-circle' : 'bi-chat-left-dots' ?> me-1"></i><strong><?= $sub['status'] === 'rejected' ? 'Alasan Ditolak' : 'Catatan Admin' ?>:</strong> <?= esc($sub['admin_note']) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <small class="text-muted"><?= esc($sub['created_at'] ?? '-') ?></small>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-2 text-secondary"></i>
+                            Belum ada laporan maintenance perbaikan fasilitas yang disubmit.
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 

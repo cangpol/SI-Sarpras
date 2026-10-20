@@ -18,6 +18,7 @@ $routes->get('peminjaman/ruangan', 'Frontend::ruangan');
 $routes->post('peminjaman/ruangan', 'Frontend::submitRuangan');
 $routes->get('peminjaman/kendaraan', 'Frontend::kendaraan');
 $routes->post('peminjaman/kendaraan', 'Frontend::submitKendaraan');
+$routes->get('api/calendar-events', 'Frontend::calendarEvents');
 
 // Request
 $routes->get('request/maintenance', 'Frontend::maintenance');
@@ -72,6 +73,23 @@ $routes->post('dashboard/request/maintenance/delete', 'Auth::deleteMaintenance')
 $routes->post('dashboard/request/supplies/create', 'Auth::createSupplyRequest');
 $routes->post('dashboard/request/supplies/update', 'Auth::updateSupplyRequest');
 $routes->post('dashboard/request/supplies/delete', 'Auth::deleteSupplyRequest');
+
+// Master Data Ruangan
+$routes->post('dashboard/master/rooms/create', 'Auth::createRoom');
+$routes->post('dashboard/master/rooms/update', 'Auth::updateRoom');
+$routes->post('dashboard/master/rooms/delete', 'Auth::deleteRoom');
+
+// Master Data Kendaraan (Mobil)
+$routes->post('dashboard/master/vehicles/create', 'Auth::createVehicle');
+$routes->post('dashboard/master/vehicles/update', 'Auth::updateVehicle');
+$routes->post('dashboard/master/vehicles/delete', 'Auth::deleteVehicle');
+
+// Suspend & Unsuspend User (Spam Management)
+$routes->post('dashboard/users/suspend', 'Auth::suspendUser');
+$routes->post('dashboard/users/unsuspend', 'Auth::unsuspendUser');
+
+// Biodata Profil Mandiri (User, Admin, Super Admin)
+$routes->post('dashboard/profile/update', 'Auth::updateProfile');
 
 
 
