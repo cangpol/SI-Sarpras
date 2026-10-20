@@ -31,6 +31,7 @@ $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::authenticate');
 $routes->get('logout', 'Auth::logout');
 $routes->get('dashboard', 'Auth::dashboard');
+$routes->get('dashboard/export-pdf', 'Auth::exportPdf');
 $routes->post('dashboard/update-status', 'Auth::updateStatus');
 $routes->post('dashboard/my-request/cancel', 'Auth::cancelMyRequest');
 

@@ -388,9 +388,6 @@
             <span class="badge <?= $badgeClass ?> ms-2 px-2 py-1" style="font-size: 0.7rem; font-weight: 700;"><?= $roleLabel ?></span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
-            <li class="px-3 py-2 text-muted small border-bottom">
-              Hak Akses: <strong class="text-primary"><?= $role === 'super_admin' ? 'Super Admin (Biro IT)' : ($role === 'admin' ? 'Admin (Sarpras)' : 'User (Mahasiswa & Dosen)') ?></strong>
-            </li>
             <li><a class="dropdown-item py-2" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
             <li><hr class="dropdown-divider my-1"></li>
             <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>

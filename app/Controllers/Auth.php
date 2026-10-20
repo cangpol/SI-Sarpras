@@ -559,6 +559,72 @@ class Auth extends BaseController
 
         $totalPendingCount = count($pendingRooms) + count($pendingVehicles) + count($pendingMaintenance) + count($pendingSupplies);
 
+        // Agregasi Statistik Pengajuan Bulanan (Tahun Berjalan) untuk Grafik Admin
+        $currentYear = date('Y');
+        $monthlyStats = [
+            'year'        => $currentYear,
+            'labels'      => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+            'peminjaman'  => array_fill(0, 12, 0), // Gabungan Ruangan + Kendaraan
+            'ruangan'     => array_fill(0, 12, 0),
+            'kendaraan'   => array_fill(0, 12, 0),
+            'supplies'    => array_fill(0, 12, 0), // Request ATK
+            'maintenance' => array_fill(0, 12, 0), // Request Maintenance
+        ];
+
+        foreach ($allRoomBookings as $rb) {
+            $dateStr = $rb['booking_date'] ?? $rb['created_at'] ?? '';
+            if ($dateStr) {
+                $ts = strtotime($dateStr);
+                if ($ts && date('Y', $ts) == $currentYear) {
+                    $m = (int)date('n', $ts) - 1;
+                    if ($m >= 0 && $m < 12) {
+                        $monthlyStats['ruangan'][$m]++;
+                        $monthlyStats['peminjaman'][$m]++;
+                    }
+                }
+            }
+        }
+
+        foreach ($allVehicleBookings as $vb) {
+            $dateStr = $vb['booking_date'] ?? $vb['created_at'] ?? '';
+            if ($dateStr) {
+                $ts = strtotime($dateStr);
+                if ($ts && date('Y', $ts) == $currentYear) {
+                    $m = (int)date('n', $ts) - 1;
+                    if ($m >= 0 && $m < 12) {
+                        $monthlyStats['kendaraan'][$m]++;
+                        $monthlyStats['peminjaman'][$m]++;
+                    }
+                }
+            }
+        }
+
+        foreach ($allSupplyRequests as $sr) {
+            $dateStr = $sr['date_requested'] ?? $sr['created_at'] ?? '';
+            if ($dateStr) {
+                $ts = strtotime($dateStr);
+                if ($ts && date('Y', $ts) == $currentYear) {
+                    $m = (int)date('n', $ts) - 1;
+                    if ($m >= 0 && $m < 12) {
+                        $monthlyStats['supplies'][$m]++;
+                    }
+                }
+            }
+        }
+
+        foreach ($allMaintenance as $mr) {
+            $dateStr = $mr['created_at'] ?? '';
+            if ($dateStr) {
+                $ts = strtotime($dateStr);
+                if ($ts && date('Y', $ts) == $currentYear) {
+                    $m = (int)date('n', $ts) - 1;
+                    if ($m >= 0 && $m < 12) {
+                        $monthlyStats['maintenance'][$m]++;
+                    }
+                }
+            }
+        }
+
         return view('admin/dashboard', [
             'role'               => $role,
             'stats'              => $stats,
@@ -581,6 +647,7 @@ class Auth extends BaseController
             'vehiclesList'       => $vehiclesList,
             'myRequests'         => $myRequests,
             'allMyRequests'      => $allMyCombined ?? [],
+            'monthlyStats'       => $monthlyStats,
             // Variabel Khusus untuk Dashboard Mahasiswa & Dosen
             'myRoomBookings'          => $myRoomBookings,
             'myVehicleBookings'       => $myVehicleBookings,
@@ -593,6 +660,169 @@ class Auth extends BaseController
             'myProfile'               => $myProfile,
             'userStats'               => $userStats,
             'userType'                => $userType,
+        ]);
+    }
+
+    /**
+     * Export Riwayat Peminjaman, Permintaan (Request), dan Pelaporan ke PDF
+     * Khusus untuk Dashboard Administrator (Super Admin & Admin Sarpras)
+     */
+    public function exportPdf()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $role = session()->get('role') ?? 'user';
+        if (!in_array($role, ['super_admin', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak. Fitur ekspor laporan PDF hanya tersedia untuk Administrator.');
+        }
+
+        $type = (string) ($this->request->getGet('type') ?: 'peminjaman');
+        $db = \Config\Database::connect();
+        $this->ensureUserIdColumns($db);
+
+        $reportTitle    = 'LAPORAN RIWAYAT BIRO SARANA DAN PRASARANA';
+        $reportSubtitle = 'Universitas Pignatelli Triputra - Tahun ' . date('Y');
+        $reportData     = [];
+
+        switch ($type) {
+            case 'peminjaman_ruangan':
+            case 'room_bookings':
+                $reportTitle = 'LAPORAN RIWAYAT PEMINJAMAN RUANGAN';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $q = $db->table('room_bookings')
+                    ->select('room_bookings.*, rooms.room_name, rooms.location')
+                    ->join('rooms', 'rooms.id = room_bookings.room_id', 'left');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'room_bookings')) {
+                    $q->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                      ->join('users', 'users.id = room_bookings.user_id', 'left');
+                }
+                $reportData['rooms'] = $q->orderBy('room_bookings.booking_date', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'peminjaman_kendaraan':
+            case 'vehicle_bookings':
+                $reportTitle = 'LAPORAN RIWAYAT PEMINJAMAN KENDARAAN (MOBIL DINAS)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $q = $db->table('vehicle_bookings')
+                    ->select('vehicle_bookings.*, vehicles.vehicle_name, vehicles.plate_number')
+                    ->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'vehicle_bookings')) {
+                    $q->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                      ->join('users', 'users.id = vehicle_bookings.user_id', 'left');
+                }
+                $reportData['vehicles'] = $q->orderBy('vehicle_bookings.booking_date', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'peminjaman':
+            default_peminjaman:
+                $reportTitle = 'LAPORAN RIWAYAT LENGKAP PEMINJAMAN FASILITAS';
+                $reportSubtitle = 'Peminjaman Ruangan & Kendaraan Operasional - Universitas Pignatelli Triputra';
+                $q1 = $db->table('room_bookings')
+                    ->select('room_bookings.*, rooms.room_name, rooms.location')
+                    ->join('rooms', 'rooms.id = room_bookings.room_id', 'left');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'room_bookings')) {
+                    $q1->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                       ->join('users', 'users.id = room_bookings.user_id', 'left');
+                }
+                $reportData['rooms'] = $q1->orderBy('room_bookings.booking_date', 'DESC')->get()->getResultArray();
+
+                $q2 = $db->table('vehicle_bookings')
+                    ->select('vehicle_bookings.*, vehicles.vehicle_name, vehicles.plate_number')
+                    ->join('vehicles', 'vehicles.id = vehicle_bookings.vehicle_id', 'left');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'vehicle_bookings')) {
+                    $q2->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                       ->join('users', 'users.id = vehicle_bookings.user_id', 'left');
+                }
+                $reportData['vehicles'] = $q2->orderBy('vehicle_bookings.booking_date', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'request_maintenance':
+            case 'maintenance':
+                $reportTitle = 'LAPORAN RIWAYAT REQUEST MAINTENANCE (PERBAIKAN FASILITAS)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $q = $db->table('maintenance_requests')
+                    ->select('maintenance_requests.*');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'maintenance_requests')) {
+                    $q->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                      ->join('users', 'users.id = maintenance_requests.user_id', 'left');
+                }
+                $reportData['maintenance'] = $q->orderBy('maintenance_requests.id', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'request_supplies':
+            case 'supplies':
+                $reportTitle = 'LAPORAN RIWAYAT PERMOHONAN SUPPLIES (ATK)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $q = $db->table('supply_requests')
+                    ->select('supply_requests.*, supplies.item_name, supplies.unit, supplies.stock')
+                    ->join('supplies', 'supplies.id = supply_requests.supply_id', 'left');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'supply_requests')) {
+                    $q->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                      ->join('users', 'users.id = supply_requests.user_id', 'left');
+                }
+                $reportData['supplies'] = $q->orderBy('supply_requests.id', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'request':
+                $reportTitle = 'LAPORAN RIWAYAT PERMINTAAN (REQUEST MAINTENANCE & ATK)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $q1 = $db->table('maintenance_requests')
+                    ->select('maintenance_requests.*');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'maintenance_requests')) {
+                    $q1->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                       ->join('users', 'users.id = maintenance_requests.user_id', 'left');
+                }
+                $reportData['maintenance'] = $q1->orderBy('maintenance_requests.id', 'DESC')->get()->getResultArray();
+
+                $q2 = $db->table('supply_requests')
+                    ->select('supply_requests.*, supplies.item_name, supplies.unit, supplies.stock')
+                    ->join('supplies', 'supplies.id = supply_requests.supply_id', 'left');
+                if ($db->tableExists('users') && $db->fieldExists('user_id', 'supply_requests')) {
+                    $q2->select('users.name as submitter_name, users.identity_number, users.role as user_role')
+                       ->join('users', 'users.id = supply_requests.user_id', 'left');
+                }
+                $reportData['supplies'] = $q2->orderBy('supply_requests.id', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'pelaporan_lostfound':
+            case 'lost_found':
+                $reportTitle = 'LAPORAN RIWAYAT BARANG HILANG & DITEMUKAN (LOST & FOUND)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $reportData['lost_found'] = $db->table('lost_found')->orderBy('id', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'pelaporan_visitor':
+            case 'visitors':
+                $reportTitle = 'LAPORAN RIWAYAT BUKU TAMU KAMPUS (VISITOR LOG)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $reportData['visitors'] = $db->table('visitors')->orderBy('id', 'DESC')->get()->getResultArray();
+                break;
+
+            case 'pelaporan':
+                $reportTitle = 'LAPORAN RIWAYAT PELAPORAN (LOST & FOUND & BUKU TAMU)';
+                $reportSubtitle = 'Biro Sarana dan Prasarana - Universitas Pignatelli Triputra';
+                $reportData['lost_found'] = $db->table('lost_found')->orderBy('id', 'DESC')->get()->getResultArray();
+                $reportData['visitors']   = $db->table('visitors')->orderBy('id', 'DESC')->get()->getResultArray();
+                break;
+        }
+
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $printDate = date('d') . ' ' . ($indonesianMonths[(int)date('n')] ?? date('F')) . ' ' . date('Y') . ', ' . date('H:i') . ' WIB';
+
+        return view('admin/export_pdf', [
+            'type'           => $type,
+            'reportTitle'    => $reportTitle,
+            'reportSubtitle' => $reportSubtitle,
+            'reportData'     => $reportData,
+            'printedBy'      => session()->get('user_name') ?? 'Administrator',
+            'printedRole'    => ($role === 'super_admin') ? 'Super Admin (Biro IT)' : 'Admin (Sarpras)',
+            'printDate'      => $printDate,
         ]);
     }
 
@@ -639,17 +869,36 @@ class Auth extends BaseController
                 }
             }
 
-            // Jika status supply_requests disetujui (approved), kurangi stok barang jika belum dikurangi
-            if ($table === 'supply_requests' && $status === 'approved' && $db->tableExists('supplies')) {
+            // Logika pengelolaan stok ATK (supplies):
+            // - Jika disetujui (approved) dari status non-approved: kurangi stok
+            // - Jika diubah dari approved ke pending/rejected: pulihkan stok
+            if ($table === 'supply_requests' && $db->tableExists('supplies')) {
                 $sr = $db->table('supply_requests')->where('id', $id)->get()->getRowArray();
-                if ($sr && ($sr['status'] ?? '') !== 'approved') {
-                    $supply = $db->table('supplies')->where('id', $sr['supply_id'])->get()->getRowArray();
-                    if ($supply) {
-                        $newStock = max(0, ((int)$supply['stock']) - ((int)$sr['quantity']));
-                        $db->table('supplies')->where('id', $sr['supply_id'])->update([
-                            'stock'      => $newStock,
-                            'updated_at' => date('Y-m-d H:i:s'),
-                        ]);
+                if ($sr) {
+                    $oldStatus = $sr['status'] ?? 'pending';
+                    $supplyId  = (int) ($sr['supply_id'] ?? 0);
+                    $qty       = (int) ($sr['quantity'] ?? 0);
+
+                    if ($supplyId > 0 && $qty > 0) {
+                        $supply = $db->table('supplies')->where('id', $supplyId)->get()->getRowArray();
+                        if ($supply) {
+                            $currentStock = (int) ($supply['stock'] ?? 0);
+                            if ($status === 'approved' && $oldStatus !== 'approved') {
+                                // Potong stok
+                                $newStock = max(0, $currentStock - $qty);
+                                $db->table('supplies')->where('id', $supplyId)->update([
+                                    'stock'      => $newStock,
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                            } elseif ($status !== 'approved' && $oldStatus === 'approved') {
+                                // Kembalikan stok yang sebelumnya terpotong
+                                $newStock = $currentStock + $qty;
+                                $db->table('supplies')->where('id', $supplyId)->update([
+                                    'stock'      => $newStock,
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                            }
+                        }
                     }
                 }
             }
@@ -1881,6 +2130,19 @@ class Auth extends BaseController
 
         try {
             $db = \Config\Database::connect();
+            $targetStatus = in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending';
+
+            // Jika dibuat langsung dengan status approved, kurangi stok barang
+            if ($targetStatus === 'approved' && $db->tableExists('supplies')) {
+                $supply = $db->table('supplies')->where('id', $supplyId)->get()->getRowArray();
+                if ($supply) {
+                    $db->table('supplies')->where('id', $supplyId)->update([
+                        'stock'      => max(0, ((int)$supply['stock']) - $quantity),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+
             $db->table('supply_requests')->insert([
                 'user_id'        => session()->get('user_id'),
                 'email'          => $email,
@@ -1890,7 +2152,7 @@ class Auth extends BaseController
                 'date_needed'    => $dateNeeded,
                 'supply_id'      => $supplyId,
                 'quantity'       => $quantity,
-                'status'         => in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending',
+                'status'         => $targetStatus,
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
@@ -1923,6 +2185,69 @@ class Auth extends BaseController
         try {
             $db = \Config\Database::connect();
             $adminNote = trim((string) $this->request->getPost('admin_note'));
+            $newStatus = in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending';
+
+            // Kelola sinkronisasi stok saat update data permohonan supplies
+            if ($db->tableExists('supplies')) {
+                $oldSr = $db->table('supply_requests')->where('id', $id)->get()->getRowArray();
+                if ($oldSr) {
+                    $oldStatus   = $oldSr['status'] ?? 'pending';
+                    $oldSupplyId = (int) ($oldSr['supply_id'] ?? 0);
+                    $oldQty      = (int) ($oldSr['quantity'] ?? 0);
+
+                    // 1. Jika sebelumnya approved dan status baru bukan approved: kembalikan stok lama
+                    if ($oldStatus === 'approved' && $newStatus !== 'approved') {
+                        $sOld = $db->table('supplies')->where('id', $oldSupplyId)->get()->getRowArray();
+                        if ($sOld) {
+                            $db->table('supplies')->where('id', $oldSupplyId)->update([
+                                'stock'      => ((int)$sOld['stock']) + $oldQty,
+                                'updated_at' => date('Y-m-d H:i:s'),
+                            ]);
+                        }
+                    }
+                    // 2. Jika sebelumnya bukan approved dan status baru approved: kurangi stok baru
+                    elseif ($oldStatus !== 'approved' && $newStatus === 'approved') {
+                        $sNew = $db->table('supplies')->where('id', $supplyId)->get()->getRowArray();
+                        if ($sNew) {
+                            $db->table('supplies')->where('id', $supplyId)->update([
+                                'stock'      => max(0, ((int)$sNew['stock']) - $quantity),
+                                'updated_at' => date('Y-m-d H:i:s'),
+                            ]);
+                        }
+                    }
+                    // 3. Jika sebelumnya approved dan status baru tetap approved, namun barang/jumlah berubah
+                    elseif ($oldStatus === 'approved' && $newStatus === 'approved') {
+                        if ($oldSupplyId === $supplyId) {
+                            $diff = $quantity - $oldQty;
+                            if ($diff != 0) {
+                                $s = $db->table('supplies')->where('id', $supplyId)->get()->getRowArray();
+                                if ($s) {
+                                    $db->table('supplies')->where('id', $supplyId)->update([
+                                        'stock'      => max(0, ((int)$s['stock']) - $diff),
+                                        'updated_at' => date('Y-m-d H:i:s'),
+                                    ]);
+                                }
+                            }
+                        } else {
+                            $sOld = $db->table('supplies')->where('id', $oldSupplyId)->get()->getRowArray();
+                            if ($sOld) {
+                                $db->table('supplies')->where('id', $oldSupplyId)->update([
+                                    'stock'      => ((int)$sOld['stock']) + $oldQty,
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                            }
+                            $sNew = $db->table('supplies')->where('id', $supplyId)->get()->getRowArray();
+                            if ($sNew) {
+                                $db->table('supplies')->where('id', $supplyId)->update([
+                                    'stock'      => max(0, ((int)$sNew['stock']) - $quantity),
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
             $updateData = [
                 'email'          => $email,
                 'requester_name' => $requesterName,
@@ -1931,12 +2256,12 @@ class Auth extends BaseController
                 'date_needed'    => $dateNeeded,
                 'supply_id'      => $supplyId,
                 'quantity'       => $quantity,
-                'status'         => in_array($status, ['pending', 'approved', 'rejected']) ? $status : 'pending',
+                'status'         => $newStatus,
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
             if ($this->request->getPost('admin_note') !== null && $db->fieldExists('admin_note', 'supply_requests')) {
                 // Sesuai arahan: Pada status approve tidak perlu ada keterangan
-                $updateData['admin_note'] = ($status === 'approved') ? null : $adminNote;
+                $updateData['admin_note'] = ($newStatus === 'approved') ? null : $adminNote;
             }
             $db->table('supply_requests')->where('id', $id)->update($updateData);
             return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Permohonan supplies berhasil diperbarui.');
@@ -1954,6 +2279,23 @@ class Auth extends BaseController
         $redirectTab = $this->request->getPost('redirect_tab') ?: 'request-supplies';
         try {
             $db = \Config\Database::connect();
+            // Jika yang dihapus sebelumnya sudah approved, kembalikan stoknya
+            if ($db->tableExists('supplies')) {
+                $sr = $db->table('supply_requests')->where('id', $id)->get()->getRowArray();
+                if ($sr && ($sr['status'] ?? '') === 'approved') {
+                    $supplyId = (int) ($sr['supply_id'] ?? 0);
+                    $qty      = (int) ($sr['quantity'] ?? 0);
+                    if ($supplyId > 0 && $qty > 0) {
+                        $supply = $db->table('supplies')->where('id', $supplyId)->get()->getRowArray();
+                        if ($supply) {
+                            $db->table('supplies')->where('id', $supplyId)->update([
+                                'stock'      => ((int)$supply['stock']) + $qty,
+                                'updated_at' => date('Y-m-d H:i:s'),
+                            ]);
+                        }
+                    }
+                }
+            }
             $db->table('supply_requests')->where('id', $id)->delete();
             return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Permohonan supplies berhasil dihapus.');
         } catch (\Throwable $e) {

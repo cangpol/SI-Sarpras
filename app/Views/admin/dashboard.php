@@ -133,47 +133,17 @@ body.modal-open .table-responsive-scroll {
 
 <!-- Kartu Selamat Datang & Profil Akun yang Login -->
 <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white;">
-    <div class="card-body p-4 p-md-4">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <div class="d-flex align-items-center gap-3 mb-2">
-                    <div class="rounded-circle p-3 d-inline-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-badge text-white" viewBox="0 0 16 16">
-                            <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                            <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="fw-bold mb-0">Selamat Datang, <?= esc($userName) ?>!</h3>
-                        <p class="mb-0 text-white-50">Sistem Informasi Biro Sarana dan Prasarana - Universitas Pignatelli Triputra</p>
-                    </div>
-                </div>
-                <div class="d-flex flex-wrap gap-2 mt-3 align-items-center">
-                    <?php if (in_array($role, ['super_admin', 'admin'])): ?>
-                    <span class="badge <?= $roleBadgeClass ?> px-3 py-2 rounded-pill fs-6 shadow-sm">
-                        Level: <?= esc($roleName) ?>
-                    </span>
-                    <?php endif; ?>
-                    <span class="badge px-3 py-2 rounded-pill fs-6" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff !important;">
-                        <i class="bi bi-building me-1"></i> Unit: <?= esc($userDept) ?>
-                    </span>
-                    <span class="badge px-3 py-2 rounded-pill fs-6" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff !important;">
-                        <i class="bi bi-person me-1"></i> Username: <?= esc($userLoginName) ?>
-                    </span>
-                </div>
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle p-3 d-inline-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-badge text-white" viewBox="0 0 16 16">
+                    <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>
+                </svg>
             </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a href="/" class="btn btn-light fw-bold px-3 py-2 rounded-pill shadow-sm text-primary <?= in_array($role, ['super_admin', 'admin']) ? 'me-2' : '' ?>">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-globe me-1" viewBox="0 0 16 16">
-                        <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 5a14 14 0 0 0-.411 2h2.82V5zm0 3H3.679q.13.995.411 2h2.41V8zm.517 3H6.5v1.923c-.67-.204-1.335-.82-1.887-1.855A8 8 0 0 1 4.607 11M7.5 13.923V12h2.393a8 8 0 0 1-.506 1.923M8.5 11h2.41a14 14 0 0 0 .411-2H8.5zm0-3h2.82a14 14 0 0 0-.411-2H8.5zm0-4h2.355a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.281 8.5 1.077M11.855 4H9.645a8 8 0 0 1 .506-1.923A8 8 0 0 1 11.855 4"/>
-                    </svg>
-                    Lihat Web Depan
-                </a>
-                <?php if (in_array($role, ['super_admin', 'admin'])): ?>
-                <a href="/logout" class="btn btn-outline-light px-3 py-2 rounded-pill">
-                    Logout
-                </a>
-                <?php endif; ?>
+            <div>
+                <h3 class="fw-bold mb-0">Selamat Datang, <?= esc($userName) ?>!</h3>
+                <p class="mb-0 text-white-50">Sistem Informasi Biro Sarana dan Prasarana - Universitas Pignatelli Triputra</p>
             </div>
         </div>
     </div>
@@ -474,6 +444,36 @@ body.modal-open .table-responsive-scroll {
                         </div>
                     </div>
                 </div>
+
+                <!-- GRAFIK TREN BULANAN: PEMINJAMAN, ATK, DAN MAINTENANCE -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1 text-dark">
+                                    <i class="bi bi-graph-up-arrow text-primary me-2"></i>Grafik Tren Pengajuan Bulanan (Tahun <?= esc($monthlyStats['year'] ?? date('Y')) ?>)
+                                </h5>
+                                <small class="text-muted">Statistik perbandingan tren peminjaman fasilitas, permintaan ATK, dan request maintenance per bulan.</small>
+                            </div>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background-color: rgba(37, 99, 235, 0.12); color: #1d4ed8; border: 1px solid rgba(37, 99, 235, 0.25);">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> Peminjaman (<?= array_sum($monthlyStats['peminjaman'] ?? []) ?>)
+                                </span>
+                                <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background-color: rgba(220, 38, 38, 0.12); color: #b91c1c; border: 1px solid rgba(220, 38, 38, 0.25);">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> Request ATK (<?= array_sum($monthlyStats['supplies'] ?? []) ?>)
+                                </span>
+                                <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background-color: rgba(217, 119, 6, 0.12); color: #b45309; border: 1px solid rgba(217, 119, 6, 0.25);">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> Maintenance (<?= array_sum($monthlyStats['maintenance'] ?? []) ?>)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2">
+                        <div style="position: relative; height: 320px; width: 100%;">
+                            <canvas id="monthlyTrendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
             <?php endif; ?>
 
@@ -490,6 +490,11 @@ body.modal-open .table-responsive-scroll {
                                     <i class="bi bi-clipboard-data me-2"></i>Manajemen Pelaporan
                                 </h4>
                                 <small class="text-muted">Kelola data Pelaporan Barang Hilang (Lost & Found) dan Buku Tamu Kampus (Visitors).</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="/dashboard/export-pdf?type=pelaporan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
+                                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF Semua Pelaporan
+                                </a>
                             </div>
                         </div>
 
@@ -514,9 +519,14 @@ body.modal-open .table-responsive-scroll {
                             <div class="tab-pane fade show active" id="sub-lostfound" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Laporan Lost & Found</h6>
-                                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddLostFound">
-                                        + Tambah Laporan
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <a href="/dashboard/export-pdf?type=pelaporan_lostfound" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                        </a>
+                                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddLostFound">
+                                            + Tambah Laporan
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive table-responsive-scroll">
                                     <table class="table table-hover align-middle mb-0">
@@ -637,9 +647,14 @@ body.modal-open .table-responsive-scroll {
                             <div class="tab-pane fade" id="sub-visitor" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Buku Tamu (Visitor)</h6>
-                                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddVisitor">
-                                        + Tambah Tamu
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <a href="/dashboard/export-pdf?type=pelaporan_visitor" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                        </a>
+                                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddVisitor">
+                                            + Tambah Tamu
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive table-responsive-scroll">
                                     <table class="table table-hover align-middle mb-0">
@@ -778,6 +793,11 @@ body.modal-open .table-responsive-scroll {
                                 </h4>
                                 <small class="text-muted">Kelola data Peminjaman Ruangan Rapat/Auditorium dan Peminjaman Kendaraan Operasional Kampus.</small>
                             </div>
+                            <div class="d-flex gap-2">
+                                <a href="/dashboard/export-pdf?type=peminjaman" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
+                                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF Semua Peminjaman
+                                </a>
+                            </div>
                         </div>
 
                         <!-- Sub-Nav Peminjaman -->
@@ -801,9 +821,14 @@ body.modal-open .table-responsive-scroll {
                             <div class="tab-pane fade show active" id="sub-ruangan" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Peminjaman Ruangan</h6>
-                                    <button type="button" class="btn btn-success btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddRoomBooking">
-                                        + Tambah Booking Ruangan
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <a href="/dashboard/export-pdf?type=peminjaman_ruangan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                        </a>
+                                        <button type="button" class="btn btn-success btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddRoomBooking">
+                                            + Tambah Booking Ruangan
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive table-responsive-scroll">
                                     <table class="table table-hover align-middle mb-0">
@@ -982,9 +1007,14 @@ body.modal-open .table-responsive-scroll {
                             <div class="tab-pane fade" id="sub-kendaraan" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Peminjaman Kendaraan</h6>
-                                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddVehicleBooking">
-                                        + Tambah Booking Kendaraan
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <a href="/dashboard/export-pdf?type=peminjaman_kendaraan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                        </a>
+                                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddVehicleBooking">
+                                            + Tambah Booking Kendaraan
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive table-responsive-scroll">
                                     <table class="table table-hover align-middle mb-0">
@@ -1188,6 +1218,11 @@ body.modal-open .table-responsive-scroll {
                                 </h4>
                                 <small class="text-muted">Kelola data Request Maintenance (Perbaikan Fasilitas) dan Permohonan Supplies (ATK).</small>
                             </div>
+                            <div class="d-flex gap-2">
+                                <a href="/dashboard/export-pdf?type=request" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
+                                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF Semua Request
+                                </a>
+                            </div>
                         </div>
 
                         <!-- Sub-Nav Request -->
@@ -1211,9 +1246,14 @@ body.modal-open .table-responsive-scroll {
                             <div class="tab-pane fade show active" id="sub-maint" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Request Maintenance</h6>
-                                    <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#modalAddMaintenance">
-                                        + Tambah Maintenance
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <a href="/dashboard/export-pdf?type=request_maintenance" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                        </a>
+                                        <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#modalAddMaintenance">
+                                            + Tambah Maintenance
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive table-responsive-scroll">
                                     <table class="table table-hover align-middle mb-0">
@@ -1360,9 +1400,14 @@ body.modal-open .table-responsive-scroll {
                             <div class="tab-pane fade" id="sub-supp" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Permohonan Supplies (ATK)</h6>
-                                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddSupplyRequest">
-                                        + Tambah Permohonan ATK
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <a href="/dashboard/export-pdf?type=request_supplies" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddSupplyRequest">
+                                            + Tambah Permohonan ATK
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive table-responsive-scroll">
                                     <table class="table table-hover align-middle mb-0">
@@ -4069,6 +4114,126 @@ document.addEventListener('DOMContentLoaded', function() {
             var btn = document.getElementById('tab-myrequests-btn');
             if (btn) btn.click();
         }
+    }
+});
+</script>
+
+<!-- Library Chart.js untuk Visualisasi Grafik Bulanan -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var chartCanvas = document.getElementById('monthlyTrendsChart');
+    if (chartCanvas) {
+        var monthlyData = <?= json_encode($monthlyStats ?? []) ?>;
+        var labels = monthlyData.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        var peminjaman = monthlyData.peminjaman || [0,0,0,0,0,0,0,0,0,0,0,0];
+        var supplies = monthlyData.supplies || [0,0,0,0,0,0,0,0,0,0,0,0];
+        var maintenance = monthlyData.maintenance || [0,0,0,0,0,0,0,0,0,0,0,0];
+
+        var ctx = chartCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Peminjaman Fasilitas',
+                        data: peminjaman,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Request ATK (Supplies)',
+                        data: supplies,
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.08)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#dc2626',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Request Maintenance',
+                        data: maintenance,
+                        borderColor: '#d97706',
+                        backgroundColor: 'rgba(217, 119, 6, 0.08)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#d97706',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        padding: 12,
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 13, weight: '700' },
+                        bodyFont: { size: 12 },
+                        cornerRadius: 8,
+                        boxPadding: 4,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            font: { size: 11, weight: '500' },
+                            color: '#64748b'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0,
+                            font: { size: 11 },
+                            color: '#64748b'
+                        },
+                        grid: {
+                            color: '#f1f5f9',
+                        }
+                    }
+                }
+            }
+        });
     }
 });
 </script>
