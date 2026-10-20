@@ -666,8 +666,9 @@ class Auth extends BaseController
     /**
      * Export Riwayat Peminjaman, Permintaan (Request), dan Pelaporan ke PDF
      * Khusus untuk Dashboard Administrator (Super Admin & Admin Sarpras)
+     * Mendukung URL Slug: /dashboard/export-pdf/(:segment) maupun query param ?type=...
      */
-    public function exportPdf()
+    public function exportPdf($slugType = null)
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login');
@@ -678,7 +679,39 @@ class Auth extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak. Fitur ekspor laporan PDF hanya tersedia untuk Administrator.');
         }
 
-        $type = (string) ($this->request->getGet('type') ?: 'peminjaman');
+        // Tangkap dari URL slug terlebih dahulu, fallback ke query parameter
+        $rawType = (string) ($slugType ?: ($this->request->getGet('type') ?: 'peminjaman'));
+        // Normalisasi slug: jadikan lowercase, ganti tanda hubung (-) menjadi garis bawah (_)
+        $type = str_replace('-', '_', strtolower(trim($rawType)));
+
+        // Pemetaan alias slug ramah pengguna
+        $aliasMap = [
+            'ruangan'              => 'peminjaman_ruangan',
+            'room'                 => 'peminjaman_ruangan',
+            'rooms'                => 'peminjaman_ruangan',
+            'room_bookings'        => 'peminjaman_ruangan',
+            'kendaraan'            => 'peminjaman_kendaraan',
+            'mobil'                => 'peminjaman_kendaraan',
+            'vehicle'              => 'peminjaman_kendaraan',
+            'vehicles'             => 'peminjaman_kendaraan',
+            'vehicle_bookings'     => 'peminjaman_kendaraan',
+            'maintenance'          => 'request_maintenance',
+            'maintenance_requests' => 'request_maintenance',
+            'supplies'             => 'request_supplies',
+            'atk'                  => 'request_supplies',
+            'supply_requests'      => 'request_supplies',
+            'lost_found'           => 'pelaporan_lostfound',
+            'lostfound'            => 'pelaporan_lostfound',
+            'barang_hilang'        => 'pelaporan_lostfound',
+            'visitor'              => 'pelaporan_visitor',
+            'visitors'             => 'pelaporan_visitor',
+            'tamu'                 => 'pelaporan_visitor',
+            'buku_tamu'            => 'pelaporan_visitor',
+        ];
+        if (isset($aliasMap[$type])) {
+            $type = $aliasMap[$type];
+        }
+
         $db = \Config\Database::connect();
         $this->ensureUserIdColumns($db);
 
@@ -1545,8 +1578,10 @@ class Auth extends BaseController
         $incidentTime   = (string) $this->request->getPost('incident_time');
         $status         = (string) ($this->request->getPost('status') ?: 'reported');
 
+        $redirectTab    = $this->request->getPost('redirect_tab') ?: 'sub-lostfound';
+
         if (empty($reporterName) || empty($lostItem)) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Nama Pelapor dan Barang yang Hilang wajib diisi.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Nama Pelapor dan Barang yang Hilang wajib diisi.');
         }
 
         try {
@@ -1562,9 +1597,9 @@ class Auth extends BaseController
                 'created_at'      => date('Y-m-d H:i:s'),
                 'updated_at'      => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->to('/dashboard#pelaporan')->with('message', 'Laporan Lost & Found berhasil ditambahkan.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Laporan Lost & Found berhasil ditambahkan.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Gagal menambahkan laporan: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menambahkan laporan: ' . $e->getMessage());
         }
     }
 
@@ -1581,9 +1616,10 @@ class Auth extends BaseController
         $incidentDate   = (string) $this->request->getPost('incident_date');
         $incidentTime   = (string) $this->request->getPost('incident_time');
         $status         = (string) $this->request->getPost('status');
+        $redirectTab    = $this->request->getPost('redirect_tab') ?: 'sub-lostfound';
 
         if (empty($id) || empty($reporterName) || empty($lostItem)) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Data laporan tidak lengkap.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Data laporan tidak lengkap.');
         }
 
         try {
@@ -1598,9 +1634,9 @@ class Auth extends BaseController
                 'status'          => in_array($status, ['reported', 'found', 'claimed']) ? $status : 'reported',
                 'updated_at'      => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->to('/dashboard#pelaporan')->with('message', 'Laporan Lost & Found berhasil diperbarui.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Laporan Lost & Found berhasil diperbarui.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Gagal memperbarui laporan: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal memperbarui laporan: ' . $e->getMessage());
         }
     }
 
@@ -1610,12 +1646,13 @@ class Auth extends BaseController
         if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
 
         $id = (int) $this->request->getPost('id');
+        $redirectTab = $this->request->getPost('redirect_tab') ?: 'sub-lostfound';
         try {
             $db = \Config\Database::connect();
             $db->table('lost_found')->where('id', $id)->delete();
-            return redirect()->to('/dashboard#pelaporan')->with('message', 'Data Lost & Found berhasil dihapus.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Data Lost & Found berhasil dihapus.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Gagal menghapus: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
 
@@ -1635,9 +1672,10 @@ class Auth extends BaseController
         $checkIn     = (string) ($this->request->getPost('check_in') ?: date('Y-m-d H:i:s'));
         $checkOut    = $this->request->getPost('check_out') ?: null;
         $status      = (string) ($this->request->getPost('status') ?: 'checked_in');
+        $redirectTab = $this->request->getPost('redirect_tab') ?: 'sub-visitor';
 
         if (empty($visitorName) || empty($institution)) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Nama Pengunjung dan Institusi/Instansi wajib diisi.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Nama Pengunjung dan Institusi/Instansi wajib diisi.');
         }
 
         try {
@@ -1654,9 +1692,9 @@ class Auth extends BaseController
                 'created_at'   => date('Y-m-d H:i:s'),
                 'updated_at'   => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->to('/dashboard#pelaporan')->with('message', 'Data kunjungan tamu berhasil ditambahkan.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Data kunjungan tamu berhasil ditambahkan.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Gagal menambahkan tamu: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menambahkan tamu: ' . $e->getMessage());
         }
     }
 
@@ -1674,9 +1712,10 @@ class Auth extends BaseController
         $checkIn     = (string) $this->request->getPost('check_in');
         $checkOut    = $this->request->getPost('check_out') ?: null;
         $status      = (string) $this->request->getPost('status');
+        $redirectTab = $this->request->getPost('redirect_tab') ?: 'sub-visitor';
 
         if (empty($id) || empty($visitorName)) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Data tamu tidak lengkap.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Data tamu tidak lengkap.');
         }
 
         try {
@@ -1692,9 +1731,9 @@ class Auth extends BaseController
                 'status'       => in_array($status, ['checked_in', 'checked_out']) ? $status : 'checked_in',
                 'updated_at'   => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->to('/dashboard#pelaporan')->with('message', 'Data tamu berhasil diperbarui.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Data tamu berhasil diperbarui.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Gagal memperbarui tamu: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal memperbarui tamu: ' . $e->getMessage());
         }
     }
 
@@ -1704,12 +1743,13 @@ class Auth extends BaseController
         if (!in_array(session()->get('role'), ['super_admin', 'admin'])) return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
 
         $id = (int) $this->request->getPost('id');
+        $redirectTab = $this->request->getPost('redirect_tab') ?: 'sub-visitor';
         try {
             $db = \Config\Database::connect();
             $db->table('visitors')->where('id', $id)->delete();
-            return redirect()->to('/dashboard#pelaporan')->with('message', 'Data tamu berhasil dihapus.');
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('message', 'Data tamu berhasil dihapus.');
         } catch (\Throwable $e) {
-            return redirect()->to('/dashboard#pelaporan')->with('error', 'Gagal menghapus tamu: ' . $e->getMessage());
+            return redirect()->to('/dashboard#' . ltrim($redirectTab, '#'))->with('error', 'Gagal menghapus tamu: ' . $e->getMessage());
         }
     }
 

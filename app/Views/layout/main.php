@@ -643,6 +643,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     <?php endif; ?>
 });
+
+// Konfirmasi Hapus / Tindakan Modern dengan SweetAlert2 (menggantikan browser/windows default confirm)
+document.addEventListener('submit', function(e) {
+    var form = e.target;
+    if (form && form.classList && form.classList.contains('form-swal-delete')) {
+        if (!form.dataset.swalConfirmed) {
+            e.preventDefault();
+            var title = form.getAttribute('data-swal-title') || 'Konfirmasi Hapus';
+            var text = form.getAttribute('data-swal-text') || 'Apakah Anda yakin ingin menghapus data ini?';
+            var icon = form.getAttribute('data-swal-icon') || 'warning';
+            var confirmBtnText = form.getAttribute('data-swal-confirm-btn') || '<i class="bi bi-trash me-1"></i> Ya, Hapus!';
+            var confirmBtnColor = form.getAttribute('data-swal-confirm-color') || '#dc2626';
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: confirmBtnColor,
+                cancelButtonColor: '#64748b',
+                confirmButtonText: confirmBtnText,
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    form.dataset.swalConfirmed = 'true';
+                    form.submit();
+                }
+            });
+        }
+    }
+});
 </script>
 </body>
 </html>

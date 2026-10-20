@@ -492,7 +492,7 @@ body.modal-open .table-responsive-scroll {
                                 <small class="text-muted">Kelola data Pelaporan Barang Hilang (Lost & Found) dan Buku Tamu Kampus (Visitors).</small>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="/dashboard/export-pdf?type=pelaporan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
+                                <a href="/dashboard/export-pdf/pelaporan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
                                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF Semua Pelaporan
                                 </a>
                             </div>
@@ -520,7 +520,7 @@ body.modal-open .table-responsive-scroll {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Laporan Lost & Found</h6>
                                     <div class="d-flex gap-2">
-                                        <a href="/dashboard/export-pdf?type=pelaporan_lostfound" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <a href="/dashboard/export-pdf/lost-found" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
                                         </a>
                                         <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddLostFound">
@@ -568,9 +568,10 @@ body.modal-open .table-responsive-scroll {
                                                         <td class="text-center">
                                                             <div class="btn-group btn-group-sm">
                                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditLostFound<?= $lf['id'] ?>">Edit</button>
-                                                                <form method="post" action="/dashboard/pelaporan/lost-found/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus laporan <?= esc($lf['lost_item']) ?>?');">
+                                                                <form method="post" action="/dashboard/pelaporan/lost-found/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Laporan Lost & Found" data-swal-text="Hapus laporan barang <?= esc($lf['lost_item']) ?>?">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $lf['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="sub-lostfound">
                                                                     <button type="submit" class="btn btn-outline-danger">Hapus</button>
                                                                 </form>
                                                             </div>
@@ -588,6 +589,7 @@ body.modal-open .table-responsive-scroll {
                                                                 <form method="post" action="/dashboard/pelaporan/lost-found/update">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $lf['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="sub-lostfound">
                                                                     <div class="modal-body">
                                                                         <div class="mb-3">
                                                                             <label class="form-label fw-semibold">Nama Pelapor</label>
@@ -648,7 +650,7 @@ body.modal-open .table-responsive-scroll {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Buku Tamu (Visitor)</h6>
                                     <div class="d-flex gap-2">
-                                        <a href="/dashboard/export-pdf?type=pelaporan_visitor" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <a href="/dashboard/export-pdf/visitor" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
                                         </a>
                                         <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddVisitor">
@@ -696,9 +698,10 @@ body.modal-open .table-responsive-scroll {
                                                         <td class="text-center">
                                                             <div class="btn-group btn-group-sm">
                                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditVisitor<?= $vt['id'] ?>">Edit</button>
-                                                                <form method="post" action="/dashboard/pelaporan/visitor/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus data tamu <?= esc($vt['visitor_name']) ?>?');">
+                                                                <form method="post" action="/dashboard/pelaporan/visitor/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Data Tamu" data-swal-text="Hapus data kunjungan tamu <?= esc($vt['visitor_name']) ?>?">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $vt['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="sub-visitor">
                                                                     <button type="submit" class="btn btn-outline-danger">Hapus</button>
                                                                 </form>
                                                             </div>
@@ -716,6 +719,7 @@ body.modal-open .table-responsive-scroll {
                                                                 <form method="post" action="/dashboard/pelaporan/visitor/update">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $vt['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="sub-visitor">
                                                                     <div class="modal-body">
                                                                         <div class="mb-3">
                                                                             <label class="form-label fw-semibold">Nama Pengunjung</label>
@@ -794,7 +798,7 @@ body.modal-open .table-responsive-scroll {
                                 <small class="text-muted">Kelola data Peminjaman Ruangan Rapat/Auditorium dan Peminjaman Kendaraan Operasional Kampus.</small>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="/dashboard/export-pdf?type=peminjaman" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
+                                <a href="/dashboard/export-pdf/peminjaman" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
                                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF Semua Peminjaman
                                 </a>
                             </div>
@@ -822,7 +826,7 @@ body.modal-open .table-responsive-scroll {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Peminjaman Ruangan</h6>
                                     <div class="d-flex gap-2">
-                                        <a href="/dashboard/export-pdf?type=peminjaman_ruangan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <a href="/dashboard/export-pdf/ruangan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
                                         </a>
                                         <button type="button" class="btn btn-success btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddRoomBooking">
@@ -895,9 +899,10 @@ body.modal-open .table-responsive-scroll {
                                                                     </button>
                                                                 <?php endif; ?>
                                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditRoomBooking<?= $rb['id'] ?>">Edit</button>
-                                                                <form method="post" action="/dashboard/peminjaman/ruangan/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus booking ruangan <?= esc($rb['event_name']) ?>?');">
+                                                                <form method="post" action="/dashboard/peminjaman/ruangan/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Booking Ruangan" data-swal-text="Hapus booking ruangan kegiatan <?= esc($rb['event_name']) ?>?">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $rb['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="sub-room">
                                                                     <button type="submit" class="btn btn-outline-danger">Hapus</button>
                                                                 </form>
                                                             </div>
@@ -1008,7 +1013,7 @@ body.modal-open .table-responsive-scroll {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Peminjaman Kendaraan</h6>
                                     <div class="d-flex gap-2">
-                                        <a href="/dashboard/export-pdf?type=peminjaman_kendaraan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <a href="/dashboard/export-pdf/kendaraan" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
                                         </a>
                                         <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddVehicleBooking">
@@ -1081,9 +1086,10 @@ body.modal-open .table-responsive-scroll {
                                                                     </button>
                                                                 <?php endif; ?>
                                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditVehicleBooking<?= $vb['id'] ?>">Edit</button>
-                                                                <form method="post" action="/dashboard/peminjaman/kendaraan/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus booking kendaraan tujuan <?= esc($vb['destination']) ?>?');">
+                                                                <form method="post" action="/dashboard/peminjaman/kendaraan/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Booking Kendaraan" data-swal-text="Hapus booking kendaraan tujuan <?= esc($vb['destination']) ?>?">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $vb['id'] ?>">
+                                                                    <input type="hidden" name="redirect_tab" value="sub-kendaraan">
                                                                     <button type="submit" class="btn btn-outline-danger">Hapus</button>
                                                                 </form>
                                                             </div>
@@ -1219,7 +1225,7 @@ body.modal-open .table-responsive-scroll {
                                 <small class="text-muted">Kelola data Request Maintenance (Perbaikan Fasilitas) dan Permohonan Supplies (ATK).</small>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="/dashboard/export-pdf?type=request" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
+                                <a href="/dashboard/export-pdf/request" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm fw-semibold">
                                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF Semua Request
                                 </a>
                             </div>
@@ -1247,7 +1253,7 @@ body.modal-open .table-responsive-scroll {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Request Maintenance</h6>
                                     <div class="d-flex gap-2">
-                                        <a href="/dashboard/export-pdf?type=request_maintenance" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <a href="/dashboard/export-pdf/maintenance" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
                                         </a>
                                         <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#modalAddMaintenance">
@@ -1308,7 +1314,7 @@ body.modal-open .table-responsive-scroll {
                                                                     </button>
                                                                 <?php endif; ?>
                                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditMaintenance<?= $m['id'] ?>">Edit</button>
-                                                                <form method="post" action="/dashboard/request/maintenance/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus request maintenance di <?= esc($m['location']) ?>?');">
+                                                                <form method="post" action="/dashboard/request/maintenance/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Request Maintenance" data-swal-text="Hapus request maintenance di <?= esc($m['location']) ?>?">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $m['id'] ?>">
                                                                     <input type="hidden" name="redirect_tab" value="request-maintenance">
@@ -1401,7 +1407,7 @@ body.modal-open .table-responsive-scroll {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold text-muted mb-0">Daftar Permohonan Supplies (ATK)</h6>
                                     <div class="d-flex gap-2">
-                                        <a href="/dashboard/export-pdf?type=request_supplies" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <a href="/dashboard/export-pdf/supplies" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
                                         </a>
                                         <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddSupplyRequest">
@@ -1470,7 +1476,7 @@ body.modal-open .table-responsive-scroll {
                                                                     </button>
                                                                 <?php endif; ?>
                                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditSupplyRequest<?= $sr['id'] ?>">Edit</button>
-                                                                <form method="post" action="/dashboard/request/supplies/delete" class="d-inline ms-1" onsubmit="return confirm('Hapus permohonan barang <?= esc($sr['item_name'] ?? '') ?>?');">
+                                                                <form method="post" action="/dashboard/request/supplies/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Permohonan ATK" data-swal-text="Hapus permohonan barang <?= esc($sr['item_name'] ?? '') ?>?">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $sr['id'] ?>">
                                                                     <input type="hidden" name="redirect_tab" value="request-supplies">
@@ -1630,7 +1636,7 @@ body.modal-open .table-responsive-scroll {
                                                             data-bs-target="#modalEditSupply<?= $sup['id'] ?>" title="Edit">
                                                         Edit
                                                     </button>
-                                                    <form method="post" action="/dashboard/supplies/delete" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang <?= esc($sup['item_name']) ?>?');">
+                                                    <form method="post" action="/dashboard/supplies/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Master Barang ATK" data-swal-text="Apakah Anda yakin ingin menghapus barang <?= esc($sup['item_name']) ?>?">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="id" value="<?= $sup['id'] ?>">
                                                         <button type="submit" class="btn btn-outline-danger" title="Hapus">Hapus</button>
@@ -2251,7 +2257,7 @@ body.modal-open .table-responsive-scroll {
                                                         <?php if (!empty($u['is_suspended'])): ?>
                                                             <?php if ($role === 'super_admin'): ?>
                                                                 <!-- Buka Suspend (HANYA SUPER ADMIN) -->
-                                                                <form method="post" action="/dashboard/users/unsuspend" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin membuka status suspend untuk pengguna <?= esc($u['name']) ?>?');">
+                                                                <form method="post" action="/dashboard/users/unsuspend" class="d-inline ms-1 form-swal-delete" data-swal-title="Buka Status Suspend" data-swal-text="Apakah Anda yakin ingin membuka status suspend untuk pengguna <?= esc($u['name']) ?>?" data-swal-icon="question" data-swal-confirm-btn="<i class='bi bi-check-circle me-1'></i> Ya, Buka Suspend" data-swal-confirm-color="#16a34a">
                                                                     <?= csrf_field() ?>
                                                                     <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                                                     <button type="submit" class="btn btn-outline-success" title="Buka Suspend Akun">
@@ -2276,7 +2282,7 @@ body.modal-open .table-responsive-scroll {
                                                             <?php endif; ?>
                                                         <?php endif; ?>
 
-                                                        <form method="post" action="/dashboard/users/delete" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user <?= esc($u['name']) ?>?');">
+                                                        <form method="post" action="/dashboard/users/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Pengguna" data-swal-text="Apakah Anda yakin ingin menghapus user <?= esc($u['name']) ?>?">
                                                             <?= csrf_field() ?>
                                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                                             <button type="submit" class="btn btn-outline-danger" title="Hapus">Hapus</button>
@@ -2458,7 +2464,7 @@ body.modal-open .table-responsive-scroll {
                                                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditRoom<?= $rm['id'] ?>" title="Edit">
                                                                 Edit
                                                             </button>
-                                                            <form method="post" action="/dashboard/master/rooms/delete" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ruangan <?= esc($rm['name'] ?? $rm['room_name']) ?>?');">
+                                                            <form method="post" action="/dashboard/master/rooms/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Master Ruangan" data-swal-text="Apakah Anda yakin ingin menghapus data ruangan <?= esc($rm['name'] ?? $rm['room_name']) ?>?">
                                                                 <?= csrf_field() ?>
                                                                 <input type="hidden" name="id" value="<?= $rm['id'] ?>">
                                                                 <button type="submit" class="btn btn-outline-danger" title="Hapus">Hapus</button>
@@ -2570,7 +2576,7 @@ body.modal-open .table-responsive-scroll {
                                                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditVehicle<?= $vc['id'] ?>" title="Edit">
                                                                 Edit
                                                             </button>
-                                                            <form method="post" action="/dashboard/master/vehicles/delete" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data kendaraan <?= esc($vc['name'] ?? $vc['vehicle_name']) ?>?');">
+                                                            <form method="post" action="/dashboard/master/vehicles/delete" class="d-inline ms-1 form-swal-delete" data-swal-title="Hapus Master Kendaraan" data-swal-text="Apakah Anda yakin ingin menghapus data kendaraan <?= esc($vc['name'] ?? $vc['vehicle_name']) ?>?">
                                                                 <?= csrf_field() ?>
                                                                 <input type="hidden" name="id" value="<?= $vc['id'] ?>">
                                                                 <button type="submit" class="btn btn-outline-danger" title="Hapus">Hapus</button>
@@ -2712,7 +2718,7 @@ body.modal-open .table-responsive-scroll {
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($rb['status'] === 'pending'): ?>
-                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan booking ruangan ini?');">
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="form-swal-delete" data-swal-title="Batalkan Booking Ruangan" data-swal-text="Batalkan permohonan booking ruangan ini?" data-swal-confirm-btn="<i class='bi bi-x-circle me-1'></i> Ya, Batalkan">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="room">
                                                         <input type="hidden" name="id" value="<?= $rb['id'] ?>">
@@ -2819,7 +2825,7 @@ body.modal-open .table-responsive-scroll {
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($vb['status'] === 'pending'): ?>
-                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan booking kendaraan ini?');">
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="form-swal-delete" data-swal-title="Batalkan Booking Kendaraan" data-swal-text="Batalkan permohonan booking kendaraan ini?" data-swal-confirm-btn="<i class='bi bi-x-circle me-1'></i> Ya, Batalkan">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="vehicle">
                                                         <input type="hidden" name="id" value="<?= $vb['id'] ?>">
@@ -2919,7 +2925,7 @@ body.modal-open .table-responsive-scroll {
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($mt['status'] === 'pending'): ?>
-                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan laporan maintenance ini?');">
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="form-swal-delete" data-swal-title="Batalkan Permohonan Perbaikan" data-swal-text="Batalkan laporan perbaikan fasilitas ini?" data-swal-confirm-btn="<i class='bi bi-x-circle me-1'></i> Ya, Batalkan">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="maintenance">
                                                         <input type="hidden" name="id" value="<?= $mt['id'] ?>">
@@ -3016,7 +3022,7 @@ body.modal-open .table-responsive-scroll {
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($sr['status'] === 'pending'): ?>
-                                                    <form method="post" action="/dashboard/my-request/cancel" onsubmit="return confirm('Batalkan permohonan barang ATK ini?');">
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="form-swal-delete" data-swal-title="Batalkan Permohonan ATK" data-swal-text="Batalkan permohonan barang persediaan ini?" data-swal-confirm-btn="<i class='bi bi-x-circle me-1'></i> Ya, Batalkan">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="supplies">
                                                         <input type="hidden" name="id" value="<?= $sr['id'] ?>">
@@ -3126,7 +3132,7 @@ body.modal-open .table-responsive-scroll {
                                                         elseif ($req['type'] === 'Maintenance') $cancelType = 'maintenance';
                                                         elseif (stripos($req['type'], 'Supplies') !== false) $cancelType = 'supplies';
                                                     ?>
-                                                    <form method="post" action="/dashboard/my-request/cancel" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?');">
+                                                    <form method="post" action="/dashboard/my-request/cancel" class="d-inline form-swal-delete" data-swal-title="Batalkan Pengajuan" data-swal-text="Apakah Anda yakin ingin membatalkan pengajuan ini?" data-swal-confirm-btn="<i class='bi bi-x-circle me-1'></i> Ya, Batalkan">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="type" value="<?= $cancelType ?>">
                                                         <input type="hidden" name="id" value="<?= $req['id'] ?>">
@@ -3246,6 +3252,7 @@ body.modal-open .table-responsive-scroll {
             </div>
             <form method="post" action="/dashboard/pelaporan/lost-found/create">
                 <?= csrf_field() ?>
+                <input type="hidden" name="redirect_tab" value="sub-lostfound">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Nama Pelapor</label>
@@ -3303,6 +3310,7 @@ body.modal-open .table-responsive-scroll {
             </div>
             <form method="post" action="/dashboard/pelaporan/visitor/create">
                 <?= csrf_field() ?>
+                <input type="hidden" name="redirect_tab" value="sub-visitor">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Nama Tamu / Pengunjung</label>
@@ -4053,32 +4061,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sinkronisasi tab & sub-tab dengan URL Hash di semua level (Super Admin, Admin, dan User)
     var hash = window.location.hash;
     if (hash) {
-        if (hash === '#pelaporan' || hash === '#sub-lostfound' || hash === '#pelaporan-lostfound') {
+        if (hash === '#pelaporan' || hash === '#sub-lostfound' || hash === '#pelaporan-lostfound' || hash === '#lost-found') {
             var btn = document.getElementById('tab-pelaporan-btn');
             if (btn) btn.click();
             var subBtn = document.getElementById('sub-lostfound-tab');
             if (subBtn) subBtn.click();
-        } else if (hash === '#pelaporan-visitor' || hash === '#sub-visitor') {
+        } else if (hash === '#pelaporan-visitor' || hash === '#sub-visitor' || hash === '#visitor' || hash === '#buku-tamu' || hash === '#buku_tamu') {
             var btn = document.getElementById('tab-pelaporan-btn');
             if (btn) btn.click();
             var subBtn = document.getElementById('sub-visitor-tab');
             if (subBtn) subBtn.click();
-        } else if (hash === '#peminjaman' || hash === '#sub-room' || hash === '#peminjaman-ruangan') {
+        } else if (hash === '#peminjaman' || hash === '#sub-room' || hash === '#peminjaman-ruangan' || hash === '#ruangan') {
             var btn = document.getElementById('tab-peminjaman-btn');
             if (btn) btn.click();
             var subBtn = document.getElementById('sub-ruangan-tab');
             if (subBtn) subBtn.click();
-        } else if (hash === '#peminjaman-kendaraan' || hash === '#sub-kendaraan') {
+        } else if (hash === '#peminjaman-kendaraan' || hash === '#sub-kendaraan' || hash === '#kendaraan') {
             var btn = document.getElementById('tab-peminjaman-btn');
             if (btn) btn.click();
             var subBtn = document.getElementById('sub-kendaraan-tab');
             if (subBtn) subBtn.click();
-        } else if (hash === '#request' || hash === '#sub-maint' || hash === '#request-maintenance') {
+        } else if (hash === '#request' || hash === '#sub-maint' || hash === '#request-maintenance' || hash === '#maintenance') {
             var btn = document.getElementById('tab-request-btn');
             if (btn) btn.click();
             var subBtn = document.getElementById('sub-maint-tab');
             if (subBtn) subBtn.click();
-        } else if (hash === '#request-supplies' || hash === '#sub-supp') {
+        } else if (hash === '#request-supplies' || hash === '#sub-supp' || hash === '#supplies-request' || hash === '#atk') {
             var btn = document.getElementById('tab-request-btn');
             if (btn) btn.click();
             var subBtn = document.getElementById('sub-supp-tab');
@@ -4115,6 +4123,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btn) btn.click();
         }
     }
+
+    // Perbarui URL hash secara halus tanpa reload saat user berpindah tab atau sub-tab
+    document.addEventListener('shown.bs.tab', function(event) {
+        var target = event.target;
+        var hashTarget = target.getAttribute('data-bs-target') || target.getAttribute('href');
+        if (hashTarget && hashTarget.startsWith('#')) {
+            history.replaceState(null, null, hashTarget);
+        }
+    });
 });
 </script>
 
