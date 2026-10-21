@@ -11,28 +11,28 @@
             <!-- Sisi Kiri: Value Proposition & Akses Cepat -->
             <div class="col-lg-7 text-center text-lg-start">
                 <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill border border-white border-opacity-25 mb-3 shadow-sm hero-institution-badge">
-                    <span class="badge bg-white text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">RESMI</span>
+                    <span class="badge bg-white text-primary rounded-pill px-2.5 py-1 fw-bold">RESMI</span>
                     <span class="small fw-semibold text-white pe-1">Biro Sarana dan Prasarana &bull; Universitas Pignatelli Triputra</span>
                 </div>
                 
                 <h1 class="display-4 fw-extrabold mb-3 tracking-tight lh-sm hero-title">
-                    Infrastruktur Kampus Terpadu, Pelayanan Cepat & Transparan
+                    Layanan Sarana &amp; Prasarana Terpadu
                 </h1>
                 
                 <p class="lead mb-4 text-white-50 fs-5 pe-lg-4 fw-light hero-description">
-                    Portal digital terintegrasi untuk reservasi ruangan representatif, peminjaman kendaraan dinas, perbaikan fasilitas kampus, permohonan persediaan ATK, dan layanan publik bagi seluruh civitas akademika.
+                    Portal digital untuk reservasi ruangan, peminjaman kendaraan dinas, perbaikan fasilitas, dan pengajuan persediaan ATK kampus secara cepat, transparan, dan terdata.
                 </p>
 
                 <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start mb-4">
                     <a href="#layanan-utama" class="btn btn-light text-primary fw-bold px-4 py-3 rounded-pill shadow-lg d-inline-flex align-items-center gap-2 btn-hero-cta">
                         <i class="bi bi-grid-fill"></i>
-                        <span>Katalog 6 Layanan</span>
+                        <span>Katalog Layanan</span>
                         <i class="bi bi-arrow-down-short fs-5"></i>
                     </a>
 
                     <a href="#jadwal-kalender" class="btn btn-outline-light fw-bold px-4 py-3 rounded-pill d-inline-flex align-items-center gap-2 btn-hero-secondary">
                         <i class="bi bi-calendar3"></i>
-                        <span>Kalender Fasilitas</span>
+                        <span>Cek Kalender</span>
                         <i class="bi bi-arrow-right-short fs-5"></i>
                     </a>
 
@@ -48,90 +48,90 @@
                 <div class="d-flex flex-wrap align-items-center gap-3 pt-2 text-white-50 small justify-content-center justify-content-lg-start">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-shield-check text-info fs-5"></i>
-                        <span class="text-white-75">Sistem Anti Double-Booking Real-Time</span>
+                        <span class="text-white">Anti Double-Booking Real-Time</span>
                     </div>
                     <div class="d-none d-sm-inline opacity-50">&bull;</div>
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-clock-history text-info fs-5"></i>
-                        <span class="text-white-75">Standar Respon SLA &lt; 24 Jam Kerja</span>
+                        <span class="text-white">Respon Cepat SLA &lt; 24 Jam</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Sisi Kanan: Live Asset Readiness & Operational Status Panel (Menghilangkan Duplikasi Link) -->
+            <!-- Sisi Kanan: Panel Status Kesiapan Fasilitas (Ramping & Proporsional) -->
             <div class="col-lg-5">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white text-dark p-3 hero-status-card">
-                    <div class="card-body p-3 p-md-4">
-                        <!-- Header Card Status -->
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white text-dark hero-status-card">
+                    <div class="card-body p-4">
+                        <!-- Header Status Card -->
                         <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <img src="/logo.png" alt="Logo UPT" style="height: 42px; width: auto;" class="rounded-2 p-1 border bg-white shadow-sm">
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="/logo.png" alt="Logo UPT" style="height: 38px; width: auto;" class="rounded-2 p-1 border bg-white shadow-sm">
                                 <div>
-                                    <h6 class="fw-bold mb-0 text-primary">Kesiapan Aset &amp; Layanan</h6>
-                                    <small class="text-muted" style="font-size: 0.75rem;">Biro Sarpras UPT &bull; Status Hari Ini</small>
+                                    <h6 class="fw-bold mb-0 text-primary">Kesiapan Fasilitas Kampus</h6>
+                                    <small class="text-muted">Biro Sarpras UPT &bull; Status Hari Ini</small>
                                 </div>
                             </div>
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 small fw-bold d-inline-flex align-items-center gap-1">
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 small fw-bold d-inline-flex align-items-center gap-1.5">
                                 <span class="status-pulse-dot"></span>
                                 <span>Operasional Aktif</span>
                             </span>
                         </div>
 
-                        <!-- 3 Aspek Kesiapan Sarpras -->
-                        <div class="d-flex flex-column gap-3 mb-3">
+                        <!-- 3 Aspek Kesiapan Sarpras (Ringkas & Padat) -->
+                        <div class="d-flex flex-column gap-2.5 mb-3">
                             <!-- Status Ruangan -->
-                            <div class="p-3 rounded-3 bg-light border border-light-subtle d-flex align-items-start gap-3 readiness-item">
-                                <div class="readiness-icon bg-primary bg-opacity-10 text-primary rounded-3 p-2 text-center">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle d-flex align-items-center gap-3 readiness-item">
+                                <div class="readiness-icon bg-primary bg-opacity-10 text-primary rounded-3">
                                     <i class="bi bi-door-open-fill fs-5"></i>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="flex-grow-1 min-w-0">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <strong class="text-dark small">Ruang Rapat &amp; Aula Kampus</strong>
-                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small">Tersedia &amp; Terawat</span>
+                                        <strong class="text-dark small">Ruang Rapat &amp; Aula</strong>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small">Tersedia</span>
                                     </div>
-                                    <p class="text-muted mb-0 small" style="font-size: 0.8rem;">
-                                        Auditorium, Excellent, Compassion, Integrity, &amp; MFH Hall dengan fasilitas AC, sound system, &amp; proyektor.
+                                    <p class="text-muted mb-0 small text-truncate-2">
+                                        Auditorium dan ruang rapat siap digunakan lengkap dengan multimedia.
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Status Kendaraan -->
-                            <div class="p-3 rounded-3 bg-light border border-light-subtle d-flex align-items-start gap-3 readiness-item">
-                                <div class="readiness-icon bg-primary bg-opacity-10 text-primary rounded-3 p-2 text-center">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle d-flex align-items-center gap-3 readiness-item">
+                                <div class="readiness-icon bg-primary bg-opacity-10 text-primary rounded-3">
                                     <i class="bi bi-car-front-fill fs-5"></i>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="flex-grow-1 min-w-0">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <strong class="text-dark small">Armada Kendaraan Dinas</strong>
+                                        <strong class="text-dark small">Armada Mobil Dinas</strong>
                                         <span class="badge bg-success bg-opacity-10 text-success rounded-pill small">Siap Jalan</span>
                                     </div>
-                                    <p class="text-muted mb-0 small" style="font-size: 0.8rem;">
-                                        Toyota Avanza, Innova, dan Isuzu Elf siap melayani perjalanan dinas akademik dengan supir resmi.
+                                    <p class="text-muted mb-0 small text-truncate-2">
+                                        Kendaraan operasional siap melayani perjalanan dinas dan kegiatan kampus.
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Status Pemeliharaan -->
-                            <div class="p-3 rounded-3 bg-light border border-light-subtle d-flex align-items-start gap-3 readiness-item">
-                                <div class="readiness-icon bg-primary bg-opacity-10 text-primary rounded-3 p-2 text-center">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle d-flex align-items-center gap-3 readiness-item">
+                                <div class="readiness-icon bg-primary bg-opacity-10 text-primary rounded-3">
                                     <i class="bi bi-tools fs-5"></i>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="flex-grow-1 min-w-0">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <strong class="text-dark small">Tanggap Perbaikan Fasilitas</strong>
-                                        <span class="badge bg-warning bg-opacity-10 text-dark rounded-pill small">Siaga Respon</span>
+                                        <strong class="text-dark small">Layanan Perbaikan</strong>
+                                        <span class="badge bg-warning bg-opacity-10 text-dark rounded-pill small">Tim Siaga</span>
                                     </div>
-                                    <p class="text-muted mb-0 small" style="font-size: 0.8rem;">
-                                        Tim teknisi siaga untuk penanganan AC kelas, kelistrikan, sanitasi air, dan sarana IT pembelajaran.
+                                    <p class="text-muted mb-0 small text-truncate-2">
+                                        Teknisi siaga penanganan fasilitas listrik, AC, sanitasi, dan IT kelas.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Footer Info Loket Fisik -->
-                        <div class="pt-2 border-top d-flex align-items-center justify-content-between text-muted small" style="font-size: 0.78rem;">
+                        <div class="pt-2.5 border-top d-flex align-items-center justify-content-between text-muted small">
                             <span><i class="bi bi-geo-alt-fill text-danger me-1"></i>Gedung 4, Lantai 1 (Samping Auditorium)</span>
-                            <span class="fw-semibold text-primary">08:00 - 16:30 WIB</span>
+                            <span class="fw-semibold text-primary">08:00 &ndash; 16:30 WIB</span>
                         </div>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
 </section>
 
 <!-- ============================================== -->
-<!-- 2. STANDAR PELAYANAN & METRIK KEUNGGULAN       -->
+<!-- 2. METRIK PELAYANAN & KEUNGGULAN (RAPI & SIMETRIS) -->
 <!-- ============================================== -->
 <div class="container position-relative stats-overlap">
     <div class="row g-3">
@@ -153,7 +153,7 @@
                     </div>
                     <div>
                         <h4 class="fw-bold mb-0 text-primary">5+ Ruang &amp; Aula</h4>
-                        <small class="text-muted d-block">Representatif &amp; Ber-AC</small>
+                        <small class="text-muted d-block">Fasilitas Representatif</small>
                     </div>
                 </div>
             </div>
@@ -165,8 +165,8 @@
                         <i class="bi bi-car-front fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0 text-primary">Armada Mobil Dinas</h4>
-                        <small class="text-muted d-block">Terawat &amp; Siap Penugasan</small>
+                        <h4 class="fw-bold mb-0 text-primary">3 Armada Dinas</h4>
+                        <small class="text-muted d-block">Siap Penugasan Kampus</small>
                     </div>
                 </div>
             </div>
@@ -179,7 +179,7 @@
                     </div>
                     <div>
                         <h4 class="fw-bold mb-0 text-primary">&lt; 24 Jam Kerja</h4>
-                        <small class="text-muted d-block">SLA Respon Pemeliharaan</small>
+                        <small class="text-muted d-block">Standar Respon SLA</small>
                     </div>
                 </div>
             </div>
@@ -191,8 +191,8 @@
                         <i class="bi bi-shield-check fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0 text-primary">Layanan Terbuka</h4>
-                        <small class="text-muted d-block">Lost &amp; Found &amp; Buku Tamu</small>
+                        <h4 class="fw-bold mb-0 text-primary">2 Layanan Terbuka</h4>
+                        <small class="text-muted d-block">Lost &amp; Found &amp; Tamu</small>
                     </div>
                 </div>
             </div>
@@ -211,22 +211,22 @@
                 KATALOG LAYANAN DIGITAL
             </span>
             <h2 class="fw-bold display-6 mb-2 text-dark">
-                Portal Pelayanan Terpadu Sarana &amp; Prasarana
+                Portal Pelayanan Fasilitas Kampus
             </h2>
             <p class="text-muted fs-6">
-                Seluruh kebutuhan reservasi, pengadaan, perbaikan, dan pelaporan aset kampus dapat diakses secara daring dengan pembagian hak akses yang transparan.
+                Pilih layanan yang Anda butuhkan sesuai dengan kategori akses civitas akademika atau publik.
             </p>
         </div>
 
         <!-- SUB-HEADING 1: LAYANAN KHUSUS CIVITAS AKADEMIKA -->
-        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-semibold small">
-                    <i class="bi bi-lock-fill me-1"></i> CIVITAS AKADEMIKA
-                </span>
-                <span class="fw-bold text-dark fs-5">Layanan Akademik &amp; Kedinasan (Wajib Login SSO)</span>
+        <div class="category-header-box mb-4 pb-2 border-bottom">
+            <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-semibold small mb-2 d-inline-block">
+                <i class="bi bi-shield-lock-fill me-1"></i> CIVITAS AKADEMIKA
+            </span>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-1">
+                <h4 class="fw-bold text-dark mb-0">Layanan Akademik &amp; Kedinasan</h4>
+                <small class="text-muted">Khusus Dosen, Tenaga Kependidikan, dan Mahasiswa (Wajib Login SSO)</small>
             </div>
-            <small class="text-muted d-none d-md-inline">Khusus Mahasiswa &amp; Dosen UPT</small>
         </div>
 
         <div class="row g-4 mb-5">
@@ -243,15 +243,10 @@
                             </span>
                         </div>
                         <h5 class="card-title fw-bold mb-2">Peminjaman Ruangan</h5>
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            Reservasi ruang rapat &amp; aula representatif (Excellent, Compassion, Integrity, Auditorium, MFH) untuk perkuliahan, rapat, dan seminar.
+                        <p class="text-muted small mb-4 flex-grow-1 service-card-desc">
+                            Reservasi ruang rapat, auditorium, dan aula kampus untuk perkuliahan, rapat kerja, dan seminar akademik.
                         </p>
-                        <div class="d-flex flex-wrap gap-1 mb-4">
-                            <span class="badge bg-light text-secondary border">Auditorium</span>
-                            <span class="badge bg-light text-secondary border">Meeting Room</span>
-                            <span class="badge bg-light text-secondary border">AC &amp; Sound</span>
-                        </div>
-                        <a href="/peminjaman/ruangan" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                        <a href="/peminjaman/ruangan" class="btn btn-primary w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 rounded-pill mt-auto">
                             <span>Ajukan Ruangan</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -272,15 +267,10 @@
                             </span>
                         </div>
                         <h5 class="card-title fw-bold mb-2">Peminjaman Kendaraan</h5>
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            Booking armada mobil dinas universitas (Avanza, Innova, Isuzu Elf) untuk perjalanan dinas resmi, kompetisi, dan penugasan kampus.
+                        <p class="text-muted small mb-4 flex-grow-1 service-card-desc">
+                            Permohonan armada mobil dinas kampus untuk perjalanan dinas resmi, kompetisi, dan penugasan universitas.
                         </p>
-                        <div class="d-flex flex-wrap gap-1 mb-4">
-                            <span class="badge bg-light text-secondary border">Avanza &amp; Innova</span>
-                            <span class="badge bg-light text-secondary border">Isuzu Elf</span>
-                            <span class="badge bg-light text-secondary border">Driver Resmi</span>
-                        </div>
-                        <a href="/peminjaman/kendaraan" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                        <a href="/peminjaman/kendaraan" class="btn btn-primary w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 rounded-pill mt-auto">
                             <span>Ajukan Kendaraan</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -301,15 +291,10 @@
                             </span>
                         </div>
                         <h5 class="card-title fw-bold mb-2">Request Maintenance</h5>
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            Laporan perbaikan fasilitas kampus meliputi AC ruangan, kelistrikan &amp; lampu, sanitasi air, proyektor kelas, dan jaringan IT penunjang.
+                        <p class="text-muted small mb-4 flex-grow-1 service-card-desc">
+                            Laporan perbaikan sarana kampus meliputi AC, kelistrikan, sanitasi air, proyektor, dan fasilitas belajar.
                         </p>
-                        <div class="d-flex flex-wrap gap-1 mb-4">
-                            <span class="badge bg-light text-secondary border">AC &amp; Listrik</span>
-                            <span class="badge bg-light text-secondary border">Sanitasi</span>
-                            <span class="badge bg-light text-secondary border">Fasilitas IT</span>
-                        </div>
-                        <a href="/request/maintenance" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                        <a href="/request/maintenance" class="btn btn-primary w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 rounded-pill mt-auto">
                             <span>Lapor Perbaikan</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -330,15 +315,10 @@
                             </span>
                         </div>
                         <h5 class="card-title fw-bold mb-2">Permohonan ATK</h5>
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            Pengajuan alat tulis kantor dan perlengkapan administrasi akademik (kertas, pulpen, map, ordner, tinta) dengan input multi-item praktis.
+                        <p class="text-muted small mb-4 flex-grow-1 service-card-desc">
+                            Pengajuan alat tulis kantor dan perlengkapan administrasi kerja unit dosen dan staf secara terstruktur.
                         </p>
-                        <div class="d-flex flex-wrap gap-1 mb-4">
-                            <span class="badge bg-light text-secondary border">Multi-Item</span>
-                            <span class="badge bg-light text-secondary border">Kertas &amp; Tinta</span>
-                            <span class="badge bg-light text-secondary border">Stok Real-Time</span>
-                        </div>
-                        <a href="/request/supplies" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                        <a href="/request/supplies" class="btn btn-primary w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 rounded-pill mt-auto">
                             <span>Ajukan ATK</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -348,14 +328,14 @@
         </div>
 
         <!-- SUB-HEADING 2: LAYANAN PUBLIK & TAMU KAMPUS -->
-        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success text-white rounded-pill px-3 py-1.5 fw-semibold small">
-                    <i class="bi bi-globe me-1"></i> UMUM &amp; PUBLIK
-                </span>
-                <span class="fw-bold text-dark fs-5">Layanan Terbuka untuk Seluruh Pengunjung Kampus (Tanpa Login)</span>
+        <div class="category-header-box mb-4 pb-2 border-bottom">
+            <span class="badge bg-success text-white rounded-pill px-3 py-1.5 fw-semibold small mb-2 d-inline-block">
+                <i class="bi bi-globe me-1"></i> UMUM &amp; PUBLIK
+            </span>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-1">
+                <h4 class="fw-bold text-dark mb-0">Layanan Publik &amp; Tamu Kampus</h4>
+                <small class="text-muted">Terbuka untuk Tamu Dinas, Rekanan, Mahasiswa, dan Masyarakat Umum (Tanpa Login)</small>
             </div>
-            <small class="text-muted d-none d-md-inline">Akses Terbuka untuk Tamu, Kurir, &amp; Warga Kampus</small>
         </div>
 
         <div class="row g-4">
@@ -372,16 +352,11 @@
                             </span>
                         </div>
                         <h4 class="card-title fw-bold mb-2">Lost &amp; Found (Barang Hilang / Ditemukan)</h4>
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            Pusat inventarisasi barang hilang dan barang yang ditemukan di seluruh gedung dan lingkungan kampus UPT. Pemilik barang dapat melacak dan mengonfirmasi pengambilan barang dengan cepat dan aman.
+                        <p class="text-muted small mb-4 flex-grow-1 service-card-desc">
+                            Pusat inventarisasi barang hilang dan temuan di seluruh gedung serta kawasan kampus UPT. Pemilik barang dapat melacak dan mengonfirmasi klaim pengambilan secara aman.
                         </p>
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            <span class="badge bg-light text-secondary border"><i class="bi bi-check2 me-1"></i>Tanpa Registrasi Akun</span>
-                            <span class="badge bg-light text-secondary border"><i class="bi bi-check2 me-1"></i>Lapor Barang Hilang</span>
-                            <span class="badge bg-light text-secondary border"><i class="bi bi-check2 me-1"></i>Klaim Pengambilan Aman</span>
-                        </div>
-                        <a href="/pelaporan/lost-found" class="btn btn-outline-primary py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill">
-                            <span>Buka Form Pelaporan Lost &amp; Found</span>
+                        <a href="/pelaporan/lost-found" class="btn btn-outline-primary py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill mt-auto">
+                            <span>Formulir Lost &amp; Found</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -400,17 +375,12 @@
                                 Terbuka untuk Umum
                             </span>
                         </div>
-                        <h4 class="card-title fw-bold mb-2">Visitor ID Pass (Buku Tamu Digital)</h4>
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            Sistem registrasi buku tamu digital kampus untuk pengunjung, tamu dinas universitas, mitra instansi, narasumber, maupun orang tua mahasiswa guna menjaga ketertiban, keamanan, dan tata kelola kampus.
+                        <h4 class="card-title fw-bold mb-2">Visitor Pass (Buku Tamu Digital)</h4>
+                        <p class="text-muted small mb-4 flex-grow-1 service-card-desc">
+                            Registrasi buku tamu digital kampus bagi tamu dinas universitas, rekanan instansi, narasumber, dan wali mahasiswa demi ketertiban serta keamanan lingkungan kampus.
                         </p>
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            <span class="badge bg-light text-secondary border"><i class="bi bi-check2 me-1"></i>Check-in Digital Cepat</span>
-                            <span class="badge bg-light text-secondary border"><i class="bi bi-check2 me-1"></i>Verifikasi Pejabat / Host</span>
-                            <span class="badge bg-light text-secondary border"><i class="bi bi-check2 me-1"></i>Ketertiban Kampus</span>
-                        </div>
-                        <a href="/pelaporan/visitor" class="btn btn-outline-primary py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill">
-                            <span>Registrasi Kunjungan Tamu (Visitor Pass)</span>
+                        <a href="/pelaporan/visitor" class="btn btn-outline-primary py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill mt-auto">
+                            <span>Registrasi Buku Tamu</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -432,10 +402,10 @@
                     <i class="bi bi-calendar-week-fill me-1"></i> JADWAL FASILITAS REAL-TIME
                 </span>
                 <h2 class="fw-bold display-6 mb-2 text-dark">
-                    Kalender Ketersediaan Ruangan &amp; Kendaraan
+                    Kalender Ketersediaan Fasilitas
                 </h2>
                 <p class="text-muted fs-6 mb-0">
-                    Pantau ketersediaan sarana dan prasarana kampus secara langsung. Sistem secara otomatis memproteksi jadwal dari tabrakan pemesanan (Anti Double-Booking).
+                    Cek jadwal pemakaian ruangan dan kendaraan kampus secara real-time sebelum mengajukan permohonan.
                 </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
@@ -450,10 +420,10 @@
             </div>
         </div>
 
-        <!-- Filter Pills & Legenda Warna Kalender -->
+        <!-- Filter Pills & Legenda Warna Kalender (Tata Letak Rapi) -->
         <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white calendar-control-card">
             <div class="row g-3 align-items-center justify-content-between">
-                <div class="col-md-6 col-lg-5">
+                <div class="col-lg-5">
                     <div class="d-flex align-items-center gap-2">
                         <span class="small fw-bold text-dark text-nowrap"><i class="bi bi-funnel-fill text-primary"></i> Filter Kategori:</span>
                         <div class="btn-group w-100" role="group" id="calendarFilterButtons">
@@ -463,20 +433,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-7">
-                    <div class="d-flex flex-wrap align-items-center justify-content-md-end gap-3 small">
+                <div class="col-lg-7">
+                    <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-3 small">
                         <span class="text-muted fw-semibold">Indikator Warna:</span>
                         <span class="d-inline-flex align-items-center gap-1.5 legend-item">
                             <span class="legend-color-dot" style="background-color: #059669;"></span>
-                            <span class="text-secondary fw-semibold">Ruangan (Approved)</span>
+                            <span class="text-secondary fw-semibold">Ruangan Disetujui</span>
                         </span>
                         <span class="d-inline-flex align-items-center gap-1.5 legend-item">
                             <span class="legend-color-dot" style="background-color: #0284c7;"></span>
-                            <span class="text-secondary fw-semibold">Kendaraan (Approved)</span>
+                            <span class="text-secondary fw-semibold">Kendaraan Disetujui</span>
                         </span>
                         <span class="d-inline-flex align-items-center gap-1.5 legend-item">
                             <span class="legend-color-dot" style="background-color: #ea580c;"></span>
-                            <span class="text-secondary fw-semibold">Menunggu Konfirmasi (Pending)</span>
+                            <span class="text-secondary fw-semibold">Menunggu Verifikasi</span>
                         </span>
                     </div>
                 </div>
@@ -490,7 +460,7 @@
     </div>
 </section>
 
-<!-- Modal Detail Event Kalender (Didesain Mewah Seperti Tiket/Voucher Reservasi Resmi) -->
+<!-- Modal Detail Event Kalender (Format Slip Resmi Reservasi) -->
 <div class="modal fade" id="modalCalendarEventDetail" tabindex="-1" aria-labelledby="modalCalendarEventDetailLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -568,10 +538,10 @@
                 STANDAR PROSEDUR LAYANAN (SOP)
             </span>
             <h2 class="fw-bold display-6 mb-2 text-dark">
-                Alur Pengajuan Cepat, Tertib, &amp; Terdata
+                Alur Pengajuan Layanan
             </h2>
             <p class="text-muted fs-6">
-                Empat langkah ringkas untuk memastikan seluruh kegiatan akademik dan operasional kampus terfasilitasi dengan prima.
+                Empat langkah ringkas dan transparan untuk mengakses fasilitas kampus.
             </p>
         </div>
 
@@ -583,7 +553,7 @@
                     </div>
                     <h5 class="fw-bold mb-2 text-dark">Pilih Layanan</h5>
                     <p class="text-muted small mb-0">
-                        Pilih menu peminjaman ruangan, armada mobil dinas, perbaikan fasilitas, atau pelaporan publik sesuai kebutuhan Anda.
+                        Tentukan fasilitas atau permohonan yang Anda butuhkan di portal resmi Sarpras.
                     </p>
                 </div>
             </div>
@@ -592,9 +562,9 @@
                     <div class="step-circle bg-primary text-white mb-3 shadow">
                         2
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Isi Formulir Online</h5>
+                    <h5 class="fw-bold mb-2 text-dark">Isi Formulir</h5>
                     <p class="text-muted small mb-0">
-                        Lengkapi tanggal pemakaian, rentang waktu, rincian ruangan/armada, keperluan kegiatan, dan kontak narahubung.
+                        Lengkapi jadwal penggunaan, kebutuhan teknis, dan identitas penanggung jawab.
                     </p>
                 </div>
             </div>
@@ -603,9 +573,9 @@
                     <div class="step-circle bg-primary text-white mb-3 shadow">
                         3
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Verifikasi Bebas Bentrok</h5>
+                    <h5 class="fw-bold mb-2 text-dark">Verifikasi Sarpras</h5>
                     <p class="text-muted small mb-0">
-                        Sistem &amp; staf Biro Sarpras memvalidasi ketersediaan aset secara real-time dengan standar respon maksimal 1x24 jam kerja.
+                        Tim biro memvalidasi ketersediaan aset secara real-time maksimal 1x24 jam kerja.
                     </p>
                 </div>
             </div>
@@ -614,9 +584,9 @@
                     <div class="step-circle bg-success text-white mb-3 shadow">
                         <i class="bi bi-check-lg"></i>
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Fasilitas Siap Digunakan</h5>
+                    <h5 class="fw-bold mb-2 text-dark">Fasilitas Siap Pakai</h5>
                     <p class="text-muted small mb-0">
-                        Status persetujuan langsung tampil di dashboard pemohon dan sarana prasarana kampus siap dipakai sesuai jadwal.
+                        Persetujuan terbit di dashboard pemohon dan fasilitas siap digunakan sesuai jadwal.
                     </p>
                 </div>
             </div>
@@ -638,11 +608,11 @@
                             <i class="bi bi-building-fill"></i>
                             <span>PUSAT PELAYANAN &amp; LOKET SARPRAS</span>
                         </div>
-                        <h3 class="fw-bold text-dark mb-3">
-                            Kantor Biro Sarana dan Prasarana (Sarpras)
+                        <h3 class="fw-bold text-dark mb-2">
+                            Pusat Informasi &amp; Loket Pelayanan
                         </h3>
-                        <p class="text-muted mb-4">
-                            Untuk konsultasi teknis peminjaman skala besar, koordinasi event universitas, serah terima barang persediaan (ATK), maupun pengambilan kunci ruangan dan mobil dinas, Anda dapat mengunjungi loket pelayanan fisik kami.
+                        <p class="text-muted mb-4 small">
+                            Untuk konsultasi langsung, serah terima persediaan ATK, serta pengambilan kunci ruangan dan kendaraan dinas, silakan kunjungi loket pelayanan fisik kami.
                         </p>
 
                         <div class="row g-3 mb-4">
@@ -653,10 +623,10 @@
                                         <i class="bi bi-geo-alt-fill fs-5"></i>
                                         <strong class="text-dark small">Lokasi Loket Pelayanan Fisik</strong>
                                     </div>
-                                    <p class="mb-0 fw-bold text-dark" style="font-size: 0.95rem;">
+                                    <p class="mb-0 fw-bold text-dark fs-6">
                                         Gedung 4, Lantai 1
                                     </p>
-                                    <small class="text-muted">(Samping Auditorium UPT)</small>
+                                    <small class="text-muted">(Samping Auditorium)</small>
                                 </div>
                             </div>
 
@@ -665,9 +635,9 @@
                                 <div class="p-3 rounded-3 bg-light border h-100">
                                     <div class="d-flex align-items-center gap-2 mb-2 text-primary">
                                         <i class="bi bi-clock-history fs-5"></i>
-                                        <strong class="text-dark small">Jam Operasional Kantor</strong>
+                                        <strong class="text-dark small">Jam Operasional Layanan</strong>
                                     </div>
-                                    <p class="mb-0 fw-bold text-dark" style="font-size: 0.95rem;">
+                                    <p class="mb-0 fw-bold text-dark fs-6">
                                         Senin &ndash; Jumat
                                     </p>
                                     <small class="text-muted">08:00 &ndash; 16:30 WIB</small>
@@ -678,7 +648,7 @@
 
                     <!-- Kontak Cepat Sesuai Request User -->
                     <div class="pt-3 border-top d-flex flex-wrap align-items-center gap-3">
-                        <span class="small fw-bold text-dark">Kontak Cepat Resmi:</span>
+                        <span class="small fw-bold text-dark">Kontak Cepat:</span>
                         <a href="mailto:sarpras@upitra.ac.id" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
                             <i class="bi bi-envelope-at me-1"></i> sarpras@upitra.ac.id
                         </a>
@@ -701,12 +671,12 @@
                             </div>
                         </div>
 
-                        <h4 class="fw-bold text-white mb-3">
-                            Mendukung Pembelajaran &amp; Tata Kelola Berintegritas
+                        <h4 class="fw-bold text-white mb-2">
+                            Tata Kelola Sarpras Berintegritas
                         </h4>
 
                         <p class="text-white-50 small mb-4">
-                            Seluruh pemakaian aset universitas dicatat dan dilaporkan secara periodik untuk menjamin pemeliharaan yang berkesinambungan dan kenyamanan seluruh civitas akademika.
+                            Mendukung seluruh kegiatan perkuliahan, riset, dan operasional kampus dengan penyediaan sarana yang prima, tertib, dan transparan.
                         </p>
                     </div>
 
@@ -805,8 +775,8 @@
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 .readiness-icon {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -821,6 +791,12 @@
     box-shadow: 0 4px 12px rgba(10, 58, 102, 0.06);
     transform: translateX(3px);
 }
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 /* Service Cards */
 .service-card {
@@ -834,15 +810,22 @@
     border-color: rgba(13, 98, 172, 0.35) !important;
 }
 .service-badge-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
+.service-card-desc {
+    line-height: 1.55;
+    font-size: 0.875rem !important;
+}
 .border-top-accent-blue {
     border-top: 4px solid var(--accent-blue) !important;
+}
+.category-header-box {
+    margin-top: 1rem;
 }
 
 /* Stats Overlap */
@@ -859,8 +842,8 @@
     box-shadow: 0 12px 24px rgba(10, 58, 102, 0.08) !important;
 }
 .stat-icon-box {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -868,15 +851,15 @@
     flex-shrink: 0;
 }
 
-/* Step Circle */
+/* Step Circles */
 .step-circle {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
 }
 
@@ -885,8 +868,8 @@
     border: 1px solid #e2e8f0 !important;
 }
 .legend-color-dot {
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     display: inline-block;
 }
@@ -900,103 +883,77 @@
     --fc-border-color: #e2e8f0;
     --fc-today-bg-color: #f0f7ff;
 }
-.fc .fc-toolbar.fc-header-toolbar {
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-}
-.fc .fc-toolbar-title {
-    font-size: 1.35rem !important;
-    font-weight: 800 !important;
-    color: var(--primary-blue) !important;
-    letter-spacing: -0.3px;
-}
-.fc .fc-button-primary {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 6px 14px !important;
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 2px 6px rgba(10, 58, 102, 0.15) !important;
-    transition: all 0.2s ease !important;
-}
-.fc .fc-button-primary:hover {
-    background: linear-gradient(135deg, #072B4D 0%, var(--primary-blue) 100%) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(10, 58, 102, 0.25) !important;
-}
-.fc .fc-button-primary:disabled {
-    background: #94a3b8 !important;
-    border-color: #94a3b8 !important;
-    opacity: 0.65;
-}
-.fc .fc-button-primary:not(:disabled).fc-button-active, 
-.fc .fc-button-primary:not(:disabled):active {
-    background: #072B4D !important;
-}
-.fc .fc-col-header-cell {
-    background-color: #f8fafc;
-    padding: 10px 0 !important;
-}
-.fc .fc-col-header-cell-cushion {
-    color: #1e293b !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.fc .fc-daygrid-day-number {
-    color: #334155 !important;
-    text-decoration: none !important;
-    font-weight: 600;
-    padding: 6px 8px !important;
-}
-.fc .fc-event {
-    cursor: pointer;
-    border-radius: 6px;
-    padding: 3px 6px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    margin-bottom: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.fc .fc-event:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.18);
-}
-.fc .fc-daygrid-more-link {
-    font-weight: 700;
-    color: var(--secondary-blue) !important;
-    text-decoration: none;
-    font-size: 0.8rem;
-}
 .fc-theme-standard td, .fc-theme-standard th {
     border-color: #e2e8f0 !important;
 }
-
-@media (max-width: 991.98px) {
-    .hero-section {
-        border-bottom-left-radius: 28px;
-        border-bottom-right-radius: 28px;
-    }
-    .stats-overlap {
-        margin-top: 15px;
-    }
+.fc-toolbar-title {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: var(--primary-blue) !important;
+}
+.fc-button-primary {
+    background-color: var(--secondary-blue) !important;
+    border-color: var(--secondary-blue) !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+    transition: all 0.2s ease !important;
+}
+.fc-button-primary:hover, .fc-button-primary:focus {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+}
+.fc-button-active {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.125) !important;
+}
+.fc-event {
+    cursor: pointer;
+    border-radius: 6px !important;
+    padding: 3px 6px !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    transition: transform 0.15s ease;
+}
+.fc-event:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+.fc-col-header-cell-cushion {
+    font-weight: 600 !important;
+    color: var(--primary-blue) !important;
+    padding: 8px 4px !important;
+    text-decoration: none !important;
+}
+.fc-daygrid-day-number {
+    font-weight: 500;
+    color: #475569;
+    padding: 6px 8px !important;
+    text-decoration: none !important;
+}
+.fc-day-today {
+    background-color: #f0f7ff !important;
+}
+.fc-day-today .fc-daygrid-day-number {
+    font-weight: 700 !important;
+    color: var(--secondary-blue) !important;
 }
 </style>
 
 <!-- FullCalendar v6 CDN -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('facilityCalendar');
     if (!calendarEl) return;
 
-    let allCalendarEvents = [];
     let currentFilter = 'all';
+    let allCalendarEvents = [];
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
