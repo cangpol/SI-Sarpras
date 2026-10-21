@@ -13,130 +13,13 @@ class Auth extends BaseController
         return view('auth/login');
     }
 
+    /**
+     * Autentikasi lokal (username & password) telah dinonaktifkan.
+     * Mengarahkan seluruh pengguna untuk menggunakan Single Sign-On (SSO) Microsoft 365 resmi.
+     */
     public function authenticate()
     {
-        $username = trim((string) $this->request->getPost('username'));
-        $password = (string) $this->request->getPost('password');
-
-        if (empty($username) || empty($password)) {
-            return redirect()->back()->withInput()->with('error', 'Username dan Password wajib diisi.');
-        }
-
-        $user = null;
-
-        try {
-            $db = \Config\Database::connect();
-            if ($db->tableExists('users')) {
-                $user = $db->table('users')
-                    ->groupStart()
-                        ->where('username', $username)
-                        ->orWhere('email', $username)
-                    ->groupEnd()
-                    ->get()
-                    ->getRowArray();
-            }
-        } catch (\Throwable $e) {
-            $user = null;
-        }
-
-        // 1. Cek user dari database
-        if ($user) {
-            $isValid = false;
-
-            if (password_verify($password, $user['password'])) {
-                $isValid = true;
-            } elseif ($password === $user['password']) {
-                $isValid = true;
-            }
-
-            if ($isValid) {
-                if (!empty($user['is_suspended'])) {
-                    $reason = !empty($user['suspend_reason']) ? ' (' . $user['suspend_reason'] . ')' : '';
-                    return redirect()->back()->withInput()->with('error', 'Akun Anda telah DITANGGUHKAN (SUSPEND) karena terindikasi penginputan spam/asal-asalan' . $reason . '. Silakan hubungi Super Admin (Biro IT) untuk membuka kembali akses akun Anda.');
-                }
-
-                session()->set([
-                    'isLoggedIn' => true,
-                    'user_id'    => $user['id'],
-                    'username'   => $user['username'],
-                    'user_name'  => $user['name'] ?? $user['username'],
-                    'email'      => $user['email'] ?? '',
-                    'role'       => $user['role'] ?? 'user',
-                    'department' => $user['department'] ?? 'Universitas Pignatelli Triputra',
-                ]);
-
-                $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
-                session()->remove('redirect_after_login');
-
-                return redirect()->to($targetUrl);
-            }
-        }
-
-        // 2. Fallback default akun untuk role jika database kosong atau belum di-import
-        $fallbacks = [
-            'superadmin' => [
-                'password'   => 'superadmin123',
-                'id'         => 1,
-                'name'       => 'Tim Biro IT',
-                'email'      => 'it@upitra.ac.id',
-                'role'       => 'super_admin',
-                'department' => 'Biro IT',
-            ],
-            'admin' => [
-                'password'   => 'admin123',
-                'id'         => 2,
-                'name'       => 'Biro Sarana dan Prasarana',
-                'email'      => 'sarpras@upitra.ac.id',
-                'role'       => 'admin',
-                'department' => 'Sarpras',
-            ],
-            'mahasiswa' => [
-                'password'   => 'mahasiswa123',
-                'id'         => 3,
-                'name'       => 'Budi Santoso',
-                'email'      => 'budi@student.upitra.ac.id',
-                'role'       => 'user',
-                'department' => 'Mahasiswa Informatika',
-            ],
-            'dosen' => [
-                'password'   => 'dosen123',
-                'id'         => 4,
-                'name'       => 'Dr. Siti Rahmawati, M.Kom.',
-                'email'      => 'siti.rahma@upitra.ac.id',
-                'role'       => 'user',
-                'department' => 'Dosen Fakultas Sains & Teknologi',
-            ],
-            'user' => [
-                'password'   => 'user123',
-                'id'         => 5,
-                'name'       => 'Budi Santoso',
-                'email'      => 'budi@student.upitra.ac.id',
-                'role'       => 'user',
-                'department' => 'Mahasiswa Informatika',
-            ],
-        ];
-
-        if (!$user && isset($fallbacks[$username])) {
-            $f = $fallbacks[$username];
-            if ($password === $f['password'] || ($username === 'admin' && $password === 'admin')) {
-                session()->set([
-                    'isLoggedIn' => true,
-                    'user_id'    => $f['id'],
-                    'username'   => $username,
-                    'user_name'  => $f['name'],
-                    'email'      => $f['email'] ?? ($username . '@upitra.ac.id'),
-                    'role'       => $f['role'],
-                    'department' => $f['department'],
-                ]);
-
-                $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
-                session()->remove('redirect_after_login');
-
-                return redirect()->to($targetUrl);
-            }
-        }
-
-        return redirect()->back()->withInput()->with('error', 'Username atau Password yang Anda masukkan salah.');
+        return redirect()->to('/login')->with('error', 'Login akun lokal (username & password) telah dinonaktifkan. Seluruh civitas akademika wajib masuk menggunakan Single Sign-On (SSO) Microsoft 365 resmi kampus.');
     }
 
     /**
@@ -247,7 +130,24 @@ class Auth extends BaseController
         $email       = strtolower(trim($userProfile['mail'] ?? $userProfile['userPrincipalName']));
         $displayName = trim($userProfile['displayName'] ?? '');
         $msId        = trim($userProfile['id'] ?? '');
-        $department  = trim($userProfile['department'] ?? ($userProfile['jobTitle'] ?? 'Civitas Akademika UPITRA'));
+        $department  = trim($userProfile['department'] ?? ($userProfile['jobTitle'] ?? ''));
+
+        // Tentukan Role & Hak Akses berdasarkan Hierarki Multi-Tier
+        $superAdminEmails = array_map('strtolower', $config->superAdminEmails ?? ['it@upitra.ac.id']);
+        $adminEmails      = array_map('strtolower', $config->adminEmails ?? ['sarpras@upitra.ac.id']);
+
+        $targetRole = 'user';
+        if (in_array($email, $superAdminEmails, true)) {
+            $targetRole = 'super_admin';
+            $department = $department ?: 'Biro IT';
+        } elseif (in_array($email, $adminEmails, true)) {
+            $targetRole = 'admin';
+            $department = $department ?: 'Biro Sarana dan Prasarana';
+        } else {
+            if (empty($department)) {
+                $department = str_contains($email, '@student.upitra.ac.id') ? 'Mahasiswa UPITRA' : 'Civitas Akademika UPITRA';
+            }
+        }
 
         // 3. Cari Akun di Database atau Auto-Provisioning
         try {
@@ -265,22 +165,37 @@ class Auth extends BaseController
                     ->get()
                     ->getRowArray();
 
-                // Cek suspend
+                // Cek suspend (Hanya akun aktif yang boleh masuk)
                 if ($user && !empty($user['is_suspended'])) {
                     $reason = !empty($user['suspend_reason']) ? ' (' . $user['suspend_reason'] . ')' : '';
-                    return redirect()->to('/login')->with('error', 'Akun Anda telah DITANGGUHKAN (SUSPEND)' . $reason . '. Silakan hubungi Super Admin Biro IT.');
+                    return redirect()->to('/login')->with('error', 'Akun Anda telah DITANGGUHKAN (SUSPEND)' . $reason . '. Silakan hubungi Super Admin (Biro IT).');
                 }
 
-                // Update microsoft_id jika belum terhubung
-                if ($user && empty($user['microsoft_id']) && !empty($msId)) {
-                    $db->table('users')->where('id', $user['id'])->update([
-                        'microsoft_id' => $msId,
-                        'updated_at'   => date('Y-m-d H:i:s'),
-                    ]);
-                }
+                // Update Akun yang Sudah Ada
+                if ($user) {
+                    $updateUserFields = [];
 
-                // Auto-Provisioning jika akun belum pernah ada
-                if (!$user) {
+                    // Sinkronisasi microsoft_id jika belum terhubung
+                    if (empty($user['microsoft_id']) && !empty($msId)) {
+                        $updateUserFields['microsoft_id'] = $msId;
+                    }
+
+                    // Proteksi Anti-Lockout Hak Akses:
+                    // Jika email ada di daftar Super Admin, pastikan role di DB = 'super_admin'
+                    if ($targetRole === 'super_admin' && ($user['role'] ?? '') !== 'super_admin') {
+                        $updateUserFields['role'] = 'super_admin';
+                        $user['role'] = 'super_admin';
+                    } elseif ($targetRole === 'admin' && ($user['role'] ?? '') === 'user') {
+                        $updateUserFields['role'] = 'admin';
+                        $user['role'] = 'admin';
+                    }
+
+                    if (!empty($updateUserFields)) {
+                        $updateUserFields['updated_at'] = date('Y-m-d H:i:s');
+                        $db->table('users')->where('id', $user['id'])->update($updateUserFields);
+                    }
+                } else {
+                    // Auto-Provisioning jika akun belum pernah ada di database
                     $emailPrefix = explode('@', $email)[0];
                     $baseUsername = preg_replace('/[^a-zA-Z0-9_\.]/', '', $emailPrefix) ?: 'user_' . substr(md5($email), 0, 6);
                     $newUsername = $baseUsername;
@@ -294,8 +209,8 @@ class Auth extends BaseController
                         'username'     => $newUsername,
                         'name'         => $displayName ?: $newUsername,
                         'email'        => $email,
-                        'role'         => 'user',
-                        'department'   => $department ?: 'Civitas Akademika UPITRA',
+                        'role'         => $targetRole,
+                        'department'   => $department,
                         'password'     => password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
                         'microsoft_id' => $msId,
                         'created_at'   => date('Y-m-d H:i:s'),
@@ -310,10 +225,20 @@ class Auth extends BaseController
                         'username'   => $newUsername,
                         'name'       => $insertData['name'],
                         'email'      => $email,
-                        'role'       => 'user',
+                        'role'       => $targetRole,
                         'department' => $insertData['department'],
                     ];
                 }
+            } else {
+                // Fallback jika tabel users belum siap: buat sesi berdasarkan hierarki role email
+                $user = [
+                    'id'         => ($targetRole === 'super_admin') ? 1 : (($targetRole === 'admin') ? 2 : 999),
+                    'username'   => explode('@', $email)[0],
+                    'name'       => $displayName ?: explode('@', $email)[0],
+                    'email'      => $email,
+                    'role'       => $targetRole,
+                    'department' => $department,
+                ];
             }
         } catch (\Throwable $e) {
             return redirect()->to('/login')->with('error', 'Terjadi kesalahan sistem database saat proses SSO: ' . $e->getMessage());
@@ -1327,8 +1252,8 @@ class Auth extends BaseController
         $identityNumber = trim((string) $this->request->getPost('identity_number'));
         $password       = (string) $this->request->getPost('password');
 
-        if (empty($username) || empty($name) || empty($password)) {
-            return redirect()->to('/dashboard#users')->with('error', 'Username, Nama, dan Password wajib diisi.');
+        if (empty($username) || empty($name)) {
+            return redirect()->to('/dashboard#users')->with('error', 'Username dan Nama Lengkap wajib diisi.');
         }
 
         // Penentuan role berdasarkan level hak akses pembuat:
@@ -1357,7 +1282,7 @@ class Auth extends BaseController
                 'email'           => $email,
                 'role'            => $finalRole,
                 'department'      => $department ?: 'Universitas Pignatelli Triputra',
-                'password'        => password_hash($password, PASSWORD_DEFAULT),
+                'password'        => !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
                 'created_at'      => date('Y-m-d H:i:s'),
                 'updated_at'      => date('Y-m-d H:i:s'),
             ];

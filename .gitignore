@@ -17,3 +17,4 @@
 # Private secrets
 /app/Config/microsoft_secret.php
 
+.vscode/

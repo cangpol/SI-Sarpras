@@ -3787,8 +3787,8 @@ body.modal-open .table-responsive-scroll {
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Password</label>
-                        <input type="password" name="password" class="form-control" placeholder="Password akun" required>
+                        <label class="form-label fw-semibold">Password <small class="text-muted fw-normal">(Opsional - Pengguna Login via SSO Microsoft 365)</small></label>
+                        <input type="password" name="password" class="form-control" placeholder="Kosongkan jika akun login menggunakan Microsoft SSO">
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">

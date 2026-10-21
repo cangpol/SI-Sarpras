@@ -37,6 +37,20 @@ class Microsoft extends BaseConfig
      */
     public string $scope = 'openid profile email User.Read';
 
+    /**
+     * Daftar email institusi yang otomatis mendapatkan hak akses Super Admin (Biro IT).
+     */
+    public array $superAdminEmails = [
+        'it@upitra.ac.id',
+    ];
+
+    /**
+     * Daftar email institusi yang otomatis mendapatkan hak akses Admin (Biro Sarpras).
+     */
+    public array $adminEmails = [
+        'sarpras@upitra.ac.id',
+    ];
+
     public function __construct()
     {
         parent::__construct();
