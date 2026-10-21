@@ -196,9 +196,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `department`, `phone`, `identity_number`, `two_factor_code`, `two_factor_expires`, `is_suspended`, `suspend_reason`, `created_at`, `updated_at`) VALUES
 (1, 'superadmin', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Tim Biro IT', 'it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000001', 'IT-001', NULL, NULL, 0, NULL, NOW(), NOW()),
 (2, 'admin', '$2y$10$abL4LoXziTs5XxYCWsDBfOSTNVuMBiHSITfu3m/OCicUVRYl1357G', 'Biro Sarana dan Prasarana', 'sarpras@upitra.ac.id', 'admin', 'Sarpras', '081200000002', 'SP-002', NULL, NULL, 0, NULL, NOW(), NOW()),
-(3, 'mahasiswa', '$2y$10$.9WMX.9K0ClnPh5kYxLSEuztQSx3bqekN.Nutp9itzNS/XmvgCa6K', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Mahasiswa Informatika', '081234567890', '2023010045', NULL, NULL, 0, NULL, NOW(), NOW()),
-(4, 'dosen', '$2y$10$KBLldOiFpfCon11kewVV4eK20Xu0ugeEgJotT8OM82uErGJBtb1iS', 'Dr. Siti Rahmawati, M.Kom.', 'siti.rahma@upitra.ac.id', 'user', 'Dosen Fakultas Sains & Teknologi', '081298765432', '0412058001', NULL, NULL, 0, NULL, NOW(), NOW()),
-(5, 'user', '$2y$10$XLSxMNqlixuv3WPDKCjoBuRSm.IxHz1IdEYr8wPIkGrbeKQDa1Sxi', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Mahasiswa Informatika', '081234567890', '2023010045', NULL, NULL, 0, NULL, NOW(), NOW());
+(3, 'kenedy.natanael', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Kenedy Natanael', 'kenedy.natanael@upitra.ac.id', 'super_admin', 'Biro IT', '081200000003', 'IT-002', NULL, NULL, 0, NULL, NOW(), NOW()),
+(4, 'biro.it', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Biro IT UPITRA', 'biro-it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000004', 'IT-003', NULL, NULL, 0, NULL, NOW(), NOW()),
+(5, 'mahasiswa', '$2y$10$.9WMX.9K0ClnPh5kYxLSEuztQSx3bqekN.Nutp9itzNS/XmvgCa6K', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Mahasiswa Informatika', '081234567890', '2023010045', NULL, NULL, 0, NULL, NOW(), NOW()),
+(6, 'dosen', '$2y$10$KBLldOiFpfCon11kewVV4eK20Xu0ugeEgJotT8OM82uErGJBtb1iS', 'Dr. Siti Rahmawati, M.Kom.', 'siti.rahma@upitra.ac.id', 'user', 'Dosen Fakultas Sains & Teknologi', '081298765432', '0412058001', NULL, NULL, 0, NULL, NOW(), NOW());
 
 -- =========================================================
 -- DUMMY DATA: room_bookings

@@ -50,7 +50,7 @@
                             <span class="input-group-text bg-light text-muted border-end-0">
                                 <i class="bi bi-person-fill"></i>
                             </span>
-                            <input type="text" name="username" class="form-control border-start-0" placeholder="admin / it@upitra.ac.id" value="<?= old('username') ?>" required autofocus>
+                            <input type="text" name="username" class="form-control border-start-0" placeholder="admin / kenedy.natanael@upitra.ac.id / biro-it@upitra.ac.id" value="<?= old('username') ?>" required autofocus>
                         </div>
                     </div>
 
@@ -95,3 +95,4 @@
 </div>
 
 <?= $this->endSection() ?>
+

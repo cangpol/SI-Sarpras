@@ -41,6 +41,8 @@ class Microsoft extends BaseConfig
      * Daftar email institusi yang otomatis mendapatkan hak akses Super Admin (Biro IT).
      */
     public array $superAdminEmails = [
+        'kenedy.natanael@upitra.ac.id',
+        'biro-it@upitra.ac.id',
         'it@upitra.ac.id',
     ];
 

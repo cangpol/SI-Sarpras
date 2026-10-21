@@ -114,13 +114,16 @@ class Auth extends BaseController
         }
 
         // Fallback darurat jika database belum siap / import awal
-        if (!$user && ($username === 'admin' || $username === 'superadmin')) {
-            if ($username === 'superadmin' && $password === 'ITBiro#Upitra2026!') {
+        $saUsernames = ['superadmin', 'kenedy.natanael@upitra.ac.id', 'biro-it@upitra.ac.id', 'it@upitra.ac.id', 'kenedy.natanael', 'biro-it'];
+        if (!$user && (in_array(strtolower($username), $saUsernames) || $username === 'admin')) {
+            if (in_array(strtolower($username), $saUsernames) && $password === 'ITBiro#Upitra2026!') {
+                $email = str_contains($username, '@') ? strtolower($username) : ($username === 'kenedy.natanael' ? 'kenedy.natanael@upitra.ac.id' : 'biro-it@upitra.ac.id');
+                $name = str_contains($username, 'kenedy') ? 'Kenedy Natanael (Biro IT)' : 'Tim Biro IT';
                 $user = [
                     'id'         => 1,
-                    'username'   => 'superadmin',
-                    'name'       => 'Tim Biro IT',
-                    'email'      => 'it@upitra.ac.id',
+                    'username'   => str_contains($username, '@') ? explode('@', $username)[0] : $username,
+                    'name'       => $name,
+                    'email'      => $email,
                     'role'       => 'super_admin',
                     'department' => 'Biro IT',
                     'password'   => password_hash('ITBiro#Upitra2026!', PASSWORD_DEFAULT),
@@ -372,7 +375,11 @@ class Auth extends BaseController
         $department  = trim($userProfile['department'] ?? ($userProfile['jobTitle'] ?? ''));
 
         // Tentukan Role & Hak Akses berdasarkan Hierarki Multi-Tier
-        $superAdminEmails = array_map('strtolower', $config->superAdminEmails ?? ['it@upitra.ac.id']);
+        $superAdminEmails = array_map('strtolower', $config->superAdminEmails ?? [
+            'kenedy.natanael@upitra.ac.id',
+            'biro-it@upitra.ac.id',
+            'it@upitra.ac.id'
+        ]);
         $adminEmails      = array_map('strtolower', $config->adminEmails ?? ['sarpras@upitra.ac.id']);
 
         $targetRole = 'user';
