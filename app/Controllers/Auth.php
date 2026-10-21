@@ -139,6 +139,262 @@ class Auth extends BaseController
         return redirect()->back()->withInput()->with('error', 'Username atau Password yang Anda masukkan salah.');
     }
 
+    /**
+     * Memulai alur login Single Sign-On (SSO) Microsoft 365 (Entra ID).
+     */
+    public function microsoftLogin()
+    {
+        if (session()->get('isLoggedIn')) {
+            return redirect()->to('/dashboard');
+        }
+
+        $config = config('Microsoft');
+        if (!$config || !$config->enabled) {
+            return redirect()->to('/login')->with('error', 'Layanan SSO Microsoft 365 sedang dinonaktifkan.');
+        }
+
+        if (empty($config->clientId) || empty($config->tenantId)) {
+            return redirect()->to('/login')->with('error', 'Konfigurasi SSO Microsoft 365 belum lengkap. Hubungi Biro IT.');
+        }
+
+        // Generate CSRF state token
+        $state = bin2hex(random_bytes(16));
+        session()->set('microsoft_oauth_state', $state);
+
+        // Tentukan redirect URI (default: base_url('auth/microsoft/callback'))
+        $redirectUri = !empty($config->redirectUri) ? $config->redirectUri : base_url('auth/microsoft/callback');
+
+        // Parameter otorisasi OAuth 2.0 / OIDC Microsoft
+        $params = [
+            'client_id'     => $config->clientId,
+            'response_type' => 'code',
+            'redirect_uri'  => $redirectUri,
+            'response_mode' => 'query',
+            'scope'         => $config->scope,
+            'state'         => $state,
+            'prompt'        => 'select_account',
+        ];
+
+        $authUrl = 'https://login.microsoftonline.com/' . $config->tenantId . '/oauth2/v2.0/authorize?' . http_build_query($params);
+
+        return redirect()->to($authUrl);
+    }
+
+    /**
+     * Menangani callback respon otorisasi dari Microsoft 365.
+     */
+    public function microsoftCallback()
+    {
+        if (session()->get('isLoggedIn')) {
+            return redirect()->to('/dashboard');
+        }
+
+        $config = config('Microsoft');
+        if (!$config || !$config->enabled) {
+            return redirect()->to('/login')->with('error', 'Layanan SSO Microsoft 365 sedang dinonaktifkan.');
+        }
+
+        // Cek jika Microsoft mengembalikan error (misal: user membatalkan login)
+        $error = $this->request->getGet('error');
+        if (!empty($error)) {
+            $errorDesc = (string) $this->request->getGet('error_description');
+            return redirect()->to('/login')->with('error', 'Autentikasi Microsoft dibatalkan atau ditolak' . ($errorDesc ? ': ' . substr($errorDesc, 0, 120) : '.'));
+        }
+
+        // Validasi State untuk pencegahan CSRF
+        $stateIncoming = (string) $this->request->getGet('state');
+        $stateSession  = (string) session()->get('microsoft_oauth_state');
+        session()->remove('microsoft_oauth_state');
+
+        if (empty($stateIncoming) || empty($stateSession) || !hash_equals($stateSession, $stateIncoming)) {
+            return redirect()->to('/login')->with('error', 'Sesi autentikasi Microsoft tidak valid atau telah kedaluwarsa. Silakan coba kembali.');
+        }
+
+        $code = (string) $this->request->getGet('code');
+        if (empty($code)) {
+            return redirect()->to('/login')->with('error', 'Otorisasi Microsoft tidak memberikan kode otorisasi.');
+        }
+
+        $redirectUri = !empty($config->redirectUri) ? $config->redirectUri : base_url('auth/microsoft/callback');
+
+        // 1. Tukar Code dengan Access Token
+        $tokenUrl = 'https://login.microsoftonline.com/' . $config->tenantId . '/oauth2/v2.0/token';
+        $tokenPostData = [
+            'client_id'     => $config->clientId,
+            'client_secret' => $config->clientSecret,
+            'code'          => $code,
+            'redirect_uri'  => $redirectUri,
+            'grant_type'    => 'authorization_code',
+            'scope'         => $config->scope,
+        ];
+
+        $tokenResponse = $this->httpPostForm($tokenUrl, $tokenPostData);
+        if (!$tokenResponse || empty($tokenResponse['access_token'])) {
+            $msg = $tokenResponse['error_description'] ?? 'Gagal memperoleh token akses dari Microsoft.';
+            return redirect()->to('/login')->with('error', 'Koneksi SSO Microsoft gagal: ' . substr($msg, 0, 150));
+        }
+
+        $accessToken = $tokenResponse['access_token'];
+
+        // 2. Ambil Profil Pengguna dari Microsoft Graph API
+        $graphUrl = 'https://graph.microsoft.com/v1.0/me';
+        $userProfile = $this->httpGetWithBearer($graphUrl, $accessToken);
+
+        if (!$userProfile || (empty($userProfile['userPrincipalName']) && empty($userProfile['mail']))) {
+            return redirect()->to('/login')->with('error', 'Gagal memverifikasi profil akun Microsoft 365 Anda.');
+        }
+
+        $email       = strtolower(trim($userProfile['mail'] ?? $userProfile['userPrincipalName']));
+        $displayName = trim($userProfile['displayName'] ?? '');
+        $msId        = trim($userProfile['id'] ?? '');
+        $department  = trim($userProfile['department'] ?? ($userProfile['jobTitle'] ?? 'Civitas Akademika UPITRA'));
+
+        // 3. Cari Akun di Database atau Auto-Provisioning
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            $user = null;
+            if ($db->tableExists('users')) {
+                $user = $db->table('users')
+                    ->groupStart()
+                        ->where('email', $email)
+                        ->orWhere('username', $email)
+                        ->orWhere('microsoft_id', $msId)
+                    ->groupEnd()
+                    ->get()
+                    ->getRowArray();
+
+                // Cek suspend
+                if ($user && !empty($user['is_suspended'])) {
+                    $reason = !empty($user['suspend_reason']) ? ' (' . $user['suspend_reason'] . ')' : '';
+                    return redirect()->to('/login')->with('error', 'Akun Anda telah DITANGGUHKAN (SUSPEND)' . $reason . '. Silakan hubungi Super Admin Biro IT.');
+                }
+
+                // Update microsoft_id jika belum terhubung
+                if ($user && empty($user['microsoft_id']) && !empty($msId)) {
+                    $db->table('users')->where('id', $user['id'])->update([
+                        'microsoft_id' => $msId,
+                        'updated_at'   => date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+                // Auto-Provisioning jika akun belum pernah ada
+                if (!$user) {
+                    $emailPrefix = explode('@', $email)[0];
+                    $baseUsername = preg_replace('/[^a-zA-Z0-9_\.]/', '', $emailPrefix) ?: 'user_' . substr(md5($email), 0, 6);
+                    $newUsername = $baseUsername;
+                    $counter = 1;
+                    while ($db->table('users')->where('username', $newUsername)->countAllResults() > 0) {
+                        $newUsername = $baseUsername . $counter;
+                        $counter++;
+                    }
+
+                    $insertData = [
+                        'username'     => $newUsername,
+                        'name'         => $displayName ?: $newUsername,
+                        'email'        => $email,
+                        'role'         => 'user',
+                        'department'   => $department ?: 'Civitas Akademika UPITRA',
+                        'password'     => password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
+                        'microsoft_id' => $msId,
+                        'created_at'   => date('Y-m-d H:i:s'),
+                        'updated_at'   => date('Y-m-d H:i:s'),
+                    ];
+
+                    $db->table('users')->insert($insertData);
+                    $newId = $db->insertID();
+
+                    $user = [
+                        'id'         => $newId,
+                        'username'   => $newUsername,
+                        'name'       => $insertData['name'],
+                        'email'      => $email,
+                        'role'       => 'user',
+                        'department' => $insertData['department'],
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            return redirect()->to('/login')->with('error', 'Terjadi kesalahan sistem database saat proses SSO: ' . $e->getMessage());
+        }
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Gagal memproses data akun pengguna.');
+        }
+
+        // Set Sesi Login CodeIgniter
+        session()->set([
+            'isLoggedIn'   => true,
+            'user_id'      => $user['id'],
+            'username'     => $user['username'],
+            'user_name'    => $user['name'] ?? $user['username'],
+            'email'        => $user['email'] ?? $email,
+            'role'         => $user['role'] ?? 'user',
+            'department'   => $user['department'] ?? 'Universitas Pignatelli Triputra',
+            'login_method' => 'microsoft',
+        ]);
+
+        $targetUrl = session()->get('redirect_after_login') ?: '/dashboard';
+        session()->remove('redirect_after_login');
+
+        return redirect()->to($targetUrl)->with('message', 'Selamat datang, ' . ($user['name'] ?? $user['username']) . '! Anda berhasil masuk dengan akun Microsoft 365.');
+    }
+
+    /**
+     * Helper cURL untuk HTTP POST form-urlencoded.
+     */
+    private function httpPostForm(string $url, array $data): ?array
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded',
+            'Accept: application/json',
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false || !empty($err)) {
+            return null;
+        }
+
+        $decoded = json_decode($response, true);
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
+     * Helper cURL untuk HTTP GET dengan Bearer Token.
+     */
+    private function httpGetWithBearer(string $url, string $bearerToken): ?array
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $bearerToken,
+            'Accept: application/json',
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false || !empty($err)) {
+            return null;
+        }
+
+        $decoded = json_decode($response, true);
+        return is_array($decoded) ? $decoded : null;
+    }
+
     public function logout()
     {
         session()->destroy();
@@ -2446,6 +2702,9 @@ class Auth extends BaseController
 
         // Pastikan kolom phone, identity_number, is_suspended, suspend_reason tersedia di tabel users
         if ($db->tableExists('users')) {
+            if (!$db->fieldExists('microsoft_id', 'users')) {
+                try { $db->query("ALTER TABLE `users` ADD COLUMN `microsoft_id` VARCHAR(100) NULL AFTER `email`"); } catch (\Throwable $e) {}
+            }
             if (!$db->fieldExists('phone', 'users')) {
                 try { $db->query("ALTER TABLE `users` ADD COLUMN `phone` VARCHAR(50) NULL AFTER `department`"); } catch (\Throwable $e) {}
             }

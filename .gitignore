@@ -14,3 +14,6 @@
 !/writable/uploads/index.html
 !/writable/uploads/.gitkeep
 
+# Private secrets
+/app/Config/microsoft_secret.php
+

@@ -36,6 +36,30 @@
                     </div>
                 <?php endif; ?>
 
+                <!-- Tombol Single Sign-On (SSO) Microsoft 365 Resmi -->
+                <?php $msConfig = config('Microsoft'); ?>
+                <?php if ($msConfig && $msConfig->enabled): ?>
+                    <a href="/auth/microsoft" class="btn btn-outline-dark w-100 py-2.5 mb-2 fw-bold d-flex align-items-center justify-content-center gap-2.5 rounded-3 shadow-sm btn-ms-login">
+                        <svg width="20" height="20" viewBox="0 0 21 21" class="flex-shrink-0">
+                            <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                            <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                            <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                        </svg>
+                        <span>Masuk dengan Microsoft 365</span>
+                    </a>
+                    <div class="text-center mb-3">
+                        <small class="text-muted" style="font-size: 0.78rem;">Khusus Mahasiswa &amp; Dosen (@upitra.ac.id)</small>
+                    </div>
+
+                    <!-- Pembatas Elegan -->
+                    <div class="d-flex align-items-center mb-4">
+                        <hr class="flex-grow-1 text-muted opacity-25 m-0">
+                        <span class="px-3 small text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">atau login akun lokal</span>
+                        <hr class="flex-grow-1 text-muted opacity-25 m-0">
+                    </div>
+                <?php endif; ?>
+
                 <form method="post" action="/login">
                     <?= csrf_field() ?>
 
@@ -88,6 +112,23 @@
         </div>
     </div>
 </div>
+
+<style>
+.btn-ms-login {
+    background-color: #ffffff;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #1e293b;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+.btn-ms-login:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8 !important;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

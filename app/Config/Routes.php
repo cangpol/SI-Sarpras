@@ -30,6 +30,8 @@ $routes->post('request/supplies', 'Frontend::submitSupplies');
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::authenticate');
 $routes->get('logout', 'Auth::logout');
+$routes->get('auth/microsoft', 'Auth::microsoftLogin');
+$routes->get('auth/microsoft/callback', 'Auth::microsoftCallback');
 $routes->get('dashboard', 'Auth::dashboard');
 $routes->get('dashboard/export-pdf', 'Auth::exportPdf');
 $routes->get('dashboard/export-pdf/(:segment)', 'Auth::exportPdf/$1');
