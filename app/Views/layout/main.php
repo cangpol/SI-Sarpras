@@ -587,7 +587,7 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
                     <ul class="list-unstyled small text-white-50 mb-3">
                         <li class="mb-2"><a href="/pelaporan/lost-found" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Form Lost & Found (Umum)</a></li>
                         <li class="mb-2"><a href="/pelaporan/visitor" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Visitor ID Pass (Buku Tamu)</a></li>
-                        <li class="mb-2"><i class="bi bi-geo-alt me-1 text-info"></i> Jl. Kolonel Sugiyono No.37, Kadipiro, Banjarsari, Surakarta</li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-1 text-info"></i> Jl. Duwet Raya No.I, Karangasem, Kec. Laweyan, Kota Surakarta, Jawa Tengah 57145</li>
                         <li class="mb-2"><i class="bi bi-envelope me-1 text-info"></i> sarpras@upitra.ac.id</li>
                     </ul>
                 </div>
