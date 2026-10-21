@@ -104,7 +104,7 @@
                                     <strong class="d-block text-dark">Biro Information Technology (IT)</strong>
                                     <small class="text-muted d-block">Pengelola Keamanan Sistem &amp; Infrastruktur</small>
                                     <div class="mt-2 text-primary small">
-                                        <i class="bi bi-envelope-at me-1"></i> it@upitra.ac.id
+                                        <i class="bi bi-envelope-at me-1"></i> biro-it@upitra.ac.id
                                     </div>
                                 </div>
                             </div>

@@ -114,7 +114,7 @@ class Auth extends BaseController
         }
 
         // Fallback darurat jika database belum siap / import awal
-        $saUsernames = ['superadmin', 'kenedy.natanael@upitra.ac.id', 'biro-it@upitra.ac.id', 'it@upitra.ac.id', 'kenedy.natanael', 'biro-it'];
+        $saUsernames = ['superadmin', 'kenedy.natanael@upitra.ac.id', 'biro-it@upitra.ac.id', 'kenedy.natanael', 'biro-it'];
         if (!$user && (in_array(strtolower($username), $saUsernames) || $username === 'admin')) {
             if (in_array(strtolower($username), $saUsernames) && $password === 'ITBiro#Upitra2026!') {
                 $email = str_contains($username, '@') ? strtolower($username) : ($username === 'kenedy.natanael' ? 'kenedy.natanael@upitra.ac.id' : 'biro-it@upitra.ac.id');
@@ -377,8 +377,7 @@ class Auth extends BaseController
         // Tentukan Role & Hak Akses berdasarkan Hierarki Multi-Tier
         $superAdminEmails = array_map('strtolower', $config->superAdminEmails ?? [
             'kenedy.natanael@upitra.ac.id',
-            'biro-it@upitra.ac.id',
-            'it@upitra.ac.id'
+            'biro-it@upitra.ac.id'
         ]);
         $adminEmails      = array_map('strtolower', $config->adminEmails ?? ['sarpras@upitra.ac.id']);
 
@@ -803,10 +802,11 @@ class Auth extends BaseController
 
                 if (empty($allUsers)) {
                     $defaultUsers = [
-                        ['id' => 1, 'username' => 'superadmin', 'name' => 'Biro Sistem Informasi & IT', 'email' => 'it@upitra.ac.id', 'role' => 'super_admin', 'department' => 'Biro IT & Sistem Informasi', 'phone' => '081200000001', 'identity_number' => 'IT-001', 'is_suspended' => 0, 'suspend_reason' => null],
-                        ['id' => 2, 'username' => 'admin', 'name' => 'Biro Sarana dan Prasarana', 'email' => 'sarpras@upitra.ac.id', 'role' => 'admin', 'department' => 'Sarpras', 'phone' => '081200000002', 'identity_number' => 'SP-002', 'is_suspended' => 0, 'suspend_reason' => null],
-                        ['id' => 3, 'username' => 'mahasiswa', 'name' => 'Budi Santoso', 'email' => 'budi@student.upitra.ac.id', 'role' => 'user', 'department' => 'Mahasiswa Informatika', 'phone' => '081234567890', 'identity_number' => '2023010045', 'is_suspended' => 0, 'suspend_reason' => null],
-                        ['id' => 4, 'username' => 'dosen', 'name' => 'Dr. Siti Rahmawati, M.Kom.', 'email' => 'siti.rahma@upitra.ac.id', 'role' => 'user', 'department' => 'Dosen Fakultas Sains & Teknologi', 'phone' => '081298765432', 'identity_number' => '0412058001', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 1, 'username' => 'kenedy.natanael', 'name' => 'Kenedy Natanael', 'email' => 'kenedy.natanael@upitra.ac.id', 'role' => 'super_admin', 'department' => 'Biro IT', 'phone' => '081200000001', 'identity_number' => 'IT-001', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 2, 'username' => 'biro.it', 'name' => 'Biro IT UPITRA', 'email' => 'biro-it@upitra.ac.id', 'role' => 'super_admin', 'department' => 'Biro IT', 'phone' => '081200000004', 'identity_number' => 'IT-002', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 3, 'username' => 'admin', 'name' => 'Biro Sarana dan Prasarana', 'email' => 'sarpras@upitra.ac.id', 'role' => 'admin', 'department' => 'Sarpras', 'phone' => '081200000002', 'identity_number' => 'SP-002', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 4, 'username' => 'mahasiswa', 'name' => 'Budi Santoso', 'email' => 'budi@student.upitra.ac.id', 'role' => 'user', 'department' => 'Mahasiswa Informatika', 'phone' => '081234567890', 'identity_number' => '2023010045', 'is_suspended' => 0, 'suspend_reason' => null],
+                        ['id' => 5, 'username' => 'dosen', 'name' => 'Dr. Siti Rahmawati, M.Kom.', 'email' => 'siti.rahma@upitra.ac.id', 'role' => 'user', 'department' => 'Dosen Fakultas Sains & Teknologi', 'phone' => '081298765432', 'identity_number' => '0412058001', 'is_suspended' => 0, 'suspend_reason' => null],
                     ];
                     if ($role === 'admin') {
                         $allUsers = array_values(array_filter($defaultUsers, fn($u) => $u['role'] === 'user'));

@@ -526,7 +526,7 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
                 <div class="d-flex flex-wrap align-items-center gap-3 small text-white-50">
                     <span class="d-flex align-items-center"><i class="bi bi-people-fill text-info me-1"></i>Kelola Pengguna: Dosen & Mahasiswa</span>
                     <span class="d-none d-md-inline">&bull;</span>
-                    <span class="d-flex align-items-center"><i class="bi bi-envelope-at text-warning me-1"></i>IT Support: it@upitra.ac.id</span>
+                    <span class="d-flex align-items-center"><i class="bi bi-envelope-at text-warning me-1"></i>IT Support: biro-it@upitra.ac.id</span>
                     <span class="d-none d-md-inline">&bull;</span>
                     <span class="d-flex align-items-center">&copy; <?= date('Y') ?> Biro Sarpras &bull; UPT</span>
                 </div>

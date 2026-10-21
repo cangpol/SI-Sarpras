@@ -59,17 +59,6 @@
                     </span>
                 </div>
 
-                <!-- Informasi Kebijakan Keamanan SSO Only -->
-                <div class="p-3 rounded-3 bg-light border text-muted small mb-4">
-                    <div class="d-flex gap-2">
-                        <i class="bi bi-info-circle-fill text-primary fs-5 flex-shrink-0"></i>
-                        <div>
-                            <strong class="d-block text-dark mb-1">Kebijakan Autentikasi:</strong>
-                            Login akun lokal (username &amp; password manual) telah <strong>dinonaktifkan</strong>. Seluruh hak akses pengguna (Super Admin, Admin, Dosen, Mahasiswa) dikelola secara aman dan terpusat melalui SSO Microsoft 365.
-                        </div>
-                    </div>
-                </div>
-
                 <div class="text-center pt-2 border-top">
                     <a href="/" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1.5 hover-primary">
                         <i class="bi bi-arrow-left"></i>

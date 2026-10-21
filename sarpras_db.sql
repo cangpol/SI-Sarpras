@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `department`, `phone`, `identity_number`, `two_factor_code`, `two_factor_expires`, `is_suspended`, `suspend_reason`, `created_at`, `updated_at`) VALUES
-(1, 'superadmin', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Tim Biro IT', 'it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000001', 'IT-001', NULL, NULL, 0, NULL, NOW(), NOW()),
+(1, 'superadmin', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Tim Biro IT', 'biro-it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000001', 'IT-001', NULL, NULL, 0, NULL, NOW(), NOW()),
 (2, 'admin', '$2y$10$abL4LoXziTs5XxYCWsDBfOSTNVuMBiHSITfu3m/OCicUVRYl1357G', 'Biro Sarana dan Prasarana', 'sarpras@upitra.ac.id', 'admin', 'Sarpras', '081200000002', 'SP-002', NULL, NULL, 0, NULL, NOW(), NOW()),
 (3, 'kenedy.natanael', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Kenedy Natanael', 'kenedy.natanael@upitra.ac.id', 'super_admin', 'Biro IT', '081200000003', 'IT-002', NULL, NULL, 0, NULL, NOW(), NOW()),
 (4, 'biro.it', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Biro IT UPITRA', 'biro-it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000004', 'IT-003', NULL, NULL, 0, NULL, NOW(), NOW()),
@@ -278,7 +278,7 @@ INSERT INTO `visitors` (`pass_code`, `visitor_name`, `institution`, `contact`, `
 -- DUMMY DATA: auth_logs (Security Audit Log)
 -- =========================================================
 INSERT INTO `auth_logs` (`user_id`, `email`, `action`, `method`, `status`, `ip_address`, `user_agent`, `details`, `created_at`) VALUES
-(1, 'it@upitra.ac.id', 'login_sso', 'microsoft_oauth2', 'success', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Login SSO Microsoft 365 berhasil (Super Admin)', NOW()),
+(1, 'biro-it@upitra.ac.id', 'login_sso', 'microsoft_oauth2', 'success', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Login SSO Microsoft 365 berhasil (Super Admin)', NOW()),
 (2, 'sarpras@upitra.ac.id', 'login_sso', 'microsoft_oauth2', 'success', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Login SSO Microsoft 365 berhasil (Admin Sarpras)', NOW());
 
 COMMIT;

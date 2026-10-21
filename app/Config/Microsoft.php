@@ -43,7 +43,6 @@ class Microsoft extends BaseConfig
     public array $superAdminEmails = [
         'kenedy.natanael@upitra.ac.id',
         'biro-it@upitra.ac.id',
-        'it@upitra.ac.id',
     ];
 
     /**
