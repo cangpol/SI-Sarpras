@@ -5,9 +5,24 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `auth_logs`;
+DROP TABLE IF EXISTS `supply_requests`;
+DROP TABLE IF EXISTS `supplies`;
+DROP TABLE IF EXISTS `maintenance_requests`;
+DROP TABLE IF EXISTS `vehicle_bookings`;
+DROP TABLE IF EXISTS `vehicles`;
+DROP TABLE IF EXISTS `room_bookings`;
+DROP TABLE IF EXISTS `rooms`;
+DROP TABLE IF EXISTS `visitors`;
+DROP TABLE IF EXISTS `lost_found`;
+DROP TABLE IF EXISTS `users`;
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE IF NOT EXISTS `lost_found` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ticket_code` varchar(50) DEFAULT NULL,
+  `report_type` enum('lost','found') NOT NULL DEFAULT 'lost',
   `reporter_name` varchar(150) NOT NULL,
   `reporter_status` varchar(100) NOT NULL,
   `lost_item` varchar(255) NOT NULL,
@@ -23,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `lost_found` (
 
 CREATE TABLE IF NOT EXISTS `visitors` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pass_code` varchar(50) DEFAULT NULL,
   `visitor_name` varchar(150) NOT NULL,
   `institution` varchar(150) NOT NULL,
   `contact` varchar(50) NOT NULL,
@@ -186,6 +202,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `department` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `identity_number` varchar(50) DEFAULT NULL,
+  `two_factor_code` varchar(10) DEFAULT NULL,
+  `two_factor_expires` datetime DEFAULT NULL,
   `is_suspended` tinyint(1) NOT NULL DEFAULT 0,
   `suspend_reason` text DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
