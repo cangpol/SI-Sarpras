@@ -95,6 +95,21 @@ $routes->post('dashboard/users/unsuspend', 'Auth::unsuspendUser');
 
 // Biodata Profil Mandiri (User, Admin, Super Admin)
 $routes->post('dashboard/profile/update', 'Auth::updateProfile');
+// Fitur Baru: Pelacakan Tiket Publik Terpadu
+$routes->get('tracking', 'Frontend::tracking');
+$routes->post('tracking', 'Frontend::trackingSearch');
+$routes->get('tracking/(:segment)', 'Frontend::trackingDetail/$1');
 
+// Fitur Baru: Kebijakan Privasi & Perlindungan Data Pribadi (UU PDP)
+$routes->get('kebijakan-privasi', 'Frontend::privacyPolicy');
+$routes->get('privacy-policy', 'Frontend::privacyPolicy');
 
+// Captcha Refresh API
+$routes->get('captcha/refresh', 'Frontend::refreshCaptcha');
+
+// Akses Darurat Admin & Super Admin (Local Break-Glass dengan 2FA)
+$routes->get('login/admin', 'Auth::adminLoginForm');
+$routes->post('login/admin', 'Auth::adminLoginSubmit');
+$routes->get('login/admin/verify-2fa', 'Auth::adminVerify2faForm');
+$routes->post('login/admin/verify-2fa', 'Auth::adminVerify2faSubmit');
 

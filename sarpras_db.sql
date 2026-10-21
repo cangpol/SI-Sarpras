@@ -162,6 +162,20 @@ CREATE TABLE IF NOT EXISTS `supply_requests` (
   FOREIGN KEY (`supply_id`) REFERENCES `supplies`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `auth_logs` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) UNSIGNED DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `action` varchar(50) NOT NULL,
+  `method` varchar(30) NOT NULL,
+  `status` enum('success','failed','blocked') NOT NULL,
+  `ip_address` varchar(50) NOT NULL,
+  `user_agent` text DEFAULT NULL,
+  `details` text DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL UNIQUE,
@@ -179,12 +193,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `department`, `phone`, `identity_number`, `is_suspended`, `suspend_reason`, `created_at`, `updated_at`) VALUES
-(1, 'superadmin', 'superadmin123', 'Tim Biro IT', 'it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000001', 'IT-001', 0, NULL, NOW(), NOW()),
-(2, 'admin', 'admin123', 'Biro Sarana dan Prasarana', 'sarpras@upitra.ac.id', 'admin', 'Sarpras', '081200000002', 'SP-002', 0, NULL, NOW(), NOW()),
-(3, 'mahasiswa', 'mahasiswa123', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Mahasiswa Informatika', '081234567890', '2023010045', 0, NULL, NOW(), NOW()),
-(4, 'dosen', 'dosen123', 'Dr. Siti Rahmawati, M.Kom.', 'siti.rahma@upitra.ac.id', 'user', 'Dosen Fakultas Sains & Teknologi', '081298765432', '0412058001', 0, NULL, NOW(), NOW()),
-(5, 'user', 'user123', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Dosen / Mahasiswa', '081234567890', '2023010045', 0, NULL, NOW(), NOW());
+INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `role`, `department`, `phone`, `identity_number`, `two_factor_code`, `two_factor_expires`, `is_suspended`, `suspend_reason`, `created_at`, `updated_at`) VALUES
+(1, 'superadmin', '$2y$10$SP32G34JGDtmfVTxdynQX.9A4jheDlETjuKsBw1jxD38gHXcVhN3K', 'Tim Biro IT', 'it@upitra.ac.id', 'super_admin', 'Biro IT', '081200000001', 'IT-001', NULL, NULL, 0, NULL, NOW(), NOW()),
+(2, 'admin', '$2y$10$abL4LoXziTs5XxYCWsDBfOSTNVuMBiHSITfu3m/OCicUVRYl1357G', 'Biro Sarana dan Prasarana', 'sarpras@upitra.ac.id', 'admin', 'Sarpras', '081200000002', 'SP-002', NULL, NULL, 0, NULL, NOW(), NOW()),
+(3, 'mahasiswa', '$2y$10$.9WMX.9K0ClnPh5kYxLSEuztQSx3bqekN.Nutp9itzNS/XmvgCa6K', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Mahasiswa Informatika', '081234567890', '2023010045', NULL, NULL, 0, NULL, NOW(), NOW()),
+(4, 'dosen', '$2y$10$KBLldOiFpfCon11kewVV4eK20Xu0ugeEgJotT8OM82uErGJBtb1iS', 'Dr. Siti Rahmawati, M.Kom.', 'siti.rahma@upitra.ac.id', 'user', 'Dosen Fakultas Sains & Teknologi', '081298765432', '0412058001', NULL, NULL, 0, NULL, NOW(), NOW()),
+(5, 'user', '$2y$10$XLSxMNqlixuv3WPDKCjoBuRSm.IxHz1IdEYr8wPIkGrbeKQDa1Sxi', 'Budi Santoso', 'budi@student.upitra.ac.id', 'user', 'Mahasiswa Informatika', '081234567890', '2023010045', NULL, NULL, 0, NULL, NOW(), NOW());
 
 -- =========================================================
 -- DUMMY DATA: room_bookings
@@ -242,21 +256,28 @@ INSERT INTO `supply_requests` (`user_id`, `email`, `requester_name`, `department
 -- =========================================================
 -- DUMMY DATA: lost_found
 -- =========================================================
-INSERT INTO `lost_found` (`reporter_name`, `reporter_status`, `lost_item`, `contact`, `incident_date`, `incident_time`, `status`, `admin_note`, `created_at`, `updated_at`) VALUES
-('Budi Santoso', 'Mahasiswa', 'Dompet coklat berisi KTM, KTP, dan uang tunai', '081234567890', '2026-10-10', '11:30:00', 'found', 'Dompet telah ditemukan oleh petugas keamanan di area kantin. Hubungi security untuk pengambilan.', '2026-10-10 13:00:00', '2026-10-11 09:00:00'),
-('Nadia Permatasari', 'Mahasiswi', 'Tas ransel warna hitam merek Eiger berisi buku catatan dan charger laptop', '082198765432', '2026-10-11', '14:00:00', 'claimed', 'Tas telah diklaim oleh pemiliknya pada tanggal 12 Oktober 2026 dengan menunjukkan identitas diri.', '2026-10-11 15:30:00', '2026-10-12 10:00:00'),
-('Reza Firmansyah', 'Dosen', 'Kunci motor dengan gantungan kunci merah', '085612340987', '2026-10-12', '09:00:00', 'reported', NULL, '2026-10-12 10:00:00', '2026-10-12 10:00:00'),
-('Dewi Anggraini', 'Karyawan', 'Handphone Samsung Galaxy A54 warna putih', '089876543210', '2026-10-13', '08:30:00', 'reported', NULL, '2026-10-13 09:00:00', '2026-10-13 09:00:00'),
-('Ahmad Fauzi', 'Mahasiswa', 'Jaket hoodie abu-abu bertuliskan Universitas Pignatelli Triputra', '081387654321', '2026-10-09', '16:00:00', 'found', 'Jaket ditemukan di Ruang Excellent Meeting Room setelah acara seminar. Hubungi Sarpras untuk mengambil.', '2026-10-09 17:00:00', '2026-10-10 08:00:00');
+INSERT INTO `lost_found` (`ticket_code`, `report_type`, `reporter_name`, `reporter_status`, `lost_item`, `contact`, `incident_date`, `incident_time`, `status`, `admin_note`, `created_at`, `updated_at`) VALUES
+('LF-202610-001', 'lost', 'Budi Santoso', 'Mahasiswa', 'Dompet coklat kulit', '0812****7890', '2026-10-10', '11:30:00', 'found', 'Dompet telah diamankan di Pos Satpam Gedung Utama. Pemilik silakan verifikasi identitas ke loket Sarpras Gedung 4 Lt. 1.', '2026-10-10 13:00:00', '2026-10-11 09:00:00'),
+('LF-202610-002', 'lost', 'Nadia Permatasari', 'Mahasiswa', 'Tas ransel laptop warna hitam', '0821****5432', '2026-10-11', '14:00:00', 'claimed', 'Barang telah berhasil diserahkan kepada pemilik resmi.', '2026-10-11 15:30:00', '2026-10-12 10:00:00'),
+('LF-202610-003', 'lost', 'Reza Firmansyah', 'Dosen', 'Kunci motor Honda dengan gantungan merah', '0856****0987', '2026-10-12', '09:00:00', 'reported', NULL, '2026-10-12 10:00:00', '2026-10-12 10:00:00'),
+('LF-202610-004', 'found', 'Petugas Kebersihan', 'Tendik', 'Handphone Samsung Galaxy di Ruang A2', '0898****3210', '2026-10-13', '08:30:00', 'found', 'Barang dititipkan di loket Sarpras Gedung 4 Lt. 1.', '2026-10-13 09:00:00', '2026-10-13 09:00:00'),
+('LF-202610-005', 'found', 'Ahmad Fauzi', 'Mahasiswa', 'Jaket hoodie abu-abu bertuliskan UPITRA', '0813****4321', '2026-10-09', '16:00:00', 'found', 'Ditemukan di Auditorium setelah seminar. Disimpan di Pos Satpam.', '2026-10-09 17:00:00', '2026-10-10 08:00:00');
 
 -- =========================================================
 -- DUMMY DATA: visitors
 -- =========================================================
-INSERT INTO `visitors` (`visitor_name`, `institution`, `contact`, `purpose`, `host_name`, `check_in`, `check_out`, `status`, `admin_note`, `created_at`, `updated_at`) VALUES
-('Drs. Bambang Setiawan, M.M.', 'Universitas Tarumanagara', '02157851234', 'Kunjungan studi banding kurikulum Program Studi Manajemen', 'Dr. Siti Rahmawati, M.Kom.', '2026-10-13 09:00:00', '2026-10-13 12:30:00', 'checked_out', 'Kunjungan berlangsung baik. Tamu telah check out sesuai jadwal.', '2026-10-13 08:50:00', '2026-10-13 12:35:00'),
-('Ir. Hendra Gunawan, M.T.', 'PT. Telkom Indonesia', '02129867000', 'Presentasi program magang dan kerjasama industri dengan kampus', 'Biro Sarana dan Prasarana', '2026-10-12 10:00:00', '2026-10-12 13:00:00', 'checked_out', NULL, '2026-10-12 09:55:00', '2026-10-12 13:05:00'),
-('Sari Indah Lestari, S.Pd.', 'SMA Negeri 5 Jakarta', '02156789012', 'Konsultasi pendaftaran mahasiswa baru dan informasi beasiswa', 'Budi Santoso', '2026-10-13 13:00:00', NULL, 'checked_in', NULL, '2026-10-13 12:55:00', '2026-10-13 13:00:00'),
-('Prof. Dr. Ahmad Yusuf, M.Si.', 'LIPI (Badan Riset dan Inovasi Nasional)', '02125010000', 'Diskusi kolaborasi penelitian dan hibah riset bersama LPPM', 'Dr. Siti Rahmawati, M.Kom.', '2026-10-14 09:00:00', NULL, 'checked_in', NULL, '2026-10-13 16:00:00', '2026-10-13 16:00:00'),
-('Mega Putri Utami', 'PT. Bank Central Asia (BCA)', '0215084000', 'Sosialisasi program KPR dan tabungan mahasiswa bersama FEB', 'Biro Sarana dan Prasarana', '2026-10-10 14:00:00', '2026-10-10 16:30:00', 'checked_out', NULL, '2026-10-10 13:50:00', '2026-10-10 16:35:00');
+INSERT INTO `visitors` (`pass_code`, `visitor_name`, `institution`, `contact`, `purpose`, `host_name`, `check_in`, `check_out`, `status`, `admin_note`, `created_at`, `updated_at`) VALUES
+('VP-202610-001', 'Drs. Bambang Setiawan, M.M.', 'Universitas Mitra Akademik', '0812****1234', 'Kunjungan studi banding kurikulum Program Studi Manajemen', 'Dr. Siti Rahmawati, M.Kom.', '2026-10-13 09:00:00', '2026-10-13 12:30:00', 'checked_out', 'Kunjungan berlangsung baik. Tamu telah check out sesuai jadwal.', '2026-10-13 08:50:00', '2026-10-13 12:35:00'),
+('VP-202610-002', 'Ir. Hendra Gunawan, M.T.', 'Mitra Industri Teknologi Solo', '0821****7000', 'Presentasi program magang dan kerjasama industri dengan kampus', 'Biro Sarana dan Prasarana', '2026-10-12 10:00:00', '2026-10-12 13:00:00', 'checked_out', NULL, '2026-10-12 09:55:00', '2026-10-12 13:05:00'),
+('VP-202610-003', 'Sari Indah Lestari, S.Pd.', 'SMA Negeri di Surakarta', '0856****9012', 'Konsultasi pendaftaran mahasiswa baru dan informasi beasiswa', 'Biro Humas & Admisi', '2026-10-13 13:00:00', NULL, 'checked_in', NULL, '2026-10-13 12:55:00', '2026-10-13 13:00:00'),
+('VP-202610-004', 'Prof. Dr. Ahmad Yusuf, M.Si.', 'Badan Riset & Inovasi', '0813****0000', 'Diskusi kolaborasi penelitian dan hibah riset bersama LPPM', 'Dr. Siti Rahmawati, M.Kom.', '2026-10-14 09:00:00', NULL, 'checked_in', NULL, '2026-10-13 16:00:00', '2026-10-13 16:00:00'),
+('VP-202610-005', 'Mega Putri Utami', 'Bank Mitra Pembayaran Kampus', '0878****4000', 'Sosialisasi program beasiswa dan tabungan mahasiswa bersama FEB', 'Biro Sarana dan Prasarana', '2026-10-10 14:00:00', '2026-10-10 16:30:00', 'checked_out', NULL, '2026-10-10 13:50:00', '2026-10-10 16:35:00');
+
+-- =========================================================
+-- DUMMY DATA: auth_logs (Security Audit Log)
+-- =========================================================
+INSERT INTO `auth_logs` (`user_id`, `email`, `action`, `method`, `status`, `ip_address`, `user_agent`, `details`, `created_at`) VALUES
+(1, 'it@upitra.ac.id', 'login_sso', 'microsoft_oauth2', 'success', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Login SSO Microsoft 365 berhasil (Super Admin)', NOW()),
+(2, 'sarpras@upitra.ac.id', 'login_sso', 'microsoft_oauth2', 'success', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Login SSO Microsoft 365 berhasil (Admin Sarpras)', NOW());
 
 COMMIT;

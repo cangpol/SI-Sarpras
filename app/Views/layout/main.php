@@ -370,6 +370,10 @@
           </ul>
         </li>
 
+        <li class="nav-item">
+          <a class="nav-link" href="/tracking"><i class="bi bi-search me-1"></i>Lacak Tiket</a>
+        </li>
+
         <?php if(session()->get('isLoggedIn')): ?>
         <li class="nav-item dropdown ms-lg-3 my-auto">
           <a class="nav-link dropdown-toggle btn-login-nav text-white px-3 py-1 d-inline-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
@@ -587,6 +591,8 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
                     <ul class="list-unstyled small text-white-50 mb-3">
                         <li class="mb-2"><a href="/pelaporan/lost-found" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Form Lost & Found (Umum)</a></li>
                         <li class="mb-2"><a href="/pelaporan/visitor" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Visitor ID Pass (Buku Tamu)</a></li>
+                        <li class="mb-2"><a href="/tracking" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Lacak Status Tiket</a></li>
+                        <li class="mb-2"><a href="/kebijakan-privasi" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right me-1 text-info"></i> Kebijakan Privasi (UU PDP)</a></li>
                         <li class="mb-2"><i class="bi bi-geo-alt me-1 text-info"></i> Jl. Duwet Raya No.I, Karangasem, Kec. Laweyan, Kota Surakarta, Jawa Tengah 57145</li>
                         <li class="mb-2"><i class="bi bi-envelope me-1 text-info"></i> sarpras@upitra.ac.id</li>
                     </ul>
@@ -595,8 +601,17 @@ $isHome = empty($uri) || $uri === '/' || $uri === 'home';
         </div>
     </div>
     <div class="footer-bottom py-3 text-center text-white-50 small" style="background: #051F38; border-top: 1px solid rgba(255,255,255,0.06);">
-        <div class="container">
-            &copy; <?= date('Y') ?> Biro Sarana dan Prasarana &bull; Universitas Pignatelli Triputra. Hak Cipta Dilindungi.
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                &copy; <?= date('Y') ?> Biro Sarana dan Prasarana &bull; Universitas Pignatelli Triputra. Hak Cipta Dilindungi.
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="/kebijakan-privasi" class="text-white-50 text-decoration-none hover-white">Kebijakan Privasi</a>
+                <span>&bull;</span>
+                <a href="/tracking" class="text-white-50 text-decoration-none hover-white">Lacak Tiket</a>
+                <span>&bull;</span>
+                <a href="/login/admin" class="text-white-50 text-decoration-none hover-white" title="Akses Darurat Administrator"><i class="bi bi-shield-lock me-1"></i>Akses Admin (2FA)</a>
+            </div>
         </div>
     </div>
 </footer>

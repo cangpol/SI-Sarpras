@@ -198,8 +198,8 @@
                     <div class="kop-title">UNIVERSITAS PIGNATELLI TRIPUTRA</div>
                     <div class="kop-subtitle">BIRO SARANA DAN PRASARANA (SARPRAS)</div>
                     <div class="kop-address">
-                        Kampus UPITRA: Jl. Gambiran No. 37, Pandeyan, Umbulharjo, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55161<br>
-                        Telepon: (0274) 376045 | Email: sarpras@upitra.ac.id | Website: https://upitra.ac.id
+                        Kampus UPITRA: Jl. Duwet Raya No.I, Karangasem, Kec. Laweyan, Kota Surakarta, Jawa Tengah 57145<br>
+                        Loket Fisik: Gedung 4, Lantai 1 (Samping Auditorium) | Email: sarpras@upitra.ac.id | Website: https://sarpras.upitra.ac.id
                     </div>
                 </div>
             </div>

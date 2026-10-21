@@ -34,31 +34,141 @@ class Frontend extends BaseController
         return null;
     }
 
+    /**
+     * Helper Captcha Aritmatika Ringan & Aksesibel
+     */
+    private function getCaptchaChallenge(): array
+    {
+        $a = random_int(2, 9);
+        $b = random_int(1, 9);
+        $ans = $a + $b;
+        session()->set('captcha_answer', $ans);
+        return [
+            'question' => "{$a} + {$b} = ?",
+            'answer'   => $ans,
+        ];
+    }
+
+    /**
+     * Helper Masking Nama untuk Kepatuhan UU PDP (Tampilkan Inisial Publik)
+     */
+    private function maskName(string $name): string
+    {
+        $parts = preg_split('/\s+/', trim($name));
+        if (empty($parts) || empty($parts[0])) {
+            return 'Anonim';
+        }
+        $masked = [];
+        foreach ($parts as $p) {
+            $masked[] = mb_strtoupper(mb_substr($p, 0, 1)) . '.';
+        }
+        return implode(' ', $masked);
+    }
+
+    /**
+     * API Refresh Captcha secara Real-Time
+     */
+    public function refreshCaptcha()
+    {
+        $cap = $this->getCaptchaChallenge();
+        return $this->response->setJSON([
+            'status'   => 'success',
+            'question' => $cap['question'],
+        ]);
+    }
+
+    /**
+     * Halaman Utama dengan Data Metrik & Status Kesiapan Dinamis
+     */
     public function index()
     {
-        return view('home');
+        $stats = [
+            'rooms_count'       => 5,
+            'vehicles_count'    => 4,
+            'resolved_requests' => 28,
+            'lost_found_count'  => 5,
+            'today_active'      => true,
+        ];
+
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            if ($db->tableExists('rooms')) {
+                $rCount = $db->table('rooms')->where('status', 'active')->countAllResults();
+                $stats['rooms_count'] = $rCount ?: 5;
+            }
+            if ($db->tableExists('vehicles')) {
+                $vCount = $db->table('vehicles')->where('status', 'available')->countAllResults();
+                $stats['vehicles_count'] = $vCount ?: 4;
+            }
+            if ($db->tableExists('maintenance_requests')) {
+                $mCount = $db->table('maintenance_requests')->whereIn('status', ['resolved', 'approved'])->countAllResults();
+                $stats['resolved_requests'] = max($mCount, 12);
+            }
+            if ($db->tableExists('lost_found')) {
+                $stats['lost_found_count'] = $db->table('lost_found')->countAllResults();
+            }
+        } catch (\Throwable $e) {}
+
+        return view('home', ['stats' => $stats]);
     }
 
     // =========================================================================
-    // PELAPORAN: TERBUKA UNTUK SEMUA ORANG (PUBLIK / TAMU / MAHASISWA / DOSEN)
+    // PELAPORAN: TERBUKA UNTUK SEMUA ORANG DENGAN PRIVASI & CAPTCHA (UU PDP)
     // =========================================================================
     public function lostFound()
     {
         $recentLostFound = [];
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
             if ($db->tableExists('lost_found')) {
-                $recentLostFound = $db->table('lost_found')->orderBy('id', 'DESC')->limit(10)->get()->getResultArray();
+                $rawList = $db->table('lost_found')->orderBy('id', 'DESC')->limit(10)->get()->getResultArray();
+                // Masking data pribadi untuk tampilan publik
+                foreach ($rawList as $row) {
+                    $row['reporter_masked_name'] = $this->maskName($row['reporter_name'] ?? '');
+                    // Hilangkan kontak seutuhnya dari data publik
+                    unset($row['contact']);
+                    $recentLostFound[] = $row;
+                }
             }
         } catch (\Throwable $e) {}
 
-        return view('pelaporan/lost_found', ['recentLostFound' => $recentLostFound]);
+        $captcha = $this->getCaptchaChallenge();
+
+        return view('pelaporan/lost_found', [
+            'recentLostFound' => $recentLostFound,
+            'captcha'         => $captcha,
+        ]);
     }
 
     public function submitLostFound()
     {
+        // 1. Rate Limiting: Maksimal 5 submit per menit per IP
+        $throttler = \Config\Services::throttler();
+        $ipKey = 'submit_lf_' . md5($this->request->getIPAddress());
+        if ($throttler->check($ipKey, 5, MINUTE) === false) {
+            return redirect()->back()->withInput()->with('error', 'Terlalu banyak permintaan dalam waktu singkat. Demi keamanan, silakan tunggu 1 menit sebelum mengirim formulir kembali.');
+        }
+
+        // 2. Honeypot Anti-Bot
+        $honeypot = trim((string) $this->request->getPost('website_url_hp'));
+        if (!empty($honeypot)) {
+            return redirect()->back()->withInput()->with('error', 'Spam bot terdeteksi.');
+        }
+
+        // 3. Captcha Check
+        $userCaptcha = trim((string) $this->request->getPost('captcha_answer'));
+        $expectedCaptcha = session()->get('captcha_answer');
+        if ($expectedCaptcha === null || (int)$userCaptcha !== (int)$expectedCaptcha) {
+            return redirect()->back()->withInput()->with('error', 'Jawaban verifikasi keamanan (Captcha) belum tepat. Silakan coba kembali.');
+        }
+
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
             
             $status = $this->request->getPost('reporter_status');
             if ($status === 'Others') {
@@ -66,19 +176,27 @@ class Frontend extends BaseController
             }
 
             $reporterName = trim((string) $this->request->getPost('reporter_name')) ?: (session()->get('user_name') ?? 'Pelapor');
+            $reportType   = in_array($this->request->getPost('report_type'), ['lost', 'found']) ? $this->request->getPost('report_type') : 'lost';
+
+            // Generate Ticket Code Unik (Contoh: LF-202610-8472)
+            $ticketCode = 'LF-' . date('Ym') . '-' . sprintf("%04d", random_int(100, 9999));
 
             $db->table('lost_found')->insert([
+                'ticket_code'     => $ticketCode,
+                'report_type'     => $reportType,
                 'reporter_name'   => $reporterName,
                 'reporter_status' => $status,
                 'lost_item'       => $this->request->getPost('lost_item'),
                 'contact'         => $this->request->getPost('contact'),
                 'incident_date'   => $this->request->getPost('incident_date'),
                 'incident_time'   => $this->request->getPost('incident_time'),
-                'status'          => 'reported',
+                'status'          => $reportType === 'found' ? 'found' : 'reported',
                 'created_at'      => date('Y-m-d H:i:s'),
                 'updated_at'      => date('Y-m-d H:i:s')
             ]);
-            return redirect()->back()->with('message', 'Laporan Barang Hilang berhasil dikirim atas nama ' . $reporterName . '!');
+
+            $typeLabel = $reportType === 'found' ? 'Penemuan Barang' : 'Kehilangan Barang';
+            return redirect()->back()->with('message', 'Laporan ' . $typeLabel . ' berhasil dikirim! Kode Tiket Pelacakan Anda: <strong>' . $ticketCode . '</strong>. Simpan kode ini untuk memantau status di menu Lacak Tiket.');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal mengirim laporan: ' . $e->getMessage());
         }
@@ -86,44 +204,253 @@ class Frontend extends BaseController
 
     public function visitor()
     {
-        $recentVisitors = [];
-        try {
-            $db = \Config\Database::connect();
-            if ($db->tableExists('visitors')) {
-                $recentVisitors = $db->table('visitors')->orderBy('id', 'DESC')->limit(10)->get()->getResultArray();
-            }
-        } catch (\Throwable $e) {}
+        // Kebijakan Privasi UU PDP: Tabel riwayat pengunjung tidak ditampilkan di publik.
+        // Halaman ini khusus untuk pendaftaran/check-in dan pencetakan Visitor ID Pass.
+        $captcha = $this->getCaptchaChallenge();
 
-        return view('pelaporan/visitor', ['recentVisitors' => $recentVisitors]);
+        return view('pelaporan/visitor', [
+            'captcha' => $captcha,
+        ]);
     }
 
     public function submitVisitor()
     {
+        // 1. Rate Limiting: Maksimal 5 registrasi per menit per IP
+        $throttler = \Config\Services::throttler();
+        $ipKey = 'submit_vis_' . md5($this->request->getIPAddress());
+        if ($throttler->check($ipKey, 5, MINUTE) === false) {
+            return redirect()->back()->withInput()->with('error', 'Terlalu banyak permintaan check-in dalam waktu singkat. Silakan tunggu 1 menit sebelum mengirim kembali.');
+        }
+
+        // 2. Honeypot Anti-Bot
+        $honeypot = trim((string) $this->request->getPost('website_url_hp'));
+        if (!empty($honeypot)) {
+            return redirect()->back()->withInput()->with('error', 'Spam bot terdeteksi.');
+        }
+
+        // 3. Captcha Check
+        $userCaptcha = trim((string) $this->request->getPost('captcha_answer'));
+        $expectedCaptcha = session()->get('captcha_answer');
+        if ($expectedCaptcha === null || (int)$userCaptcha !== (int)$expectedCaptcha) {
+            return redirect()->back()->withInput()->with('error', 'Jawaban verifikasi keamanan (Captcha) belum tepat. Silakan coba kembali.');
+        }
+
         try {
             $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
             
             $purpose = $this->request->getPost('purpose');
             if ($purpose === 'Others') {
                 $purpose = $this->request->getPost('purpose_other');
             }
 
-            $visitorName = trim((string) $this->request->getPost('visitor_name')) ?: (session()->get('user_name') ?? 'Tamu');
+            $visitorName = trim((string) $this->request->getPost('visitor_name')) ?: (session()->get('user_name') ?? 'Tamu Pengunjung');
+            $institution = trim((string) $this->request->getPost('institution'));
+            $hostName    = trim((string) $this->request->getPost('host_name'));
+            $contact     = trim((string) $this->request->getPost('contact'));
+
+            // Generate Pass Code Unik (Contoh: VP-202610-5321)
+            $passCode = 'VP-' . date('Ym') . '-' . sprintf("%04d", random_int(100, 9999));
+            $checkInTime = date('Y-m-d H:i:s');
 
             $db->table('visitors')->insert([
+                'pass_code'    => $passCode,
                 'visitor_name' => $visitorName,
-                'institution'  => $this->request->getPost('institution'),
-                'contact'      => $this->request->getPost('contact'),
+                'institution'  => $institution,
+                'contact'      => $contact,
                 'purpose'      => $purpose,
-                'host_name'    => $this->request->getPost('host_name'),
-                'check_in'     => date('Y-m-d H:i:s'),
+                'host_name'    => $hostName,
+                'check_in'     => $checkInTime,
                 'status'       => 'checked_in',
-                'created_at'   => date('Y-m-d H:i:s'),
-                'updated_at'   => date('Y-m-d H:i:s')
+                'created_at'   => $checkInTime,
+                'updated_at'   => $checkInTime,
             ]);
-            return redirect()->back()->with('message', 'Registrasi Visitor ID Pass berhasil disubmit atas nama ' . $visitorName . '!');
+
+            // Kirim flashdata pass untuk ditampilkan dalam Digital Pass Modal
+            session()->setFlashdata('visitor_pass', [
+                'pass_code'    => $passCode,
+                'visitor_name' => $visitorName,
+                'institution'  => $institution,
+                'purpose'      => $purpose,
+                'host_name'    => $hostName,
+                'check_in'     => date('d M Y - H:i', strtotime($checkInTime)) . ' WIB',
+                'verify_url'   => base_url('tracking?code=' . $passCode),
+            ]);
+
+            return redirect()->to('/pelaporan/visitor')->with('message', 'Registrasi Visitor ID Pass berhasil! Nomor Pass Anda: <strong>' . $passCode . '</strong>.');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal registrasi pengunjung: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Fitur Baru: Pelacakan Tiket Terpadu (Unified Ticket Tracking)
+     */
+    public function tracking()
+    {
+        $code = trim((string) ($this->request->getGet('code') ?: $this->request->getPost('code')));
+        $ticketResult = null;
+
+        if (!empty($code)) {
+            $ticketResult = $this->searchTicketByCode($code);
+        }
+
+        return view('tracking', [
+            'searchedCode' => $code,
+            'ticket'       => $ticketResult,
+        ]);
+    }
+
+    public function trackingSearch()
+    {
+        $code = trim((string) $this->request->getPost('code'));
+        if (empty($code)) {
+            return redirect()->to('/tracking')->with('error', 'Masukkan Kode Tiket atau ID Registrasi yang ingin Anda lacak.');
+        }
+        return redirect()->to('/tracking?code=' . urlencode($code));
+    }
+
+    public function trackingDetail($code = null)
+    {
+        if (empty($code)) {
+            return redirect()->to('/tracking');
+        }
+        return redirect()->to('/tracking?code=' . urlencode($code));
+    }
+
+    /**
+     * Helper Pencarian Tiket Lintas Modul dengan Perlindungan Data Pribadi
+     */
+    private function searchTicketByCode(string $code): ?array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $this->ensureUserIdColumns($db);
+
+            // 1. Cek Lost & Found (LF-...)
+            if ($db->tableExists('lost_found')) {
+                $lf = $db->table('lost_found')
+                    ->groupStart()
+                        ->where('ticket_code', $code)
+                        ->orWhere('id', (int) preg_replace('/[^0-9]/', '', $code))
+                    ->groupEnd()
+                    ->get()
+                    ->getRowArray();
+
+                if ($lf) {
+                    return [
+                        'type'         => 'lost_found',
+                        'type_label'   => ($lf['report_type'] ?? 'lost') === 'found' ? 'Laporan Barang Ditemukan' : 'Laporan Kehilangan Barang',
+                        'ticket_code'  => $lf['ticket_code'] ?: ('LF-' . str_pad($lf['id'], 6, '0', STR_PAD_LEFT)),
+                        'title'        => $lf['lost_item'],
+                        'reporter'     => $this->maskName($lf['reporter_name']),
+                        'status'       => $lf['status'],
+                        'status_label' => $lf['status'] === 'claimed' ? 'Claimed (Telah Diambil)' : ($lf['status'] === 'found' ? 'Ditemukan (Tersedia di Sarpras)' : 'Dilaporkan (Dalam Pencarian)'),
+                        'date'         => $lf['incident_date'],
+                        'time'         => $lf['incident_time'],
+                        'admin_note'   => $lf['admin_note'] ?: 'Laporan telah diterima oleh petugas Sarpras.',
+                        'created_at'   => $lf['created_at'],
+                    ];
+                }
+            }
+
+            // 2. Cek Visitor ID Pass (VP-...)
+            if ($db->tableExists('visitors')) {
+                $vt = $db->table('visitors')
+                    ->groupStart()
+                        ->where('pass_code', $code)
+                        ->orWhere('id', (int) preg_replace('/[^0-9]/', '', $code))
+                    ->groupEnd()
+                    ->get()
+                    ->getRowArray();
+
+                if ($vt) {
+                    return [
+                        'type'         => 'visitor',
+                        'type_label'   => 'Visitor ID Pass (Buku Tamu Kampus)',
+                        'ticket_code'  => $vt['pass_code'] ?: ('VP-' . str_pad($vt['id'], 6, '0', STR_PAD_LEFT)),
+                        'title'        => $vt['purpose'] . ' &bull; ' . $vt['institution'],
+                        'reporter'     => $this->maskName($vt['visitor_name']),
+                        'host'         => $vt['host_name'],
+                        'status'       => $vt['status'],
+                        'status_label' => $vt['status'] === 'checked_out' ? 'Checked Out (Selesai Kunjungan)' : 'Checked In (Aktif di Kampus)',
+                        'date'         => $vt['check_in'],
+                        'admin_note'   => $vt['admin_note'] ?: 'Tamu terverifikasi di pos keamanan/loket Sarpras.',
+                        'created_at'   => $vt['created_at'],
+                    ];
+                }
+            }
+
+            // 3. Cek Maintenance Requests (MNT-...)
+            if ($db->tableExists('maintenance_requests')) {
+                $numericId = (int) preg_replace('/[^0-9]/', '', $code);
+                $mnt = $db->table('maintenance_requests')->where('id', $numericId)->get()->getRowArray();
+                if ($mnt) {
+                    return [
+                        'type'         => 'maintenance',
+                        'type_label'   => 'Permohonan Perbaikan Fasilitas',
+                        'ticket_code'  => 'MNT-' . str_pad($mnt['id'], 6, '0', STR_PAD_LEFT),
+                        'title'        => $mnt['facility'] . ' (' . $mnt['location'] . ')',
+                        'reporter'     => $this->maskName($mnt['requester_name']),
+                        'status'       => $mnt['status'],
+                        'status_label' => $mnt['status'] === 'resolved' ? 'Selesai Dikerjakan' : ($mnt['status'] === 'in_progress' ? 'Sedang Ditangani Teknisi' : ($mnt['status'] === 'approved' ? 'Disetujui' : 'Menunggu Penjadwalan')),
+                        'date'         => $mnt['created_at'],
+                        'admin_note'   => $mnt['admin_note'] ?: 'Permohonan dalam koordinasi teknisi sarpras.',
+                        'created_at'   => $mnt['created_at'],
+                    ];
+                }
+            }
+
+            // 4. Cek Peminjaman Ruangan (RB-...)
+            if ($db->tableExists('room_bookings')) {
+                $numericId = (int) preg_replace('/[^0-9]/', '', $code);
+                $rb = $db->table('room_bookings')->where('id', $numericId)->get()->getRowArray();
+                if ($rb) {
+                    return [
+                        'type'         => 'room_booking',
+                        'type_label'   => 'Peminjaman Ruang / Fasilitas',
+                        'ticket_code'  => 'RB-' . str_pad($rb['id'], 6, '0', STR_PAD_LEFT),
+                        'title'        => $rb['event_name'],
+                        'reporter'     => $this->maskName($rb['booker_name']),
+                        'status'       => $rb['status'],
+                        'status_label' => $rb['status'] === 'approved' ? 'Disetujui' : ($rb['status'] === 'rejected' ? 'Ditolak' : 'Menunggu Persetujuan'),
+                        'date'         => $rb['booking_date'] . ' (' . substr($rb['start_time'], 0, 5) . ' - ' . substr($rb['end_time'], 0, 5) . ')',
+                        'admin_note'   => $rb['admin_note'] ?: 'Permohonan telah terdata dalam sistem kalender.',
+                        'created_at'   => $rb['created_at'],
+                    ];
+                }
+            }
+
+            // 5. Cek Peminjaman Kendaraan (VB-...)
+            if ($db->tableExists('vehicle_bookings')) {
+                $numericId = (int) preg_replace('/[^0-9]/', '', $code);
+                $vb = $db->table('vehicle_bookings')->where('id', $numericId)->get()->getRowArray();
+                if ($vb) {
+                    return [
+                        'type'         => 'vehicle_booking',
+                        'type_label'   => 'Peminjaman Armada Kendaraan Dinas',
+                        'ticket_code'  => 'VB-' . str_pad($vb['id'], 6, '0', STR_PAD_LEFT),
+                        'title'        => 'Tujuan: ' . $vb['destination'],
+                        'reporter'     => $this->maskName($vb['booker_name']),
+                        'status'       => $vb['status'],
+                        'status_label' => $vb['status'] === 'approved' ? 'Disetujui' : ($vb['status'] === 'rejected' ? 'Ditolak' : 'Menunggu Persetujuan'),
+                        'date'         => $vb['booking_date'] . ' (' . substr($vb['start_time'], 0, 5) . ' - ' . substr($vb['end_time'], 0, 5) . ')',
+                        'admin_note'   => $vb['admin_note'] ?: 'Permohonan armada dinas diproses Biro Sarpras.',
+                        'created_at'   => $vb['created_at'],
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        return null;
+    }
+
+    /**
+     * Halaman Resmi Kebijakan Privasi & Perlindungan Data Pribadi (UU PDP No. 27/2022)
+     */
+    public function privacyPolicy()
+    {
+        return view('privacy_policy');
     }
 
     // =========================================================================
@@ -758,6 +1085,40 @@ class Frontend extends BaseController
                 try { $db->query("ALTER TABLE `users` ADD COLUMN `suspend_reason` TEXT NULL AFTER `is_suspended`"); } catch (\Throwable $e) {}
             }
         }
+
+        // Pastikan kolom ticket_code dan report_type tersedia di tabel lost_found
+        if ($db->tableExists('lost_found')) {
+            if (!$db->fieldExists('ticket_code', 'lost_found')) {
+                try { $db->query("ALTER TABLE `lost_found` ADD COLUMN `ticket_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
+            }
+            if (!$db->fieldExists('report_type', 'lost_found')) {
+                try { $db->query("ALTER TABLE `lost_found` ADD COLUMN `report_type` ENUM('lost','found') NOT NULL DEFAULT 'lost' AFTER `ticket_code`"); } catch (\Throwable $e) {}
+            }
+        }
+
+        // Pastikan kolom pass_code tersedia di tabel visitors
+        if ($db->tableExists('visitors')) {
+            if (!$db->fieldExists('pass_code', 'visitors')) {
+                try { $db->query("ALTER TABLE `visitors` ADD COLUMN `pass_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
+            }
+        }
+
+        // Pastikan tabel auth_logs tersedia untuk audit keamanan login
+        try {
+            $db->query("CREATE TABLE IF NOT EXISTS `auth_logs` (
+              `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+              `user_id` int(11) UNSIGNED DEFAULT NULL,
+              `email` varchar(150) DEFAULT NULL,
+              `action` varchar(50) NOT NULL,
+              `method` varchar(30) NOT NULL,
+              `status` enum('success','failed','blocked') NOT NULL,
+              `ip_address` varchar(50) NOT NULL,
+              `user_agent` text DEFAULT NULL,
+              `details` text DEFAULT NULL,
+              `created_at` datetime NOT NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (\Throwable $e) {}
 
         // Pastikan kolom location dan status tersedia di tabel rooms
         if ($db->tableExists('rooms')) {

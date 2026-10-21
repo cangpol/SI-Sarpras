@@ -36,6 +36,11 @@
                         <i class="bi bi-arrow-right-short fs-5"></i>
                     </a>
 
+                    <a href="/tracking" class="btn btn-outline-light px-4 py-3 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm">
+                        <i class="bi bi-search"></i>
+                        <span>Lacak Tiket</span>
+                    </a>
+
                     <?php if (session()->get('isLoggedIn')): ?>
                         <a href="/dashboard" class="btn btn-info text-dark fw-bold px-4 py-3 rounded-pill d-inline-flex align-items-center gap-2 shadow-sm">
                             <i class="bi bi-speedometer2"></i>
@@ -152,7 +157,7 @@
                         <i class="bi bi-door-open fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0 text-primary">5+ Ruang &amp; Aula</h4>
+                        <h4 class="fw-bold mb-0 text-primary"><?= esc($stats['rooms_count'] ?? 5) ?>+ Ruang &amp; Aula</h4>
                         <small class="text-muted d-block">Fasilitas Representatif</small>
                     </div>
                 </div>
@@ -165,7 +170,7 @@
                         <i class="bi bi-car-front fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0 text-primary">3 Armada Dinas</h4>
+                        <h4 class="fw-bold mb-0 text-primary"><?= esc($stats['vehicles_count'] ?? 4) ?> Armada Mobil</h4>
                         <small class="text-muted d-block">Siap Penugasan Kampus</small>
                     </div>
                 </div>
@@ -178,8 +183,8 @@
                         <i class="bi bi-tools fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0 text-primary">&lt; 24 Jam Kerja</h4>
-                        <small class="text-muted d-block">Standar Respon SLA</small>
+                        <h4 class="fw-bold mb-0 text-primary"><?= esc($stats['resolved_requests'] ?? 28) ?>+ Tiket Selesai</h4>
+                        <small class="text-muted d-block">Standar Respon Cepat</small>
                     </div>
                 </div>
             </div>
@@ -191,8 +196,8 @@
                         <i class="bi bi-shield-check fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0 text-primary">2 Layanan Terbuka</h4>
-                        <small class="text-muted d-block">Lost &amp; Found &amp; Tamu</small>
+                        <h4 class="fw-bold mb-0 text-primary">100% Terlindungi</h4>
+                        <small class="text-muted d-block">Privasi UU PDP &bull; Lacak Tiket</small>
                     </div>
                 </div>
             </div>

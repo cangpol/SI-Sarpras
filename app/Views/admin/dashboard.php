@@ -3160,6 +3160,93 @@ body.modal-open .table-responsive-scroll {
             <?php endif; ?>
 
             <!-- ============================================== -->
+            <!-- TAB AUDIT LOG KEAMANAN & RIWAYAT AKSES SISTEM -->
+            <!-- ============================================== -->
+            <div class="tab-pane fade" id="tab-security-logs" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-primary d-flex align-items-center">
+                                <i class="bi bi-shield-lock-fill me-2 fs-4 text-warning"></i>
+                                Audit Log Keamanan &amp; Riwayat Akses Sistem
+                            </h5>
+                            <small class="text-muted">Pantau aktivitas login SSO Microsoft, percobaan login darurat admin, status 2FA, dan anomali IP address.</small>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1.5 fw-bold">
+                            Total <?= count($authLogs ?? []) ?> Log Terkini
+                        </span>
+                    </div>
+                    <div class="card-body pt-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Waktu Kejadian</th>
+                                    <th>Identitas Akun / Email</th>
+                                    <th>Aksi &amp; Metode</th>
+                                    <th>Status</th>
+                                    <th>Alamat IP &amp; Perangkat</th>
+                                    <th>Keterangan / Detail</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($authLogs)): ?>
+                                    <?php $no = 1; foreach ($authLogs as $al): ?>
+                                        <tr>
+                                            <td><?= $no++ ?></td>
+                                            <td>
+                                                <small class="text-dark fw-bold"><?= esc($al['created_at']) ?></small>
+                                            </td>
+                                            <td>
+                                                <strong class="text-dark"><?= esc($al['email'] ?: 'Anonim / Belum Terdata') ?></strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border font-monospace">
+                                                    <?= esc($al['action']) ?>
+                                                </span>
+                                                <small class="text-muted d-block"><?= esc($al['method']) ?></small>
+                                            </td>
+                                            <td>
+                                                <?php if ($al['status'] === 'success'): ?>
+                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1">
+                                                        <i class="bi bi-check-circle me-1"></i>Success
+                                                    </span>
+                                                <?php elseif ($al['status'] === 'blocked'): ?>
+                                                    <span class="badge bg-danger text-white rounded-pill px-2.5 py-1">
+                                                        <i class="bi bi-shield-slash me-1"></i>Blocked
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>Failed
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <span class="font-monospace small text-primary fw-bold"><?= esc($al['ip_address']) ?></span><br>
+                                                <small class="text-muted text-truncate d-inline-block" style="max-width: 220px;" title="<?= esc($al['user_agent'] ?? '') ?>">
+                                                    <?= esc($al['user_agent'] ?? '-') ?>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted"><?= esc($al['details'] ?: '-') ?></small>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">
+                                            <i class="bi bi-shield-check fs-1 text-success d-block mb-2"></i>
+                                            Belum ada catatan log keamanan baru. Sistem dalam kondisi aman dan terlindungi.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
             <!-- TAB BIODATA PROFIL (SEMUA LEVEL USER) -->
             <!-- ============================================== -->
             <div class="tab-pane fade" id="tab-biodata" role="tabpanel">
@@ -4099,6 +4186,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btn) btn.click();
         } else if (hash === '#master-sarpras') {
             var btn = document.getElementById('tab-master-sarpras-btn');
+            if (btn) btn.click();
+        } else if (hash === '#security-logs' || hash === '#audit-log') {
+            var btn = document.getElementById('tab-security-logs-btn');
             if (btn) btn.click();
         } else if (hash === '#biodata') {
             var btn = document.getElementById('tab-biodata-btn') || document.getElementById('tab-biodata-user-btn');
