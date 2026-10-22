@@ -198,6 +198,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) DEFAULT NULL,
+  `microsoft_id` varchar(100) DEFAULT NULL,
   `role` enum('super_admin','admin','user') NOT NULL DEFAULT 'user',
   `department` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,

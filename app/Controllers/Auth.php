@@ -361,18 +361,56 @@ class Auth extends BaseController
 
         $accessToken = $tokenResponse['access_token'];
 
-        // 2. Ambil Profil Pengguna dari Microsoft Graph API
+        // 2. Dekode ID Token (JWT) & Ambil Profil Microsoft Graph API
+        $idClaims = !empty($tokenResponse['id_token']) ? $this->decodeJwtPayload((string) $tokenResponse['id_token']) : null;
+
         $graphUrl = 'https://graph.microsoft.com/v1.0/me';
         $userProfile = $this->httpGetWithBearer($graphUrl, $accessToken);
 
-        if (!$userProfile || (empty($userProfile['userPrincipalName']) && empty($userProfile['mail']))) {
-            return redirect()->to('/login')->with('error', 'Gagal memverifikasi profil akun Microsoft 365 Anda.');
+        // Ekstraksi data profil dengan fallback berlapis (Graph API & ID Token OIDC)
+        $email = '';
+        if (!empty($userProfile) && is_array($userProfile)) {
+            $email = trim((string) ($userProfile['mail'] ?? ($userProfile['userPrincipalName'] ?? '')));
+        }
+        if (empty($email) && !empty($idClaims) && is_array($idClaims)) {
+            $email = trim((string) ($idClaims['preferred_username'] ?? ($idClaims['email'] ?? ($idClaims['upn'] ?? ''))));
         }
 
-        $email       = strtolower(trim($userProfile['mail'] ?? $userProfile['userPrincipalName']));
-        $displayName = trim($userProfile['displayName'] ?? '');
-        $msId        = trim($userProfile['id'] ?? '');
-        $department  = trim($userProfile['department'] ?? ($userProfile['jobTitle'] ?? ''));
+        // Ekstraksi Nama Tampilan
+        $displayName = '';
+        if (!empty($userProfile) && is_array($userProfile)) {
+            $displayName = trim((string) ($userProfile['displayName'] ?? ''));
+        }
+        if (empty($displayName) && !empty($idClaims) && is_array($idClaims)) {
+            $displayName = trim((string) ($idClaims['name'] ?? ''));
+        }
+
+        // Ekstraksi Microsoft ID unik (id / oid / sub)
+        $msId = '';
+        if (!empty($userProfile) && is_array($userProfile)) {
+            $msId = trim((string) ($userProfile['id'] ?? ''));
+        }
+        if (empty($msId) && !empty($idClaims) && is_array($idClaims)) {
+            $msId = trim((string) ($idClaims['oid'] ?? ($idClaims['sub'] ?? '')));
+        }
+
+        // Ekstraksi Departemen / Jabatan
+        $department = '';
+        if (!empty($userProfile) && is_array($userProfile)) {
+            $department = trim((string) ($userProfile['department'] ?? ($userProfile['jobTitle'] ?? '')));
+        }
+
+        // Validasi identitas akhir
+        if (empty($email)) {
+            $graphErr = !empty($userProfile['error']['message']) ? $userProfile['error']['message'] : (is_array($userProfile) ? json_encode($userProfile) : 'Profil kosong');
+            log_message('error', '[SSO Microsoft] Gagal memverifikasi profil. Graph Error: ' . $graphErr);
+            return redirect()->to('/login')->with('error', 'Gagal memverifikasi profil akun Microsoft 365 Anda. Mohon pastikan akun telah diizinkan pada tenant UPITRA.');
+        }
+
+        $email = strtolower($email);
+        if (empty($displayName)) {
+            $displayName = ucwords(str_replace(['.', '_', '-'], ' ', explode('@', $email)[0]));
+        }
 
         // Tentukan Role & Hak Akses berdasarkan Hierarki Multi-Tier
         $superAdminEmails = array_map('strtolower', $config->superAdminEmails ?? [
@@ -514,6 +552,31 @@ class Auth extends BaseController
     }
 
     /**
+     * Decode payload ID Token (JWT) dari Microsoft OpenID Connect.
+     */
+    private function decodeJwtPayload(string $jwt): ?array
+    {
+        $parts = explode('.', $jwt);
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $payload = $parts[1];
+        $remainder = strlen($payload) % 4;
+        if ($remainder > 0) {
+            $payload .= str_repeat('=', 4 - $remainder);
+        }
+
+        $json = base64_decode(strtr($payload, '-_', '+/'));
+        if (!$json) {
+            return null;
+        }
+
+        $decoded = json_decode($json, true);
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
      * Helper cURL untuk HTTP POST form-urlencoded.
      */
     private function httpPostForm(string $url, array $data): ?array
@@ -551,19 +614,26 @@ class Auth extends BaseController
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $bearerToken,
             'Accept: application/json',
+            'User-Agent: SI-Sarpras/1.0 (UPITRA-SSO)',
         ]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
         $response = curl_exec($ch);
         $err = curl_error($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         if ($response === false || !empty($err)) {
+            log_message('warning', "[SSO cURL] GET $url gagal: " . ($err ?: 'Respon false'));
             return null;
         }
 
         $decoded = json_decode($response, true);
+        if ($httpCode >= 400) {
+            log_message('warning', "[SSO cURL] GET $url status HTTP $httpCode: " . substr($response, 0, 200));
+        }
+
         return is_array($decoded) ? $decoded : null;
     }
 
