@@ -109,7 +109,9 @@ class Frontend extends BaseController
             if ($db->tableExists('lost_found')) {
                 $stats['lost_found_count'] = $db->table('lost_found')->countAllResults();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            log_message('error', '[Frontend::index] ' . $e->getMessage());
+        }
 
         return view('home', ['stats' => $stats]);
     }
@@ -134,7 +136,9 @@ class Frontend extends BaseController
                     $recentLostFound[] = $row;
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            log_message('error', '[Frontend::lostFound] ' . $e->getMessage());
+        }
 
         $captcha = $this->getCaptchaChallenge();
 
@@ -288,6 +292,19 @@ class Frontend extends BaseController
      */
     public function tracking()
     {
+        $session = session();
+        $attempts = (int) ($session->get('tracking_attempts') ?? 0);
+        $firstTime = (int) ($session->get('tracking_throttle_time') ?? time());
+        if (time() - $firstTime < 60) {
+            if ($attempts >= 15) {
+                return redirect()->to('/')->with('error', 'Terlalu banyak permintaan pelacakan tiket. Mohon tunggu 1 menit.');
+            }
+            $session->set('tracking_attempts', $attempts + 1);
+        } else {
+            $session->set('tracking_throttle_time', time());
+            $session->set('tracking_attempts', 1);
+        }
+
         $code = trim((string) ($this->request->getGet('code') ?: $this->request->getPost('code')));
         $ticketResult = null;
 
@@ -326,29 +343,25 @@ class Frontend extends BaseController
         try {
             $db = \Config\Database::connect();
             $this->ensureUserIdColumns($db);
+            $code = trim($code);
+            if (empty($code)) return null;
+            $isStaff = !empty(session()->get('isLoggedIn'));
 
             // 1. Cek Lost & Found (LF-...)
             if ($db->tableExists('lost_found')) {
-                $lf = $db->table('lost_found')
-                    ->groupStart()
-                        ->where('ticket_code', $code)
-                        ->orWhere('id', (int) preg_replace('/[^0-9]/', '', $code))
-                    ->groupEnd()
-                    ->get()
-                    ->getRowArray();
-
+                $lf = $db->table('lost_found')->where('ticket_code', $code)->get()->getRowArray();
                 if ($lf) {
                     return [
                         'type'         => 'lost_found',
                         'type_label'   => ($lf['report_type'] ?? 'lost') === 'found' ? 'Laporan Barang Ditemukan' : 'Laporan Kehilangan Barang',
-                        'ticket_code'  => $lf['ticket_code'] ?: ('LF-' . str_pad($lf['id'], 6, '0', STR_PAD_LEFT)),
+                        'ticket_code'  => $lf['ticket_code'],
                         'title'        => $lf['lost_item'],
                         'reporter'     => $this->maskName($lf['reporter_name']),
                         'status'       => $lf['status'],
                         'status_label' => $lf['status'] === 'claimed' ? 'Claimed (Telah Diambil)' : ($lf['status'] === 'found' ? 'Ditemukan (Tersedia di Sarpras)' : 'Dilaporkan (Dalam Pencarian)'),
                         'date'         => $lf['incident_date'],
                         'time'         => $lf['incident_time'],
-                        'admin_note'   => $lf['admin_note'] ?: 'Laporan telah diterima oleh petugas Sarpras.',
+                        'admin_note'   => $isStaff ? ($lf['admin_note'] ?: '-') : 'Laporan telah terverifikasi oleh petugas Sarpras.',
                         'created_at'   => $lf['created_at'],
                     ];
                 }
@@ -356,98 +369,87 @@ class Frontend extends BaseController
 
             // 2. Cek Visitor ID Pass (VP-...)
             if ($db->tableExists('visitors')) {
-                $vt = $db->table('visitors')
-                    ->groupStart()
-                        ->where('pass_code', $code)
-                        ->orWhere('id', (int) preg_replace('/[^0-9]/', '', $code))
-                    ->groupEnd()
-                    ->get()
-                    ->getRowArray();
-
+                $vt = $db->table('visitors')->where('pass_code', $code)->get()->getRowArray();
                 if ($vt) {
                     return [
                         'type'         => 'visitor',
                         'type_label'   => 'Visitor ID Pass (Buku Tamu Kampus)',
-                        'ticket_code'  => $vt['pass_code'] ?: ('VP-' . str_pad($vt['id'], 6, '0', STR_PAD_LEFT)),
+                        'ticket_code'  => $vt['pass_code'],
                         'title'        => $vt['purpose'] . ' &bull; ' . $vt['institution'],
                         'reporter'     => $this->maskName($vt['visitor_name']),
-                        'host'         => $vt['host_name'],
+                        'host'         => $isStaff ? $vt['host_name'] : 'Pihak Kampus UPITRA',
                         'status'       => $vt['status'],
                         'status_label' => $vt['status'] === 'checked_out' ? 'Checked Out (Selesai Kunjungan)' : 'Checked In (Aktif di Kampus)',
                         'date'         => $vt['check_in'],
-                        'admin_note'   => $vt['admin_note'] ?: 'Tamu terverifikasi di pos keamanan/loket Sarpras.',
+                        'admin_note'   => $isStaff ? ($vt['admin_note'] ?: '-') : 'Tamu terverifikasi di pos keamanan.',
                         'created_at'   => $vt['created_at'],
-                    ];
-                }
+                ];
             }
+        }
 
-            // 3. Cek Maintenance Requests (MNT-...)
-            if ($db->tableExists('maintenance_requests')) {
-                $numericId = (int) preg_replace('/[^0-9]/', '', $code);
-                $mnt = $db->table('maintenance_requests')->where('id', $numericId)->get()->getRowArray();
-                if ($mnt) {
-                    return [
-                        'type'         => 'maintenance',
-                        'type_label'   => 'Permohonan Perbaikan Fasilitas',
-                        'ticket_code'  => 'MNT-' . str_pad($mnt['id'], 6, '0', STR_PAD_LEFT),
-                        'title'        => $mnt['facility'] . ' (' . $mnt['location'] . ')',
-                        'reporter'     => $this->maskName($mnt['requester_name']),
-                        'status'       => $mnt['status'],
-                        'status_label' => $mnt['status'] === 'resolved' ? 'Selesai Dikerjakan' : ($mnt['status'] === 'in_progress' ? 'Sedang Ditangani Teknisi' : ($mnt['status'] === 'approved' ? 'Disetujui' : 'Menunggu Penjadwalan')),
-                        'date'         => $mnt['created_at'],
-                        'admin_note'   => $mnt['admin_note'] ?: 'Permohonan dalam koordinasi teknisi sarpras.',
-                        'created_at'   => $mnt['created_at'],
-                    ];
-                }
+        // 3. Cek Maintenance Requests (MNT-...)
+        if ($db->tableExists('maintenance_requests')) {
+            $mnt = $db->table('maintenance_requests')->where('ticket_code', $code)->get()->getRowArray();
+            if ($mnt) {
+                return [
+                    'type'         => 'maintenance',
+                    'type_label'   => 'Permohonan Perbaikan Fasilitas',
+                    'ticket_code'  => $mnt['ticket_code'],
+                    'title'        => $mnt['facility'] . ' (' . $mnt['location'] . ')',
+                    'reporter'     => $this->maskName($mnt['requester_name']),
+                    'status'       => $mnt['status'],
+                    'status_label' => $mnt['status'] === 'resolved' ? 'Selesai Dikerjakan' : ($mnt['status'] === 'in_progress' ? 'Sedang Ditangani Teknisi' : ($mnt['status'] === 'approved' ? 'Disetujui' : 'Menunggu Penjadwalan')),
+                    'date'         => $mnt['created_at'],
+                    'admin_note'   => $isStaff ? ($mnt['admin_note'] ?: '-') : 'Permohonan dalam koordinasi teknisi sarpras.',
+                    'created_at'   => $mnt['created_at'],
+                ];
             }
+        }
 
-            // 4. Cek Peminjaman Ruangan (RB-...)
-            if ($db->tableExists('room_bookings')) {
-                $numericId = (int) preg_replace('/[^0-9]/', '', $code);
-                $rb = $db->table('room_bookings')->where('id', $numericId)->get()->getRowArray();
-                if ($rb) {
-                    return [
-                        'type'         => 'room_booking',
-                        'type_label'   => 'Peminjaman Ruang / Fasilitas',
-                        'ticket_code'  => 'RB-' . str_pad($rb['id'], 6, '0', STR_PAD_LEFT),
-                        'title'        => $rb['event_name'],
-                        'reporter'     => $this->maskName($rb['booker_name']),
-                        'status'       => $rb['status'],
-                        'status_label' => $rb['status'] === 'approved' ? 'Disetujui' : ($rb['status'] === 'rejected' ? 'Ditolak' : 'Menunggu Persetujuan'),
-                        'date'         => $rb['booking_date'] . ' (' . substr($rb['start_time'], 0, 5) . ' - ' . substr($rb['end_time'], 0, 5) . ')',
-                        'admin_note'   => $rb['admin_note'] ?: 'Permohonan telah terdata dalam sistem kalender.',
-                        'created_at'   => $rb['created_at'],
-                    ];
-                }
+        // 4. Cek Peminjaman Ruangan (RB-...)
+        if ($db->tableExists('room_bookings')) {
+            $rb = $db->table('room_bookings')->where('ticket_code', $code)->get()->getRowArray();
+            if ($rb) {
+                return [
+                    'type'         => 'room_booking',
+                    'type_label'   => 'Peminjaman Ruang / Fasilitas',
+                    'ticket_code'  => $rb['ticket_code'],
+                    'title'        => $isStaff ? $rb['event_name'] : 'Kegiatan Civitas Akademika',
+                    'reporter'     => $this->maskName($rb['booker_name']),
+                    'status'       => $rb['status'],
+                    'status_label' => $rb['status'] === 'approved' ? 'Disetujui' : ($rb['status'] === 'rejected' ? 'Ditolak' : 'Menunggu Persetujuan'),
+                    'date'         => $rb['booking_date'] . ' (' . substr($rb['start_time'], 0, 5) . ' - ' . substr($rb['end_time'], 0, 5) . ')',
+                    'admin_note'   => $isStaff ? ($rb['admin_note'] ?: '-') : 'Permohonan telah terdata dalam sistem kalender.',
+                    'created_at'   => $rb['created_at'],
+                ];
             }
+        }
 
-            // 5. Cek Peminjaman Kendaraan (VB-...)
-            if ($db->tableExists('vehicle_bookings')) {
-                $numericId = (int) preg_replace('/[^0-9]/', '', $code);
-                $vb = $db->table('vehicle_bookings')->where('id', $numericId)->get()->getRowArray();
-                if ($vb) {
-                    return [
-                        'type'         => 'vehicle_booking',
-                        'type_label'   => 'Peminjaman Armada Kendaraan Dinas',
-                        'ticket_code'  => 'VB-' . str_pad($vb['id'], 6, '0', STR_PAD_LEFT),
-                        'title'        => 'Tujuan: ' . $vb['destination'],
-                        'reporter'     => $this->maskName($vb['booker_name']),
-                        'status'       => $vb['status'],
-                        'status_label' => $vb['status'] === 'approved' ? 'Disetujui' : ($vb['status'] === 'rejected' ? 'Ditolak' : 'Menunggu Persetujuan'),
-                        'date'         => $vb['booking_date'] . ' (' . substr($vb['start_time'], 0, 5) . ' - ' . substr($vb['end_time'], 0, 5) . ')',
-                        'admin_note'   => $vb['admin_note'] ?: 'Permohonan armada dinas diproses Biro Sarpras.',
-                        'created_at'   => $vb['created_at'],
-                    ];
-                }
+        // 5. Cek Peminjaman Kendaraan (VB-...)
+        if ($db->tableExists('vehicle_bookings')) {
+            $vb = $db->table('vehicle_bookings')->where('ticket_code', $code)->get()->getRowArray();
+            if ($vb) {
+                return [
+                    'type'         => 'vehicle_booking',
+                    'type_label'   => 'Peminjaman Armada Kendaraan Dinas',
+                    'ticket_code'  => $vb['ticket_code'],
+                    'title'        => $isStaff ? ('Tujuan: ' . $vb['destination']) : 'Perjalanan Dinas Kampus',
+                    'reporter'     => $this->maskName($vb['booker_name']),
+                    'status'       => $vb['status'],
+                    'status_label' => $vb['status'] === 'approved' ? 'Disetujui' : ($vb['status'] === 'rejected' ? 'Ditolak' : 'Menunggu Persetujuan'),
+                    'date'         => $vb['booking_date'] . ' (' . substr($vb['start_time'], 0, 5) . ' - ' . substr($vb['end_time'], 0, 5) . ')',
+                    'admin_note'   => $isStaff ? ($vb['admin_note'] ?: '-') : 'Permohonan armada dinas diproses Biro Sarpras.',
+                    'created_at'   => $vb['created_at'],
+                ];
             }
-        } catch (\Throwable $e) {}
-
-        return null;
+        }
+    } catch (\Throwable $e) {
+        log_message('error', '[Frontend::searchTicketByCode] ' . $e->getMessage());
     }
 
-    /**
-     * Halaman Resmi Kebijakan Privasi & Perlindungan Data Pribadi (UU PDP No. 27/2022)
-     */
+    return null;
+}
+
     public function privacyPolicy()
     {
         return view('privacy_policy');
@@ -557,8 +559,10 @@ class Frontend extends BaseController
                 $dataInsert['user_id'] = $userId;
             }
 
+            $ticketCode = 'RB-' . date('Ym') . '-' . strtoupper(bin2hex(random_bytes(3)));
+            $dataInsert['ticket_code'] = $ticketCode;
             $db->table('room_bookings')->insert($dataInsert);
-            return redirect()->back()->with('message', 'Form Peminjaman Ruangan berhasil dikirim atas nama ' . $bookerName . ' dan menunggu persetujuan!');
+            return redirect()->back()->with('message', 'Form Peminjaman Ruangan berhasil dikirim! Kode Tiket: <strong>' . $ticketCode . '</strong> (menunggu persetujuan).');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan peminjaman ruangan: ' . $e->getMessage());
         }
@@ -666,8 +670,10 @@ class Frontend extends BaseController
                 $dataInsert['user_id'] = $userId;
             }
 
+            $ticketCode = 'VB-' . date('Ym') . '-' . strtoupper(bin2hex(random_bytes(3)));
+            $dataInsert['ticket_code'] = $ticketCode;
             $db->table('vehicle_bookings')->insert($dataInsert);
-            return redirect()->back()->with('message', 'Form Peminjaman Kendaraan berhasil dikirim atas nama ' . $bookerName . ' dan menunggu persetujuan!');
+            return redirect()->back()->with('message', 'Form Peminjaman Kendaraan berhasil dikirim! Kode Tiket: <strong>' . $ticketCode . '</strong> (menunggu persetujuan).');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan peminjaman kendaraan: ' . $e->getMessage());
         }
@@ -737,8 +743,10 @@ class Frontend extends BaseController
                 $dataInsert['user_id'] = $userId;
             }
 
+            $ticketCode = 'MNT-' . date('Ym') . '-' . strtoupper(bin2hex(random_bytes(3)));
+            $dataInsert['ticket_code'] = $ticketCode;
             $db->table('maintenance_requests')->insert($dataInsert);
-            return redirect()->back()->with('message', 'Request Maintenance berhasil dikirim atas nama ' . $requesterName . '!');
+            return redirect()->back()->with('message', 'Request Maintenance berhasil dikirim atas nama ' . $requesterName . '! Kode Tiket Anda: <strong>' . $ticketCode . '</strong>.');
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal mengirim request maintenance: ' . $e->getMessage());
         }
@@ -887,6 +895,7 @@ class Frontend extends BaseController
         try {
             $db = \Config\Database::connect();
             $this->ensureUserIdColumns($db);
+            $isStaff = !empty(session()->get('isLoggedIn'));
 
             // 1. Peminjaman Ruangan
             if ($db->tableExists('room_bookings')) {
@@ -896,8 +905,7 @@ class Frontend extends BaseController
                     ->whereIn('room_bookings.status', ['approved', 'pending'])
                     ->orderBy('room_bookings.booking_date', 'ASC')
                     ->orderBy('room_bookings.start_time', 'ASC')
-                    ->get()
-                    ->getResultArray();
+                    ->get()->getResultArray();
 
                 foreach ($rooms as $rb) {
                     $date = $rb['booking_date'];
@@ -906,32 +914,47 @@ class Frontend extends BaseController
                     $startIso = $date . 'T' . (strlen($startTime) == 5 ? $startTime . ':00' : $startTime);
                     $endIso   = $date . 'T' . (strlen($endTime) == 5 ? $endTime . ':00' : $endTime);
                     $isApproved = ($rb['status'] === 'approved');
-                    $roomName = $rb['room_name'] ?: 'Ruang #' . $rb['room_id'];
+                    $roomName = $rb['room_name'] ?: ('Ruang #' . $rb['room_id']);
+
+                    $extended = [
+                        'category'     => 'room',
+                        'categoryName' => 'Peminjaman Ruangan',
+                        'resourceName' => $roomName,
+                        'date'         => $date,
+                        'time'         => $startTime . ' - ' . $endTime . ' WIB',
+                        'status'       => $rb['status'],
+                        'statusLabel'  => $isApproved ? 'Disetujui (Approved)' : 'Menunggu Konfirmasi (Pending)',
+                    ];
+
+                    if ($isStaff) {
+                        $title = '🏢 ' . $roomName . ' - ' . ($rb['event_name'] ?: 'Peminjaman');
+                        $extended['eventTitle'] = $rb['event_name'];
+                        $extended['bookerName'] = $rb['booker_name'];
+                        $extended['department'] = $rb['department'];
+                        $extended['setup']      = $rb['setup'] ?: 'Standar';
+                        $extended['material']   = $rb['material_needed'] ?: '-';
+                        $extended['special']    = $rb['special_request'] ?: '-';
+                        $extended['adminNote']  = $rb['admin_note'] ?? '';
+                    } else {
+                        $title = '🏢 ' . $roomName . ' - ' . ($isApproved ? 'Terpakai (Booked)' : 'Reservasi Diajukan');
+                        $extended['eventTitle'] = $isApproved ? 'Ruangan Sedang Digunakan' : 'Pengajuan Reservasi Ruangan';
+                        $extended['bookerName'] = 'Civitas UPITRA';
+                        $extended['department'] = 'Universitas Pignatelli Triputra';
+                        $extended['setup']      = 'Private';
+                        $extended['material']   = '-';
+                        $extended['special']    = '-';
+                        $extended['adminNote']  = '';
+                    }
 
                     $events[] = [
                         'id'              => 'room_' . $rb['id'],
-                        'title'           => '🏢 ' . $roomName . ' - ' . ($rb['event_name'] ?: 'Peminjaman'),
+                        'title'           => $title,
                         'start'           => $startIso,
                         'end'             => $endIso,
                         'backgroundColor' => $isApproved ? '#059669' : '#d97706',
                         'borderColor'     => $isApproved ? '#047857' : '#b45309',
                         'textColor'       => '#ffffff',
-                        'extendedProps'   => [
-                            'category'     => 'room',
-                            'categoryName' => 'Peminjaman Ruangan',
-                            'resourceName' => $roomName,
-                            'eventTitle'   => $rb['event_name'],
-                            'bookerName'   => $rb['booker_name'],
-                            'department'   => $rb['department'],
-                            'date'         => $date,
-                            'time'         => $startTime . ' - ' . $endTime . ' WIB',
-                            'setup'        => $rb['setup'] ?: 'Standar',
-                            'material'     => $rb['material_needed'] ?: '-',
-                            'special'      => $rb['special_request'] ?: '-',
-                            'status'       => $rb['status'],
-                            'statusLabel'  => $isApproved ? 'Disetujui (Approved)' : 'Menunggu Konfirmasi (Pending)',
-                            'adminNote'    => $rb['admin_note'] ?? '',
-                        ]
+                        'extendedProps'   => $extended,
                     ];
                 }
             }
@@ -944,8 +967,7 @@ class Frontend extends BaseController
                     ->whereIn('vehicle_bookings.status', ['approved', 'pending'])
                     ->orderBy('vehicle_bookings.booking_date', 'ASC')
                     ->orderBy('vehicle_bookings.start_time', 'ASC')
-                    ->get()
-                    ->getResultArray();
+                    ->get()->getResultArray();
 
                 foreach ($vehicles as $vb) {
                     $date = $vb['booking_date'];
@@ -954,42 +976,56 @@ class Frontend extends BaseController
                     $startIso = $date . 'T' . (strlen($startTime) == 5 ? $startTime . ':00' : $startTime);
                     $endIso   = $date . 'T' . (strlen($endTime) == 5 ? $endTime . ':00' : $endTime);
                     $isApproved = ($vb['status'] === 'approved');
-                    $vehicleName = $vb['vehicle_name'] ?: 'Kendaraan #' . $vb['vehicle_id'];
+                    $vehicleName = $vb['vehicle_name'] ?: ('Kendaraan #' . $vb['vehicle_id']);
+
+                    $extendedVb = [
+                        'category'     => 'vehicle',
+                        'categoryName' => 'Peminjaman Kendaraan Dinas',
+                        'resourceName' => $vehicleName,
+                        'date'         => $date,
+                        'time'         => $startTime . ' - ' . $endTime . ' WIB',
+                        'status'       => $vb['status'],
+                        'statusLabel'  => $isApproved ? 'Disetujui (Approved)' : 'Menunggu Konfirmasi (Pending)',
+                    ];
+
+                    if ($isStaff) {
+                        $vTitle = '🚗 ' . $vehicleName . ' - ' . ($vb['destination'] ?: 'Dinas');
+                        $extendedVb['resourceName'] = $vehicleName . ($vb['plate_number'] ? ' (' . $vb['plate_number'] . ')' : '');
+                        $extendedVb['eventTitle']   = $vb['destination'];
+                        $extendedVb['bookerName']   = $vb['booker_name'];
+                        $extendedVb['department']   = $vb['department'];
+                        $extendedVb['driver']       = $vb['driver_name'] ?: 'Tidak ada supir';
+                        $extendedVb['description']  = $vb['description'] ?: '-';
+                        $extendedVb['adminNote']    = $vb['admin_note'] ?? '';
+                    } else {
+                        $vTitle = '🚗 ' . $vehicleName . ' - ' . ($isApproved ? 'Operasional Dinas' : 'Reservasi Diajukan');
+                        $extendedVb['eventTitle']   = 'Perjalanan Dinas Kampus';
+                        $extendedVb['bookerName']   = 'Staf / Dosen UPITRA';
+                        $extendedVb['department']   = 'Universitas Pignatelli Triputra';
+                        $extendedVb['driver']       = 'Ditugaskan';
+                        $extendedVb['description']  = '-';
+                        $extendedVb['adminNote']    = '';
+                    }
 
                     $events[] = [
                         'id'              => 'vehicle_' . $vb['id'],
-                        'title'           => '🚗 ' . $vehicleName . ' - ' . ($vb['destination'] ?: 'Dinas'),
+                        'title'           => $vTitle,
                         'start'           => $startIso,
                         'end'             => $endIso,
                         'backgroundColor' => $isApproved ? '#0284c7' : '#ea580c',
                         'borderColor'     => $isApproved ? '#0369a1' : '#c2410c',
                         'textColor'       => '#ffffff',
-                        'extendedProps'   => [
-                            'category'     => 'vehicle',
-                            'categoryName' => 'Peminjaman Kendaraan Dinas',
-                            'resourceName' => $vehicleName . ($vb['plate_number'] ? ' (' . $vb['plate_number'] . ')' : ''),
-                            'eventTitle'   => $vb['destination'],
-                            'bookerName'   => $vb['booker_name'],
-                            'department'   => $vb['department'],
-                            'date'         => $date,
-                            'time'         => $startTime . ' - ' . $endTime . ' WIB',
-                            'driver'       => $vb['driver_name'] ?: 'Tidak ada supir',
-                            'description'  => $vb['description'] ?: '-',
-                            'status'       => $vb['status'],
-                            'statusLabel'  => $isApproved ? 'Disetujui (Approved)' : 'Menunggu Konfirmasi (Pending)',
-                            'adminNote'    => $vb['admin_note'] ?? '',
-                        ]
+                        'extendedProps'   => $extendedVb,
                     ];
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            log_message('error', '[Frontend::calendarEvents] ' . $e->getMessage());
+        }
 
         return $this->response->setJSON($events);
     }
 
-    /**
-     * Memeriksa bentrok jadwal peminjaman ruangan pada tanggal dan rentang jam yang sama
-     */
     private function checkRoomConflict($db, $roomId, $bookingDate, $startTime, $endTime, $excludeId = null)
     {
         $startTime = substr($startTime, 0, 5);
@@ -1100,6 +1136,12 @@ class Frontend extends BaseController
         if ($db->tableExists('visitors')) {
             if (!$db->fieldExists('pass_code', 'visitors')) {
                 try { $db->query("ALTER TABLE `visitors` ADD COLUMN `pass_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
+            }
+        }
+        // Pastikan kolom ticket_code di maintenance_requests, room_bookings, vehicle_bookings
+        foreach (['maintenance_requests', 'room_bookings', 'vehicle_bookings'] as $tbl) {
+            if ($db->tableExists($tbl) && !$db->fieldExists('ticket_code', $tbl)) {
+                try { $db->query("ALTER TABLE `{$tbl}` ADD COLUMN `ticket_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
             }
         }
 

@@ -24,16 +24,10 @@
                     </div>
                 <?php endif; ?>
 
-                <?php if (session()->getFlashdata('otp_notice')): ?>
-                    <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-shield-check fs-4 text-primary"></i>
-                            <div>
-                                <small class="text-muted d-block fw-semibold">Kode OTP Verifikasi Keamanan Anda:</small>
-                                <strong class="fs-4 font-monospace text-primary letter-spacing-2"><?= session()->getFlashdata('otp_notice') ?></strong>
-                                <small class="text-muted d-block" style="font-size: 0.72rem;">(Berlaku 5 menit untuk sesi autentikasi ini)</small>
-                            </div>
-                        </div>
+                <?php if (session()->getFlashdata('message')): ?>
+                    <div class="alert alert-success d-flex align-items-center mb-4 border-0 shadow-sm" role="alert" style="border-radius: 12px;">
+                        <i class="bi bi-shield-check fs-5 me-2.5 flex-shrink-0 text-success"></i>
+                        <div class="small"><?= session()->getFlashdata('message') ?></div>
                     </div>
                 <?php endif; ?>
 

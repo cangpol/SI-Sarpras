@@ -113,34 +113,7 @@ class Auth extends BaseController
             $user = null;
         }
 
-        // Fallback darurat jika database belum siap / import awal
-        $saUsernames = ['superadmin', 'kenedy.natanael@upitra.ac.id', 'biro-it@upitra.ac.id', 'kenedy.natanael', 'biro-it'];
-        if (!$user && (in_array(strtolower($username), $saUsernames) || $username === 'admin')) {
-            if (in_array(strtolower($username), $saUsernames) && $password === 'ITBiro#Upitra2026!') {
-                $email = str_contains($username, '@') ? strtolower($username) : ($username === 'kenedy.natanael' ? 'kenedy.natanael@upitra.ac.id' : 'biro-it@upitra.ac.id');
-                $name = str_contains($username, 'kenedy') ? 'Kenedy Natanael (Biro IT)' : 'Tim Biro IT';
-                $user = [
-                    'id'         => 1,
-                    'username'   => str_contains($username, '@') ? explode('@', $username)[0] : $username,
-                    'name'       => $name,
-                    'email'      => $email,
-                    'role'       => 'super_admin',
-                    'department' => 'Biro IT',
-                    'password'   => password_hash('ITBiro#Upitra2026!', PASSWORD_DEFAULT),
-                ];
-            } elseif ($username === 'admin' && $password === 'AdminSarpras#2026!') {
-                $user = [
-                    'id'         => 2,
-                    'username'   => 'admin',
-                    'name'       => 'Biro Sarana dan Prasarana',
-                    'email'      => 'sarpras@upitra.ac.id',
-                    'role'       => 'admin',
-                    'department' => 'Sarpras',
-                    'password'   => password_hash('AdminSarpras#2026!', PASSWORD_DEFAULT),
-                ];
-            }
-        }
-
+        // Kredensial fallback hardcoded telah dihapus demi keamanan sistem.
         if (!$user) {
             $this->logAuthEvent(null, $username, 'login_admin_attempt', 'local_password', 'failed', 'Akun tidak ditemukan');
             return redirect()->back()->withInput()->with('error', 'Kredensial login admin tidak valid.');
@@ -190,7 +163,9 @@ class Auth extends BaseController
                 'two_factor_code'    => $otpCode,
                 'two_factor_expires' => date('Y-m-d H:i:s', $expires),
             ]);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            log_message('error', '[Auth::adminLoginSubmit 2fa_update] ' . $e->getMessage());
+        }
 
         session()->set('admin_2fa_pending', [
             'user_id'    => $user['id'],
@@ -205,7 +180,7 @@ class Auth extends BaseController
 
         $this->logAuthEvent($user['id'], $user['email'] ?? $username, '2fa_challenge_generated', 'local_2fa', 'success', 'Kode 2FA diterbitkan untuk admin');
 
-        return redirect()->to('/login/admin/verify-2fa')->with('otp_notice', $otpCode);
+        return redirect()->to('/login/admin/verify-2fa')->with('message', 'Kode OTP 2FA telah dikirimkan ke email/kontak admin terdaftar.');
     }
 
     /**
@@ -246,7 +221,8 @@ class Auth extends BaseController
             return redirect()->back()->with('error', 'Kode verifikasi 2FA tidak sesuai. Periksa kembali 6 digit kode yang dikirimkan.');
         }
 
-        // 2FA Sukses -> Set Sesi Penuh CodeIgniter
+        // 2FA Sukses -> Set Sesi Penuh CodeIgniter (Regenerasi ID Sesi)
+        session()->regenerate(true);
         session()->set([
             'isLoggedIn'   => true,
             'user_id'      => $pending['user_id'],
@@ -552,7 +528,8 @@ class Auth extends BaseController
             return redirect()->to('/login')->with('error', 'Gagal memproses data akun pengguna.');
         }
 
-        // Set Sesi Login CodeIgniter
+        // Set Sesi Login CodeIgniter (Regenerasi ID Sesi)
+        session()->regenerate(true);
         session()->set([
             'isLoggedIn'   => true,
             'user_id'      => $user['id'],
@@ -1646,6 +1623,10 @@ class Auth extends BaseController
                 return redirect()->to('/dashboard#users')->with('error', 'Email "' . $email . '" sudah terdaftar pada akun lain.');
             }
 
+            if (!empty($password) && strlen($password) < 12) {
+                return redirect()->to('/dashboard#users')->with('error', 'Password pengguna minimal terdiri dari 12 karakter.');
+            }
+
             $insertData = [
                 'username'        => $username,
                 'name'            => $name,
@@ -1761,6 +1742,9 @@ class Auth extends BaseController
             }
 
             if (!empty($password)) {
+                if (strlen($password) < 12) {
+                    return redirect()->to('/dashboard#users')->with('error', 'Password pengguna minimal terdiri dari 12 karakter.');
+                }
                 $data['password'] = password_hash($password, PASSWORD_DEFAULT);
             }
 
@@ -2098,8 +2082,8 @@ class Auth extends BaseController
             if ($pw !== $pwConf) {
                 return redirect()->to('/dashboard#biodata')->with('error', 'Konfirmasi password baru tidak sesuai.');
             }
-            if (strlen($pw) < 6) {
-                return redirect()->to('/dashboard#biodata')->with('error', 'Password baru minimal terdiri dari 6 karakter.');
+            if (strlen($pw) < 12) {
+                return redirect()->to('/dashboard#biodata')->with('error', 'Password baru minimal terdiri dari 12 karakter untuk keamanan.');
             }
         }
 
@@ -2371,6 +2355,7 @@ class Auth extends BaseController
             }
 
             $db->table('room_bookings')->insert([
+                'ticket_code'     => 'RB-' . date('Ym') . '-' . strtoupper(bin2hex(random_bytes(3))),
                 'user_id'         => session()->get('user_id'),
                 'room_id'         => $roomId,
                 'booking_date'    => $bookingDate,
@@ -2517,6 +2502,7 @@ class Auth extends BaseController
             }
 
             $db->table('vehicle_bookings')->insert([
+                'ticket_code'  => 'VB-' . date('Ym') . '-' . strtoupper(bin2hex(random_bytes(3))),
                 'user_id'      => session()->get('user_id'),
                 'vehicle_id'   => $vehicleId,
                 'booking_date' => $bookingDate,
@@ -2648,6 +2634,7 @@ class Auth extends BaseController
         try {
             $db = \Config\Database::connect();
             $db->table('maintenance_requests')->insert([
+                'ticket_code'    => 'MNT-' . date('Ym') . '-' . strtoupper(bin2hex(random_bytes(3))),
                 'user_id'        => session()->get('user_id'),
                 'requester_name' => $requesterName,
                 'department'     => $department,
@@ -3052,6 +3039,9 @@ class Auth extends BaseController
         if ($db->tableExists('visitors')) {
             if (!$db->fieldExists('pass_code', 'visitors')) {
                 try { $db->query("ALTER TABLE `visitors` ADD COLUMN `pass_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
+            try { $db->query("ALTER TABLE `maintenance_requests` ADD COLUMN `ticket_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
+            try { $db->query("ALTER TABLE `room_bookings` ADD COLUMN `ticket_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
+            try { $db->query("ALTER TABLE `vehicle_bookings` ADD COLUMN `ticket_code` VARCHAR(50) NULL AFTER `id`"); } catch (\Throwable $e) {}
             }
         }
 

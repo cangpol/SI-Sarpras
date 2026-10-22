@@ -26,7 +26,9 @@
 # Private secrets
 /app/Config/microsoft_secret.php
 
-# Database backups (keep only base sarpras_db.sql schema)
+# Database Dumps & Backups
+/sarpras_db.sql
+*.sql
 *.sql.gz
 *.sql.bak
 

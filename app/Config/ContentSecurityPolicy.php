@@ -8,10 +8,6 @@ use CodeIgniter\Config\BaseConfig;
  * Stores the default settings for the ContentSecurityPolicy, if you
  * choose to use it. The values here will be read in and set as defaults
  * for the site. If needed, they can be overridden on a page-by-page basis.
- *
- * Suggested reference for explanations:
- *
- * @see https://www.html5rocks.com/en/tutorials/security/content-security-policy/
  */
 class ContentSecurityPolicy extends BaseConfig
 {
@@ -20,9 +16,9 @@ class ContentSecurityPolicy extends BaseConfig
     // -------------------------------------------------------------------------
 
     /**
-     * Default CSP report context
+     * Default CSP report context (Set true initially to avoid breaking UI while testing)
      */
-    public bool $reportOnly = false;
+    public bool $reportOnly = true;
 
     /**
      * Specifies a URL where a browser will send reports
@@ -31,15 +27,12 @@ class ContentSecurityPolicy extends BaseConfig
     public ?string $reportURI = null;
 
     /**
-     * Instructs user agents to rewrite URL schemes, changing
-     * HTTP to HTTPS. This directive is for websites with
-     * large numbers of old URLs that need to be rewritten.
+     * Instructs user agents to rewrite URL schemes, changing HTTP to HTTPS.
      */
     public bool $upgradeInsecureRequests = false;
 
     // -------------------------------------------------------------------------
     // Sources allowed
-    // NOTE: once you set a policy to 'none', it cannot be further restricted
     // -------------------------------------------------------------------------
 
     /**
@@ -47,33 +40,31 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string|null
      */
-    public $defaultSrc;
+    public $defaultSrc = 'self';
 
     /**
      * Lists allowed scripts' URLs.
      *
      * @var list<string>|string
      */
-    public $scriptSrc = 'self';
+    public $scriptSrc = ['self', 'https://cdn.jsdelivr.net', 'unsafe-inline'];
 
     /**
      * Lists allowed stylesheets' URLs.
      *
      * @var list<string>|string
      */
-    public $styleSrc = 'self';
+    public $styleSrc = ['self', 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com', 'unsafe-inline'];
 
     /**
      * Defines the origins from which images can be loaded.
      *
      * @var list<string>|string
      */
-    public $imageSrc = 'self';
+    public $imageSrc = ['self', 'data:', 'https:'];
 
     /**
      * Restricts the URLs that can appear in a page's `<base>` element.
-     *
-     * Will default to self if not overridden
      *
      * @var list<string>|string|null
      */
@@ -87,8 +78,7 @@ class ContentSecurityPolicy extends BaseConfig
     public $childSrc = 'self';
 
     /**
-     * Limits the origins that you can connect to (via XHR,
-     * WebSockets, and EventSource).
+     * Limits the origins that you can connect to (via XHR, WebSockets, and EventSource).
      *
      * @var list<string>|string
      */
@@ -99,7 +89,7 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public $fontSrc;
+    public $fontSrc = ['self', 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net'];
 
     /**
      * Lists valid endpoints for submission from `<form>` tags.
@@ -110,17 +100,13 @@ class ContentSecurityPolicy extends BaseConfig
 
     /**
      * Specifies the sources that can embed the current page.
-     * This directive applies to `<frame>`, `<iframe>`, `<embed>`,
-     * and `<applet>` tags. This directive can't be used in
-     * `<meta>` tags and applies only to non-HTML resources.
      *
      * @var list<string>|string|null
      */
     public $frameAncestors;
 
     /**
-     * The frame-src directive restricts the URLs which may
-     * be loaded into nested browsing contexts.
+     * The frame-src directive restricts the URLs which may be loaded.
      *
      * @var list<string>|string|null
      */
