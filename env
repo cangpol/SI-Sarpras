@@ -67,3 +67,14 @@
 #--------------------------------------------------------------------
 
 # logger.threshold = 4
+
+
+#--------------------------------------------------------------------
+# MICROSOFT 365 SSO (ENTRA ID)
+#--------------------------------------------------------------------
+
+# MICROSOFT_SSO_ENABLED = true
+# MICROSOFT_CLIENT_ID = your_azure_client_id_here
+# MICROSOFT_CLIENT_SECRET = your_azure_client_secret_here
+# MICROSOFT_TENANT_ID = your_azure_tenant_id_here
+# MICROSOFT_REDIRECT_URI = https://sarpras.upitra.ac.id/auth/microsoft/callback

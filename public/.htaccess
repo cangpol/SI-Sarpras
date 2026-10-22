@@ -58,3 +58,11 @@ ServerSignature Off
 	Header set X-XSS-Protection "1; mode=block"
 	Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
+
+
+# ----------------------------------------------------------------------
+# Block Sensitive Files (.env, git, etc.)
+# ----------------------------------------------------------------------
+<FilesMatch "^\.env|^\.git">
+	Require all denied
+</FilesMatch>

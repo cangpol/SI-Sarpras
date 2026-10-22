@@ -14,9 +14,20 @@
 !/writable/uploads/index.html
 !/writable/uploads/.gitkeep
 
+# Environment & Secrets
+.env
+.env.*
+.env.local
+.env.development
+.env.testing
+.env.production
+!.env.example
+
 # Private secrets
 /app/Config/microsoft_secret.php
 
-.vscode/
-.vscode/
+# Database backups (keep only base sarpras_db.sql schema)
+*.sql.gz
+*.sql.bak
 
+.vscode/
