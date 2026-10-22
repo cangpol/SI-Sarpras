@@ -2215,7 +2215,18 @@ body.modal-open .table-responsive-scroll {
                                             <td>#<?= esc($u['id']) ?></td>
                                             <td><strong><?= esc($u['username']) ?></strong></td>
                                             <td><?= esc($u['name']) ?></td>
-                                            <td><?= esc($u['email'] ?? '-') ?></td>
+                                            <td>
+                                                <div class="fw-semibold text-dark"><?= esc($u['email'] ?? '-') ?></div>
+                                                <?php if (!empty($u['microsoft_id'])): ?>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5" style="font-size: 0.68rem;" title="ID: <?= esc($u['microsoft_id']) ?>">
+                                                        <i class="bi bi-microsoft me-1"></i>Terhubung SSO
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-light text-muted border px-1.5 py-0.5" style="font-size: 0.68rem;">
+                                                        <i class="bi bi-clock me-1"></i>Siap Login SSO
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                 <?php if ($u['role'] === 'super_admin'): ?>
                                                     <span class="badge bg-danger">Super Admin (Biro IT)</span>
@@ -2305,17 +2316,17 @@ body.modal-open .table-responsive-scroll {
                                                         <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                                         <div class="modal-body">
                                                             <div class="mb-3">
-                                                                <label class="form-label fw-semibold">Username</label>
-                                                                <input type="text" name="username" class="form-control" value="<?= esc($u['username']) ?>" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="form-label fw-semibold">Nama Lengkap</label>
+                                                                <label class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
                                                                 <input type="text" name="name" class="form-control" value="<?= esc($u['name']) ?>" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label fw-semibold">Email</label>
-                                                                <input type="email" name="email" class="form-control" value="<?= esc($u['email'] ?? '') ?>" placeholder="nama@student.upitra.ac.id / nama@upitra.ac.id">
-                                                                <small class="text-muted" style="font-size: 0.72rem;">Format: @student.upitra.ac.id (Mahasiswa) atau @upitra.ac.id (Dosen/Staff)</small>
+                                                                <label class="form-label fw-semibold">Email Kampus Microsoft 365 <span class="text-danger">*</span></label>
+                                                                <input type="email" name="email" class="form-control" value="<?= esc($u['email'] ?? '') ?>" placeholder="nama@student.upitra.ac.id / nama@upitra.ac.id" required>
+                                                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Email yang digunakan untuk masuk via SSO Microsoft 365.</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Username</label>
+                                                                <input type="text" name="username" class="form-control" value="<?= esc($u['username']) ?>" required>
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-6 mb-3">
@@ -3830,18 +3841,27 @@ body.modal-open .table-responsive-scroll {
             <form method="post" action="/dashboard/users/create">
                 <?= csrf_field() ?>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Username</label>
-                        <input type="text" name="username" class="form-control" placeholder="username_login" required>
+                    <!-- Alert Integrasi SSO Microsoft 365 -->
+                    <div class="p-2.5 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 text-primary small mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-microsoft fs-5 flex-shrink-0"></i>
+                            <div>
+                                <strong>Sinkronisasi SSO Microsoft 365:</strong> Masukkan email resmi civitas. Akun akan otomatis terhubung saat civitas masuk menggunakan tombol <em>Masuk dengan Microsoft 365</em>.
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Nama Lengkap</label>
-                        <input type="text" name="name" class="form-control" placeholder="Nama Lengkap User" required>
+                        <label class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" placeholder="Nama Lengkap Pengguna" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="nama@student.upitra.ac.id (Mhs) / nama@upitra.ac.id (Dosen)">
-                        <small class="text-muted" style="font-size: 0.75rem;">Format resmi: Mahasiswa (nama@student.upitra.ac.id), Dosen / Staff (nama@upitra.ac.id)</small>
+                        <label class="form-label fw-semibold">Email Kampus Microsoft 365 <span class="text-danger">*</span></label>
+                        <input type="email" name="email" class="form-control" placeholder="nama@student.upitra.ac.id / nama@upitra.ac.id" required>
+                        <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Mahasiswa: @student.upitra.ac.id | Dosen/Staff/Admin: @upitra.ac.id</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Username <small class="text-muted fw-normal">(Opsional - otomatis dari email)</small></label>
+                        <input type="text" name="username" class="form-control" placeholder="username_login (opsional)">
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3">

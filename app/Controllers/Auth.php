@@ -439,10 +439,12 @@ class Auth extends BaseController
 
             $user = null;
             if ($db->tableExists('users')) {
+                $emailPrefix = explode('@', $email)[0];
                 $user = $db->table('users')
                     ->groupStart()
                         ->where('email', $email)
                         ->orWhere('username', $email)
+                        ->orWhere('username', $emailPrefix)
                         ->orWhere('microsoft_id', $msId)
                     ->groupEnd()
                     ->get()
@@ -461,6 +463,19 @@ class Auth extends BaseController
                     // Sinkronisasi microsoft_id jika belum terhubung
                     if (empty($user['microsoft_id']) && !empty($msId)) {
                         $updateUserFields['microsoft_id'] = $msId;
+                        $user['microsoft_id'] = $msId;
+                    }
+
+                    // Sinkronisasi email jika sebelumnya kosong
+                    if (empty($user['email']) && !empty($email)) {
+                        $updateUserFields['email'] = $email;
+                        $user['email'] = $email;
+                    }
+
+                    // Sinkronisasi nama jika sebelumnya kosong
+                    if (empty($user['name']) && !empty($displayName)) {
+                        $updateUserFields['name'] = $displayName;
+                        $user['name'] = $displayName;
                     }
 
                     // Proteksi Anti-Lockout Hak Akses:
@@ -471,6 +486,12 @@ class Auth extends BaseController
                     } elseif ($targetRole === 'admin' && ($user['role'] ?? '') === 'user') {
                         $updateUserFields['role'] = 'admin';
                         $user['role'] = 'admin';
+                    }
+
+                    // Sinkronisasi departemen jika belum terisi
+                    if (empty($user['department']) && !empty($department)) {
+                        $updateUserFields['department'] = $department;
+                        $user['department'] = $department;
                     }
 
                     if (!empty($updateUserFields)) {
@@ -861,7 +882,7 @@ class Auth extends BaseController
 
                 if ($db->tableExists('users')) {
                     $usersQuery = $db->table('users')
-                        ->select('id, username, name, email, role, department, phone, identity_number, is_suspended, suspend_reason, created_at');
+                        ->select('id, username, name, email, microsoft_id, role, department, phone, identity_number, is_suspended, suspend_reason, created_at');
                     if ($role === 'admin') {
                         // Admin Sarpras hanya boleh mengelola dan melihat akun level 'user' (Dosen & Mahasiswa)
                         $usersQuery->where('role', 'user');
@@ -1562,17 +1583,28 @@ class Auth extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $username   = trim((string) $this->request->getPost('username'));
-        $name       = trim((string) $this->request->getPost('name'));
-        $email          = trim((string) $this->request->getPost('email'));
+        $username       = trim((string) $this->request->getPost('username'));
+        $name           = trim((string) $this->request->getPost('name'));
+        $email          = strtolower(trim((string) $this->request->getPost('email')));
         $userRole       = (string) $this->request->getPost('role');
         $department     = trim((string) $this->request->getPost('department'));
         $phone          = trim((string) $this->request->getPost('phone'));
         $identityNumber = trim((string) $this->request->getPost('identity_number'));
         $password       = (string) $this->request->getPost('password');
 
-        if (empty($username) || empty($name)) {
-            return redirect()->to('/dashboard#users')->with('error', 'Username dan Nama Lengkap wajib diisi.');
+        if (empty($name)) {
+            return redirect()->to('/dashboard#users')->with('error', 'Nama Lengkap pengguna wajib diisi.');
+        }
+
+        // Email wajib diisi dan valid untuk sinkronisasi SSO Microsoft 365
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->to('/dashboard#users')->with('error', 'Alamat Email Microsoft 365 yang valid (@upitra.ac.id atau @student.upitra.ac.id) wajib diisi agar akun dapat terhubung ke SSO.');
+        }
+
+        // Jika username kosong, buat otomatis dari prefix email
+        if (empty($username)) {
+            $emailPrefix = explode('@', $email)[0];
+            $username = preg_replace('/[^a-zA-Z0-9_\.]/', '', $emailPrefix) ?: 'user_' . substr(md5($email), 0, 6);
         }
 
         // Penentuan role berdasarkan level hak akses pembuat:
@@ -1585,14 +1617,33 @@ class Auth extends BaseController
             $finalRole = 'user';
         }
 
+        // Jika departemen belum diisi, otomatis tentukan default berdasarkan domain email
+        if (empty($department)) {
+            if (str_contains($email, '@student.upitra.ac.id')) {
+                $department = 'Mahasiswa UPITRA';
+            } elseif ($finalRole === 'admin') {
+                $department = 'Biro Sarana dan Prasarana';
+            } elseif ($finalRole === 'super_admin') {
+                $department = 'Biro IT';
+            } else {
+                $department = 'Dosen / Tenaga Kependidikan';
+            }
+        }
+
         try {
             $db = \Config\Database::connect();
             $this->ensureUserIdColumns($db);
             
             // Cek username kembar
-            $exist = $db->table('users')->where('username', $username)->countAllResults();
-            if ($exist > 0) {
-                return redirect()->to('/dashboard#users')->with('error', 'Username "' . $username . '" sudah digunakan.');
+            $existUser = $db->table('users')->where('username', $username)->countAllResults();
+            if ($existUser > 0) {
+                return redirect()->to('/dashboard#users')->with('error', 'Username "' . $username . '" sudah digunakan oleh akun lain. Silakan pilih username berbeda.');
+            }
+
+            // Cek email kembar
+            $existEmail = $db->table('users')->where('email', $email)->countAllResults();
+            if ($existEmail > 0) {
+                return redirect()->to('/dashboard#users')->with('error', 'Email "' . $email . '" sudah terdaftar pada akun lain.');
             }
 
             $insertData = [
@@ -1634,15 +1685,23 @@ class Auth extends BaseController
         $id             = (int) $this->request->getPost('id');
         $username       = trim((string) $this->request->getPost('username'));
         $name           = trim((string) $this->request->getPost('name'));
-        $email          = trim((string) $this->request->getPost('email'));
+        $email          = strtolower(trim((string) $this->request->getPost('email')));
         $userRole       = (string) $this->request->getPost('role');
         $department     = trim((string) $this->request->getPost('department'));
         $phone          = trim((string) $this->request->getPost('phone'));
         $identityNumber = trim((string) $this->request->getPost('identity_number'));
         $password       = (string) $this->request->getPost('password');
 
-        if (empty($id) || empty($username) || empty($name)) {
+        if (empty($id) || empty($name)) {
             return redirect()->to('/dashboard#users')->with('error', 'Data pengguna tidak lengkap.');
+        }
+
+        if (empty($username) && !empty($email)) {
+            $username = explode('@', $email)[0];
+        }
+
+        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->to('/dashboard#users')->with('error', 'Format email tidak valid.');
         }
 
         try {
@@ -1653,6 +1712,22 @@ class Auth extends BaseController
             $targetUser = $db->table('users')->where('id', $id)->get()->getRowArray();
             if (!$targetUser) {
                 return redirect()->to('/dashboard#users')->with('error', 'Data pengguna tidak ditemukan.');
+            }
+
+            // Validasi keunikan username terhadap akun lain
+            if (!empty($username)) {
+                $dupUser = $db->table('users')->where('username', $username)->where('id !=', $id)->countAllResults();
+                if ($dupUser > 0) {
+                    return redirect()->to('/dashboard#users')->with('error', 'Username "' . $username . '" sudah digunakan oleh akun lain.');
+                }
+            }
+
+            // Validasi keunikan email terhadap akun lain
+            if (!empty($email)) {
+                $dupEmail = $db->table('users')->where('email', $email)->where('id !=', $id)->countAllResults();
+                if ($dupEmail > 0) {
+                    return redirect()->to('/dashboard#users')->with('error', 'Email "' . $email . '" sudah digunakan oleh akun lain.');
+                }
             }
 
             // Validasi batasan hak akses:
